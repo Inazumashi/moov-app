@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+// 1. AJOUT DES IMPORTS
+import 'package:moovapp/features/profile/screens/faq_screen.dart';
+import 'package:moovapp/features/profile/screens/contact_us_screen.dart';
+import 'package:moovapp/features/profile/screens/terms_of_service_screen.dart';
+import 'package:moovapp/features/profile/screens/privacy_policy_screen.dart';
 
 class SupportScreen extends StatelessWidget {
   const SupportScreen({super.key});
@@ -30,7 +35,10 @@ class SupportScreen extends StatelessWidget {
                   title: const Text('FAQ (Questions fréquentes)'),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () {
-                    // TODO: Naviguer vers un futur écran FAQScreen
+                    // 2. MISE À JOUR DE LA NAVIGATION
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const FaqScreen(),
+                    ));
                   },
                 ),
                 ListTile(
@@ -38,7 +46,10 @@ class SupportScreen extends StatelessWidget {
                   title: const Text('Contactez-nous'),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () {
-                    // TODO: Logique pour ouvrir un client mail
+                    // 3. MISE À JOUR DE LA NAVIGATION
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const ContactUsScreen(),
+                    ));
                   },
                 ),
               ],
@@ -57,7 +68,10 @@ class SupportScreen extends StatelessWidget {
                   title: const Text("Conditions d'utilisation"),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () {
-                    // TODO: Ouvrir le lien des conditions
+                    // 4. MISE À JOUR DE LA NAVIGATION
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const TermsOfServiceScreen(),
+                    ));
                   },
                 ),
                 ListTile(
@@ -65,7 +79,10 @@ class SupportScreen extends StatelessWidget {
                   title: const Text('Politique de confidentialité'),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () {
-                    // TODO: Ouvrir le lien de la politique
+                    // 5. MISE À JOUR DE LA NAVIGATION
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const PrivacyPolicyScreen(),
+                    ));
                   },
                 ),
               ],
