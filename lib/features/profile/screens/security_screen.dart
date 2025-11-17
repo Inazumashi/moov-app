@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+// 1. AJOUT DE L'IMPORT
+import 'package:moovapp/features/profile/screens/change_password_screen.dart';
 
 // On utilise un StatefulWidget pour gérer l'état du Switch
 class SecurityScreen extends StatefulWidget {
@@ -37,7 +39,10 @@ class _SecurityScreenState extends State<SecurityScreen> {
                   title: Text('Changer le mot de passe'),
                   trailing: Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () {
-                    // TODO: Naviguer vers un futur écran ChangePasswordScreen
+                    // 2. MISE À JOUR DE LA NAVIGATION
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => ChangePasswordScreen(),
+                    ));
                   },
                 ),
               ],
@@ -60,6 +65,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
                     setState(() {
                       _twoFactorAuth = value;
                     });
+                    // TODO: Logique pour activer/désactiver le 2FA
                   },
                   activeColor: Theme.of(context).colorScheme.primary,
                 ),
@@ -67,33 +73,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
             ),
           ),
 
-          // --- Section Vérification ---
-          _buildSectionTitle('Vérification'),
-          Container(
-            color: Colors.white,
-            child: Column(
-              children: [
-                ListTile(
-                  leading: Icon(Icons.verified_user_outlined),
-                  title: Text("Vérification de l'identité"),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Non vérifié',
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                      SizedBox(width: 8),
-                      Icon(Icons.arrow_forward_ios, size: 16),
-                    ],
-                  ),
-                  onTap: () {
-                    // TODO: Naviguer vers un futur écran IDVerificationScreen
-                  },
-                ),
-              ],
-            ),
-          ),
+          // --- 3. SECTION VÉRIFICATION (SUPPRIMÉE) ---
         ],
       ),
     );
