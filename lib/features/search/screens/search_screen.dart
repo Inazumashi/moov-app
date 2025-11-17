@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:moovapp/features/search/widgets/ride_result_card.dart'; // Import du nouveau widget
+import 'package:moovapp/features/search/widgets/ride_result_card.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -9,7 +9,6 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  // Gère l'état d'affichage de la publicité
   bool _showAd = true;
 
   @override
@@ -18,29 +17,27 @@ class _SearchScreenState extends State<SearchScreen> {
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
-      // On utilise un CustomScrollView pour avoir un header (AppBar)
-      // qui disparaît quand on scrolle vers le bas.
       body: CustomScrollView(
         slivers: [
-          // --- 1. L'AppBar avec le formulaire ---
           SliverAppBar(
             backgroundColor: Colors.white,
-            pinned: true, // Reste visible en haut
-            expandedHeight: 290.0, // Hauteur totale du formulaire
+            pinned: true,
+            expandedHeight: 360.0,   // 🔥 Corrigé : hauteur augmentée
             flexibleSpace: FlexibleSpaceBar(
               titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
-              title: const Text(
-                'Rechercher un trajet',
-                style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-              ),
-              background: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 90, 16, 16),
-                child: _buildSearchForm(primaryColor),
+              
+              background: SafeArea(
+                child: SingleChildScrollView( // 🔥 Corrigé : empêche tout overflow
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 90, 16, 16),
+                    child: _buildSearchForm(primaryColor),
+                  ),
+                ),
               ),
             ),
           ),
 
-          // --- 2. La liste des résultats ---
+          // --- RESULTS LIST ---
           SliverList(
             delegate: SliverChildListDelegate(
               [
@@ -48,14 +45,12 @@ class _SearchScreenState extends State<SearchScreen> {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      // Publicité
                       if (_showAd) _buildAdCard(),
-                      
-                      // Barre de résultats (Titre + Trier)
+
                       _buildResultsHeader(primaryColor),
                       const SizedBox(height: 12),
 
-                      // Carte de résultat 1 (Karim)
+                      // RESULT CARD 1
                       const RideResultCard(
                         name: 'Karim El Idrissi',
                         rating: 4.7,
@@ -70,7 +65,7 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                       const SizedBox(height: 12),
 
-                      // Carte de résultat 2 (Amina)
+                      // RESULT CARD 2
                       const RideResultCard(
                         name: 'Amina Laaroussi',
                         rating: 4.9,
@@ -78,9 +73,9 @@ class _SearchScreenState extends State<SearchScreen> {
                         departureDetail: 'Départ',
                         arrival: 'Marrakech',
                         arrivalDetail: 'Arrivée',
-                        dateTime: '13 Oct • 09:00', // Donnée inventée
+                        dateTime: '13 Oct • 09:00',
                         price: '45 MAD',
-                        seats: 2, // Donnée inventée
+                        seats: 2,
                         isPremium: true,
                       ),
                     ],
@@ -94,12 +89,12 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  // --- Widgets pour construire l'écran ---
-
+  // ----------------------------
+  // 🔷 FORMULAIRE DE RECHERCHE
+  // ----------------------------
   Widget _buildSearchForm(Color primaryColor) {
     return Column(
       children: [
-        // Champ Départ
         TextField(
           decoration: InputDecoration(
             hintText: 'Départ',
@@ -113,7 +108,7 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        // Champ Arrivée
+
         TextField(
           decoration: InputDecoration(
             hintText: 'Arrivée',
@@ -127,7 +122,7 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        // Champ Date + Filtre
+
         Row(
           children: [
             Expanded(
@@ -145,11 +140,9 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             ),
             const SizedBox(width: 8),
-            // Bouton Filtre
+
             IconButton(
-              onPressed: () {
-                // TODO: Logique pour les filtres
-              },
+              onPressed: () {},
               icon: const Icon(Icons.filter_list),
               style: IconButton.styleFrom(
                 backgroundColor: Colors.grey[100],
@@ -162,13 +155,11 @@ class _SearchScreenState extends State<SearchScreen> {
           ],
         ),
         const SizedBox(height: 16),
-        // Bouton "Rechercher"
+
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
-            onPressed: () {
-              // TODO: Logique de recherche
-            },
+            onPressed: () {},
             icon: const Icon(Icons.search, color: Colors.white),
             label: const Text('Rechercher'),
             style: ElevatedButton.styleFrom(
@@ -186,10 +177,13 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
+  // ----------------------------
+  // 🔶 CARTE PUBLICITÉ
+  // ----------------------------
   Widget _buildAdCard() {
     return Card(
       elevation: 0,
-      color: const Color(0xFFfff8e1), // Fond jaune pâle
+      color: const Color(0xFFfff8e1),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(color: Colors.yellow.shade700.withOpacity(0.5)),
@@ -205,7 +199,10 @@ class _SearchScreenState extends State<SearchScreen> {
                 color: Colors.yellow.shade700,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Text('AD', style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold)),
+              child: const Text(
+                'AD',
+                style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+              ),
             ),
             const SizedBox(width: 12),
             const Expanded(
@@ -218,7 +215,7 @@ class _SearchScreenState extends State<SearchScreen> {
               icon: Icon(Icons.close, size: 18, color: Colors.grey[700]),
               onPressed: () {
                 setState(() {
-                  _showAd = false; // Cache la publicité
+                  _showAd = false;
                 });
               },
             ),
@@ -228,6 +225,9 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
+  // ----------------------------
+  // 🔵 HEADER DES RESULTATS
+  // ----------------------------
   Widget _buildResultsHeader(Color primaryColor) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -237,9 +237,7 @@ class _SearchScreenState extends State<SearchScreen> {
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         TextButton(
-          onPressed: () {
-            // TODO: Logique pour trier
-          },
+          onPressed: () {},
           child: Text(
             'Trier par prix',
             style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold),
