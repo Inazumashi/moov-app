@@ -15,7 +15,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   
   # Ajouté pour le formatage des dates (dans utils/formatters.dart)
-  intl: ^0.18.1
+  intl: any
 
   # --- NOS NOUVEAUX PACKAGES POUR LE BACKEND ---
   
@@ -31,18 +31,26 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
   
   # C'est ce package qui vous donne les erreurs 'const' et 'dynamic'
   flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true
+  generate: true
 
+
+
+  
   # --- DÉCLARATION DES ASSETS ---
-  # (Pour que Flutter trouve votre logo et vos icônes)
-  #assets:
-  #  - assets/images/
-  #  - assets/icons/
+assets:
+  - lib/l10n/
+# - assets/images/
+# - assets/icons/
+
+  # --- LOCALISATION ---
 
   # --- DÉCLARATION DES POLICES ---
   # (Exemple si vous ajoutez une police personnalisée)
