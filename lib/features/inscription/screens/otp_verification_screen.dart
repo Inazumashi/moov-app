@@ -43,7 +43,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
     });
 
     // Simulation de vérification
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2));
 
     try {
       // SIMULATION : Vérification réussie

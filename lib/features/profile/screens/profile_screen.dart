@@ -154,7 +154,7 @@ class ProfileScreen extends StatelessWidget {
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(30),
                       ),
-                      child: Text(
+                      child: const Text(
                         'Découvrir Premium',
                         style: TextStyle(
                           color: Colors.deepOrange,
@@ -251,7 +251,7 @@ class ProfileScreen extends StatelessWidget {
                   
                   // --- OPTION 2 : MESSAGE D'INFORMATION ---
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
+                    const SnackBar(
                       content: Text('L\'ajout de téléphone est optionnel'),
                       backgroundColor: Colors.blue,
                     ),

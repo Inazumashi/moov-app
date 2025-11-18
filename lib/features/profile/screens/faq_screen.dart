@@ -8,15 +8,15 @@ class FaqScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'FAQ (Questions fréquentes)',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Theme.of(context).colorScheme.primary,
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: ListView(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         children: [
           // J'ajoute quelques questions/réponses d'exemple
           _buildFaqItem(
@@ -48,14 +48,14 @@ class FaqScreen extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      margin: EdgeInsets.only(bottom: 12.0),
+      margin: const EdgeInsets.only(bottom: 12.0),
       child: ExpansionTile(
         title: Text(
           question,
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         // Ce qui s'affiche quand on clique
-        childrenPadding: EdgeInsets.all(16.0),
+        childrenPadding: const EdgeInsets.all(16.0),
         children: [
           Text(
             answer,

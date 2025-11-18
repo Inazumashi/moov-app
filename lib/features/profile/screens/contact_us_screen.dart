@@ -24,17 +24,17 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Contactez-nous',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Theme.of(context).colorScheme.primary,
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         child: Container(
-          padding: EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(16),
@@ -42,16 +42,16 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'Sujet',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               TextField(
                 controller: _subjectController,
                 decoration: InputDecoration(
                   hintText: 'Ex: Problème de réservation',
-                  prefixIcon: Icon(Icons.subject_outlined),
+                  prefixIcon: const Icon(Icons.subject_outlined),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.0),
                     borderSide: BorderSide(color: Colors.grey.shade300),
@@ -62,12 +62,12 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                   ),
                 ),
               ),
-              SizedBox(height: 24),
-              Text(
+              const SizedBox(height: 24),
+              const Text(
                 'Message',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               TextField(
                 controller: _messageController,
                 decoration: InputDecoration(
@@ -83,7 +83,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                 ),
                 maxLines: 6,
               ),
-              SizedBox(height: 32),
+              const SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
@@ -96,9 +96,9 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                     // 5. Navigator.of(context).pop();
                   },
                   style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 16),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: Text(
+                  child: const Text(
                     'Envoyer le message',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),

@@ -10,15 +10,15 @@ class CommunitiesScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Mes communautés',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: Theme.of(context).colorScheme.primary,
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: ListView(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         children: [
           // Carte pour la communauté principale (l'université)
           Card(
@@ -28,7 +28,7 @@ class CommunitiesScreen extends StatelessWidget {
               borderRadius: BorderRadius.circular(16),
             ),
             child: Padding(
-              padding: EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
                   ListTile(
@@ -40,14 +40,14 @@ class CommunitiesScreen extends StatelessWidget {
                         color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
-                    title: Text(
+                    title: const Text(
                       'UM6P - Étudiants', // TODO: Rendre dynamique
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    subtitle: Text('Communauté principale'),
+                    subtitle: const Text('Communauté principale'),
                   ),
-                  Divider(height: 24),
-                  Row(
+                  const Divider(height: 24),
+                  const Row(
                     children: [
                       Icon(Icons.people, color: Colors.grey, size: 20),
                       SizedBox(width: 8),
@@ -60,20 +60,20 @@ class CommunitiesScreen extends StatelessWidget {
             ),
           ),
 
-          SizedBox(height: 24),
+          const SizedBox(height: 24),
 
           // Bouton pour ajouter d'autres communautés
           OutlinedButton.icon(
             onPressed: () {
               // 2. ON AJOUTE LA NAVIGATION ICI
               Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => UniversitySelectScreen(),
+                builder: (context) => const UniversitySelectScreen(),
               ));
             },
-            icon: Icon(Icons.add),
-            label: Text('Rejoindre une autre communauté'),
+            icon: const Icon(Icons.add),
+            label: const Text('Rejoindre une autre communauté'),
             style: OutlinedButton.styleFrom(
-              padding: EdgeInsets.symmetric(vertical: 12),
+              padding: const EdgeInsets.symmetric(vertical: 12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),

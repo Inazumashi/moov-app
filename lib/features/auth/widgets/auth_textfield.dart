@@ -3,40 +3,35 @@ import 'package:flutter/material.dart';
 class AuthTextField extends StatelessWidget {
   final String hintText;
   final IconData icon;
-  final TextEditingController controller; // Pour récupérer le texte
-  
-  // CORRECTION: On remplace 'obscureText' par 'isPassword'
-  final bool isPassword; 
+  final TextEditingController controller;
+  final bool isPassword;
   final TextInputType keyboardType;
+  final bool isReadOnly;
 
   const AuthTextField({
     super.key,
     required this.hintText,
     required this.icon,
     required this.controller,
-    
-    // CORRECTION: Le paramètre s'appelle 'isPassword'
-    this.isPassword = false, 
+    this.isPassword = false,
     this.keyboardType = TextInputType.text,
+    this.isReadOnly = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextField(
-      controller: controller, // On connecte le contrôleur
-      
-      // CORRECTION: On utilise 'isPassword' ici
-      obscureText: isPassword, 
+      controller: controller,
+      obscureText: isPassword,
       keyboardType: keyboardType,
+      readOnly: isReadOnly, // ← CORRECTION ICI : "readOnly" avec "L" minuscule
       decoration: InputDecoration(
         hintText: hintText,
         prefixIcon: Icon(icon, color: Colors.grey[600]),
-        // Bordure quand le champ n'est pas sélectionné
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
           borderSide: BorderSide(color: Colors.grey.shade300),
         ),
-        // Bordure quand on clique sur le champ
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
           borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),

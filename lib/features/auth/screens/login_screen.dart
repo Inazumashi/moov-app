@@ -35,7 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     // Simulation du délai réseau
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(const Duration(seconds: 2));
 
     // Simulation de connexion réussie
     // En attendant que votre API soit prête

@@ -70,13 +70,13 @@ class FavoriteRideCard extends StatelessWidget {
                           ),
                           if (isPremium) ...[
                             const SizedBox(width: 8),
-                            Chip(
-                              label: const Text(
+                            const Chip(
+                              label: Text(
                                 'Premium',
                                 style: TextStyle(
                                     color: Color(0xFF663300), fontSize: 10),
                               ),
-                              backgroundColor: const Color(0xFFFFD700),
+                              backgroundColor: Color(0xFFFFD700),
                               visualDensity: VisualDensity.compact,
                               padding: EdgeInsets.zero,
                             ),

@@ -13,7 +13,7 @@ class AppTheme {
         error: AppColors.error,
         brightness: Brightness.light,
       ),
-      appBarTheme: AppBarTheme(
+      appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.primaryBlue,
         foregroundColor: AppColors.white,
         elevation: 0,
@@ -52,7 +52,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
-          borderSide: BorderSide(color: AppColors.primaryBlue, width: 2),
+          borderSide: const BorderSide(color: AppColors.primaryBlue, width: 2),
         ),
         prefixIconColor: Colors.grey[600],
       ),
@@ -79,7 +79,7 @@ class AppTheme {
         error: AppColors.error,
         brightness: Brightness.dark,
       ),
-      appBarTheme: AppBarTheme(
+      appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.darkAppBar,
         foregroundColor: AppColors.white,
         elevation: 0,
@@ -118,7 +118,7 @@ class AppTheme {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),
-          borderSide: BorderSide(color: AppColors.primaryBlue, width: 2),
+          borderSide: const BorderSide(color: AppColors.primaryBlue, width: 2),
         ),
         prefixIconColor: Colors.grey[400],
       ),

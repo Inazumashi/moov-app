@@ -13,7 +13,7 @@ class LanguageSelectionScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // TODO: Le code ici devrait lire la langue actuelle du système pour cocher l'élément
-    final String currentLangCode = 'fr'; 
+    const String currentLangCode = 'fr'; 
 
     return Scaffold(
       backgroundColor: Colors.grey[100],

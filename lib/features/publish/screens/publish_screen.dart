@@ -78,13 +78,13 @@ class _PublishScreenState extends State<PublishScreen> {
           'Publier un trajet',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(20.0),
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(20.0),
           child: Padding(
-            padding: const EdgeInsets.only(bottom: 12.0, left: 16.0),
+            padding: EdgeInsets.only(bottom: 12.0, left: 16.0),
             child: Align(
               alignment: Alignment.centerLeft,
-              child: const Text(
+              child: Text(
                 'Partagez votre trajet avec la communauté',
                 style: TextStyle(color: Colors.white70, fontSize: 14),
               ),

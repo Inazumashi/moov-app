@@ -46,7 +46,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       _newRides = value;
                     });
                   },
-                  activeColor: Theme.of(context).colorScheme.primary,
+                  activeThumbColor: Theme.of(context).colorScheme.primary,
                 ),
                 SwitchListTile(
                   secondary: const Icon(Icons.message_outlined),
@@ -59,7 +59,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       _newMessages = value;
                     });
                   },
-                  activeColor: Theme.of(context).colorScheme.primary,
+                  activeThumbColor: Theme.of(context).colorScheme.primary,
                 ),
                 SwitchListTile(
                   secondary: const Icon(Icons.check_circle_outline),
@@ -71,7 +71,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       _bookingUpdates = value;
                     });
                   },
-                  activeColor: Theme.of(context).colorScheme.primary,
+                  activeThumbColor: Theme.of(context).colorScheme.primary,
                 ),
               ],
             ),
@@ -94,7 +94,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                       _promotions = value;
                     });
                   },
-                  activeColor: Theme.of(context).colorScheme.primary,
+                  activeThumbColor: Theme.of(context).colorScheme.primary,
                 ),
               ],
             ),

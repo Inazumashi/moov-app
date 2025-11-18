@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-// 1. IMPORTS DES NOUVEAUX ÉCRANS
-import 'edit_profile_screen.dart';
-import 'payment_methods_screen.dart';
-import 'language_selection_screen.dart'; // <-- NOUVEL ÉCRAN LANGUE
+// --- CORRIGEZ CES IMPORTS ---
+import 'package:moovapp/features/profile/screens/edit_profile_screen.dart';
+import 'package:moovapp/features/profile/screens/payment_methods_screen.dart';
+import 'package:moovapp/features/profile/screens/language_selection_screen.dart';
 // 2. IMPORT DU PROVIDER DE THÈME
 import 'package:provider/provider.dart';
 import 'package:moovapp/core/providers/theme_provider.dart';
@@ -85,7 +85,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     });
                     // TODO: Appeler le backend pour enregistrer la préférence
                   },
-                  activeColor: Theme.of(context).colorScheme.primary,
+                  activeThumbColor: Theme.of(context).colorScheme.primary,
                 ),
                 SwitchListTile(
                   secondary: const Icon(Icons.email_outlined),
@@ -98,7 +98,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     });
                     // TODO: Appeler le backend pour enregistrer la préférence
                   },
-                  activeColor: Theme.of(context).colorScheme.primary,
+                  activeThumbColor: Theme.of(context).colorScheme.primary,
                 ),
               ],
             ),
@@ -139,7 +139,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     // Appelle le provider pour changer l'état (met à jour toute l'app)
                     themeProvider.toggleTheme(value);
                   },
-                  activeColor: Theme.of(context).colorScheme.primary,
+                  activeThumbColor: Theme.of(context).colorScheme.primary,
                 ),
               ],
             ),

@@ -10,15 +10,15 @@ class PaymentMethodsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Moyens de paiement',
           style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
         backgroundColor: primaryColor,
-        iconTheme: IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: ListView(
-        padding: EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16.0),
         children: [
           _buildSectionTitle('Cartes enregistrées'),
           
@@ -30,7 +30,7 @@ class PaymentMethodsScreen extends StatelessWidget {
             Colors.blue,
           ),
           
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           
           // Bouton pour ajouter une nouvelle carte
           OutlinedButton.icon(
@@ -43,7 +43,7 @@ class PaymentMethodsScreen extends StatelessWidget {
               style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold),
             ),
             style: OutlinedButton.styleFrom(
-              padding: EdgeInsets.symmetric(vertical: 12),
+              padding: const EdgeInsets.symmetric(vertical: 12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -51,11 +51,11 @@ class PaymentMethodsScreen extends StatelessWidget {
             ),
           ),
           
-          SizedBox(height: 32),
+          const SizedBox(height: 32),
           
           // Informations
           Container(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(12),
@@ -73,7 +73,7 @@ class PaymentMethodsScreen extends StatelessWidget {
   // Helper pour les titres de section
   Widget _buildSectionTitle(String title) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(16, 8, 16, 8),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       child: Text(
         title.toUpperCase(),
         style: TextStyle(
@@ -90,7 +90,7 @@ class PaymentMethodsScreen extends StatelessWidget {
       BuildContext context, String title, String type, Color color) {
     return Card(
       elevation: 0.5,
-      margin: EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
@@ -100,9 +100,9 @@ class PaymentMethodsScreen extends StatelessWidget {
           color: color,
           size: 30,
         ),
-        title: Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text(type),
-        trailing: Icon(Icons.more_vert),
+        trailing: const Icon(Icons.more_vert),
         onTap: () {
           // TODO: Option de modifier/supprimer
         },
