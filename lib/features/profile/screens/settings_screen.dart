@@ -1,4 +1,11 @@
 import 'package:flutter/material.dart';
+// 1. IMPORTS DES NOUVEAUX ÉCRANS
+import 'edit_profile_screen.dart';
+import 'payment_methods_screen.dart';
+import 'language_selection_screen.dart'; // <-- NOUVEL ÉCRAN LANGUE
+// 2. IMPORT DU PROVIDER DE THÈME
+import 'package:provider/provider.dart';
+import 'package:moovapp/core/providers/theme_provider.dart';
 
 // On utilise un StatefulWidget pour gérer l'état des Switchs
 class SettingsScreen extends StatefulWidget {
@@ -12,10 +19,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   // Valeurs d'exemple pour les Switchs
   bool _pushNotifications = true;
   bool _emailNotifications = false;
-  bool _darkMode = false;
 
   @override
   Widget build(BuildContext context) {
+    // Le provider nous permet de lire et modifier l'état du thème
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
@@ -39,7 +48,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: const Text('Modifier le profil'),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () {
-                    // TODO: Naviguer vers un futur écran EditProfileScreen
+                    // CONNECTÉ: Navigue vers EditProfileScreen
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const EditProfileScreen(),
+                    ));
                   },
                 ),
                 ListTile(
@@ -47,7 +59,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: const Text('Moyens de paiement'),
                   trailing: const Icon(Icons.arrow_forward_ios, size: 16),
                   onTap: () {
-                    // TODO: Naviguer vers un futur écran PaymentMethodsScreen
+                    // CONNECTÉ: Navigue vers PaymentMethodsScreen
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const PaymentMethodsScreen(),
+                    ));
                   },
                 ),
               ],
@@ -68,6 +83,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     setState(() {
                       _pushNotifications = value;
                     });
+                    // TODO: Appeler le backend pour enregistrer la préférence
                   },
                   activeColor: Theme.of(context).colorScheme.primary,
                 ),
@@ -80,6 +96,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     setState(() {
                       _emailNotifications = value;
                     });
+                    // TODO: Appeler le backend pour enregistrer la préférence
                   },
                   activeColor: Theme.of(context).colorScheme.primary,
                 ),
@@ -100,7 +117,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'Français',
+                        'Français', // TODO: Rendre dynamique via i18n
                         style: TextStyle(color: Colors.grey[600]),
                       ),
                       const SizedBox(width: 8),
@@ -108,18 +125,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ],
                   ),
                   onTap: () {
-                    // TODO: Logique pour changer la langue
+                    // CONNECTÉ: Navigue vers l'écran de sélection de langue
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const LanguageSelectionScreen(),
+                    ));
                   },
                 ),
                 SwitchListTile(
                   secondary: const Icon(Icons.dark_mode_outlined),
                   title: const Text('Mode sombre'),
-                  value: _darkMode,
+                  value: themeProvider.isDarkMode, // Lit l'état du provider
                   onChanged: (bool value) {
-                    setState(() {
-                      _darkMode = value;
-                    });
-                    // TODO: Logique pour changer le thème de l'application
+                    // Appelle le provider pour changer l'état (met à jour toute l'app)
+                    themeProvider.toggleTheme(value);
                   },
                   activeColor: Theme.of(context).colorScheme.primary,
                 ),
