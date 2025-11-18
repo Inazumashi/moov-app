@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:moovapp/features/inscription/screens/otp_verification_screen.dart';
+// --- REMPLACEZ CET IMPORT ---
+// import 'package:moovapp/features/inscription/screens/otp_verification_screen.dart';
+// --- PAR CECI ---
+import 'package:moovapp/features/inscription/screens/email_verification_screen.dart';
 import 'package:moovapp/features/premium/screens/premium_screen.dart';
 import '../widgets/profile_activity_item.dart';
 import '../widgets/profile_header.dart';
@@ -188,6 +191,33 @@ class ProfileScreen extends StatelessWidget {
             const SizedBox(height: 16),
             Row(
               children: [
+                Icon(Icons.email_outlined, color: Colors.grey[600]),
+                const SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'ahmed.benali@um6p.ma',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey[800],
+                      ),
+                    ),
+                    Text(
+                      'Email universitaire vérifié',
+                      style: TextStyle(
+                        color: Colors.green[600],
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
                 Icon(Icons.phone_outlined, color: Colors.grey[600]),
                 const SizedBox(width: 16),
                 Column(
@@ -202,7 +232,7 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      'Numéro de téléphone',
+                      'Numéro de téléphone (optionnel)',
                       style: TextStyle(color: Colors.grey[600]),
                     ),
                   ],
@@ -214,10 +244,18 @@ class ProfileScreen extends StatelessWidget {
               width: double.infinity,
               child: OutlinedButton(
                 onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                    // L'import 'onboarding' devrait corriger ceci
-                    builder: (context) => const OtpVerificationScreen(),
-                  ));
+                  // --- OPTION 1 : SI VOUS VOULEZ GARDER L'AJOUT DE TÉLÉPHONE ---
+                  // Navigator.of(context).push(MaterialPageRoute(
+                  //   builder: (context) => const AddPhoneScreen(), // À créer
+                  // ));
+                  
+                  // --- OPTION 2 : MESSAGE D'INFORMATION ---
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('L\'ajout de téléphone est optionnel'),
+                      backgroundColor: Colors.blue,
+                    ),
+                  );
                 },
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
@@ -227,7 +265,7 @@ class ProfileScreen extends StatelessWidget {
                   ),
                 ),
                 child: const Text(
-                  'Ajouter un numéro',
+                  'Ajouter un numéro (optionnel)',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Colors.black87,
@@ -418,5 +456,3 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 }
-
-

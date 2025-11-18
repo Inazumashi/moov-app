@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 // On importe notre widget réutilisable
 import 'package:moovapp/features/auth/widgets/auth_textfield.dart';
-// On prépare l'import pour l'écran suivant
-import 'package:moovapp/features/inscription/screens/otp_verification_screen.dart';
+// --- REMPLACEZ CET IMPORT ---
+import 'package:moovapp/features/inscription/screens/email_verification_screen.dart';
 
 class CreateAccountScreen extends StatefulWidget {
   final String universityName;
@@ -93,7 +93,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
               ),
               const SizedBox(height: 16),
               
-              _buildSectionTitle('Téléphone'),
+              _buildSectionTitle('Téléphone (optionnel)'),
               AuthTextField(
                 controller: _telephoneController,
                 hintText: '+212 6XX XXX XXX',
@@ -129,14 +129,26 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    // TODO: Ajouter la logique de création de compte
-                    // (Vérifier les champs, appeler l'API...)
+                    // Validation des champs
+                    if (_nomController.text.isEmpty || 
+                        _emailController.text.isEmpty || 
+                        _passwordController.text.isEmpty) {
+                      _showError('Veuillez remplir tous les champs obligatoires');
+                      return;
+                    }
 
-                    // Naviguer vers l'écran OTP
+                    if (_passwordController.text != _confirmPasswordController.text) {
+                      _showError('Les mots de passe ne correspondent pas');
+                      return;
+                    }
+
+                    // --- NAVIGATION VERS VÉRIFICATION EMAIL ---
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => const OtpVerificationScreen(),
+                        builder: (context) => EmailVerificationScreen(
+                          email: _emailController.text,
+                        ),
                       ),
                     );
                   },
@@ -169,6 +181,15 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     );
   }
 
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+
   // Helper pour les titres de section
   Widget _buildSectionTitle(String title) {
     return Padding(
@@ -191,11 +212,11 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       ),
       child: const Row(
         children: [
-          Icon(Icons.info_outline, color: Colors.blue, size: 20),
+          Icon(Icons.email_outlined, color: Colors.blue, size: 20),
           SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Un email de vérification sera envoyé à votre adresse universitaire',
+              'Un code de vérification sera envoyé à votre email universitaire',
               style: TextStyle(color: Colors.black87),
             ),
           ),
