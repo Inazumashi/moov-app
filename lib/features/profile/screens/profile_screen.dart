@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:moovapp/features/inscription/screens/email_verification_screen.dart';
+//import 'package:moovapp/features/inscription/screens/email_verification_screen.dart';
 import 'package:moovapp/features/premium/screens/premium_screen.dart';
 import '../widgets/profile_activity_item.dart';
 import '../widgets/profile_header.dart';
