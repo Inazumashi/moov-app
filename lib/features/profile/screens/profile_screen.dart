@@ -1,7 +1,4 @@
 import 'package:flutter/material.dart';
-// --- REMPLACEZ CET IMPORT ---
-// import 'package:moovapp/features/inscription/screens/otp_verification_screen.dart';
-// --- PAR CECI ---
 import 'package:moovapp/features/inscription/screens/email_verification_screen.dart';
 import 'package:moovapp/features/premium/screens/premium_screen.dart';
 import '../widgets/profile_activity_item.dart';

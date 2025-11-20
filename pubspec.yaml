@@ -4,56 +4,54 @@ publish_to: 'none' # Ne pas publier sur pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.0 <4.0.0' # Assurez-vous d'utiliser une version récente de Flutter/Dart
+  sdk: '>=3.0.0 <4.0.0'
 
 # --- DÉPENDANCES DE L'APPLICATION ---
 dependencies:
   flutter:
     sdk: flutter
+  
+  # --- Localisation (Nécessaire pour la traduction) ---
+  # IMPORTANT: Ceci doit être dans 'dependencies', pas 'dev_dependencies'
+  flutter_localizations:
+    sdk: flutter
+  intl: ^0.19.0
 
   # Icônes de base
   cupertino_icons: ^1.0.2
-  
-  # Ajouté pour le formatage des dates (dans utils/formatters.dart)
-  intl: any
 
   # --- NOS NOUVEAUX PACKAGES POUR LE BACKEND ---
   
-  # 1. Le package pour faire les appels API (remplace Firebase)
+  # 1. Le package pour faire les appels API
   http: ^1.2.1
   
-  # 2. Le package de "State Management" (pour partager l'info "utilisateur connecté")
+  # 2. Le package de "State Management"
   provider: ^6.1.2
   
-  # 3. Le "coffre-fort" sécurisé pour stocker le Token JWT
+  # 3. Le "coffre-fort" sécurisé
   flutter_secure_storage: ^9.1.1 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_localizations:
-    sdk: flutter
   
-  # C'est ce package qui vous donne les erreurs 'const' et 'dynamic'
+  # Linting (règles de style)
   flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true
+  
+  # Active la génération automatique de code (pour la traduction i18n)
   generate: true
 
-
-
-  
   # --- DÉCLARATION DES ASSETS ---
-assets:
-  - lib/l10n/
-# - assets/images/
-# - assets/icons/
-
-  # --- LOCALISATION ---
+  assets:
+    # Décommentez ces lignes quand vous aurez ajouté les images
+    # - assets/images/
+    # - assets/icons/
+    # Note: Pas besoin d'ajouter lib/l10n/ ici, Flutter le gère automatiquement avec 'generate: true'
 
   # --- DÉCLARATION DES POLICES ---
-  # (Exemple si vous ajoutez une police personnalisée)
   # fonts:
   #   - family: Inter
   #     fonts:

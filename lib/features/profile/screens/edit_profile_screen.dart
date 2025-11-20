@@ -75,6 +75,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               SizedBox(height: 24),
 
               // --- Téléphone ---
+              // ignore: prefer_const_constructors
               Text(
                 'Téléphone',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
