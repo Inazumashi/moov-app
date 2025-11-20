@@ -45,7 +45,7 @@ flutter:
   generate: true
 
   # --- DÉCLARATION DES ASSETS ---
-  assets:
+  #assets:
     # Décommentez ces lignes quand vous aurez ajouté les images
     # - assets/images/
     # - assets/icons/
