@@ -43,13 +43,9 @@ flutter:
   
   # Active la génération automatique de code (pour la traduction i18n)
   generate: true
-
-  # --- DÉCLARATION DES ASSETS ---
-  #assets:
-    # Décommentez ces lignes quand vous aurez ajouté les images
-    # - assets/images/
-    # - assets/icons/
-    # Note: Pas besoin d'ajouter lib/l10n/ ici, Flutter le gère automatiquement avec 'generate: true'
+  assets:
+    - assets/images/logo.jpg
+  
 
   # --- DÉCLARATION DES POLICES ---
   # fonts:

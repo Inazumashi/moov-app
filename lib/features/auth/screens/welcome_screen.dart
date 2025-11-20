@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:moovapp/features/auth/screens/login_screen.dart';
-// J'utilise 'inscription' comme vous l'avez demandé !
 import 'package:moovapp/features/inscription/screens/routes_config_screen.dart';
 
 // Étape 1: Créer le Widget de l'écran
@@ -38,18 +37,12 @@ class WelcomeScreen extends StatelessWidget {
                   color: Colors.white.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(28),
                 ),
-                // IMPORTANT: C'est un PLACEHOLDER.
-                // Plus tard, vous remplacerez ce Text par :
-                // Image.asset('assets/images/logo.png')
-                child: const Text(
-                  'Moov',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 48,
-                    fontWeight: FontWeight.bold,
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  height: 80, 
+                    fit: BoxFit.contain,
                   ),
                 ),
-              ),
               const SizedBox(height: 32),
 
               // Étape 3: Les textes

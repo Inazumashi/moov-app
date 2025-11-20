@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-// ERREUR NORMALE: Ce fichier sera créé à la prochaine étape
+
 import 'package:moovapp/features/home/widgets/my_reservations_widget.dart';
-// ERREUR NORMALE: Ce fichier sera créé à la prochaine étape
+
 import 'package:moovapp/features/home/widgets/ride_to_rate_card.dart';
-// ERREUR NORMALE: Ce fichier sera créé à la prochaine étape
+
 import 'package:moovapp/features/premium/screens/premium_screen.dart';
 
 class HomeScreen extends StatelessWidget {
