@@ -2,12 +2,14 @@ import 'package:moovapp/core/api/api_service.dart';
 import 'package:moovapp/core/models/user_model.dart';
 
 class AuthService {
+  // On utilise notre nouveau service API
   final ApiService _api = ApiService();
 
   // Connexion réelle via l'API
   Future<UserModel?> signIn(String email, String password) async {
     try {
       // 1. Appel à l'API (POST /auth/login)
+      // On utilise la méthode 'post' de notre ApiService
       final response = await _api.post(
         'auth/login', 
         {
@@ -17,6 +19,7 @@ class AuthService {
       );
 
       // 2. Si succès, l'API renvoie un token et l'utilisateur
+      // (C'est ce que nous avons codé dans le backend auth.controller.js)
       final String token = response['token'];
       final Map<String, dynamic> userData = response['user'];
 
@@ -28,6 +31,7 @@ class AuthService {
 
     } catch (e) {
       // On relance l'erreur pour l'afficher dans l'UI (LoginScreen)
+      // Par exemple : "Mot de passe incorrect"
       rethrow;
     }
   }
@@ -66,6 +70,7 @@ class AuthService {
       return UserModel.fromJson(userData);
 
     } catch (e) {
+      // En cas d'erreur (ex: email déjà utilisé), on relance l'erreur
       rethrow;
     }
   }
