@@ -21,29 +21,32 @@ class UserModel {
     this.isPremium = false,
   });
 
-  // --- C'EST CETTE PARTIE QUI MANQUAIT ---
-  // Factory constructor pour créer un UserModel depuis une Map (JSON)
-  // C'est ce qui permet de lire la réponse de l'API.
+  // --- C'EST CETTE PARTIE QUI MANQUAIT OU ÉTAIT INCORRECTE ---
+  
+  // Factory : Crée un objet UserModel à partir d'un JSON (reçu de l'API)
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      // Note: Les clés ('user_id', 'email') doivent correspondre
-      // à ce que votre API Node.js renvoie dans auth.controller.js
-      uid: json['id'].toString(), 
+      // On convertit les données reçues (API) vers nos variables (Flutter)
+      // Note : 'id', 'email', 'fullName' doivent correspondre à ce que votre 
+      // API Node.js renvoie dans le auth.controller.js
+      uid: json['id']?.toString() ?? '', 
       email: json['email'] ?? '',
       fullName: json['fullName'] ?? '',
       universityId: json['university'] ?? '',
       profileType: json['profileType'] ?? '',
       phoneNumber: json['phoneNumber'],
-      // Conversion sécurisée pour les nombres
+      
+      // Conversion sécurisée pour les nombres (parfois reçus en int, parfois en double)
       averageRating: (json['rating'] is int) 
           ? (json['rating'] as int).toDouble() 
           : (json['rating'] as double?) ?? 0.0,
+          
       ridesCompleted: json['rides_count'] ?? 0,
       isPremium: json['is_premium'] ?? false,
     );
   }
 
-  // Fonction pour convertir en JSON (utile si on veut envoyer des données)
+  // Fonction : Convertit un objet UserModel vers un JSON (pour l'envoyer à l'API)
   Map<String, dynamic> toJson() {
     return {
       'id': uid,
