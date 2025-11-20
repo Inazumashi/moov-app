@@ -38,7 +38,7 @@ class WelcomeScreen extends StatelessWidget {
                   borderRadius: BorderRadius.circular(28),
                 ),
                 child: Image.asset(
-                  'assets/images/logo.png',
+                  'assets/images/logo.jpg',
                   height: 80, 
                     fit: BoxFit.contain,
                   ),
