@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-// 1. AJOUT DE L'IMPORT
 import 'package:moovapp/features/profile/screens/change_password_screen.dart';
 
-// On utilise un StatefulWidget pour gérer l'état du Switch
 class SecurityScreen extends StatefulWidget {
   const SecurityScreen({super.key});
 
@@ -11,82 +9,95 @@ class SecurityScreen extends StatefulWidget {
 }
 
 class _SecurityScreenState extends State<SecurityScreen> {
-  // Valeur d'exemple pour le Switch 2FA
   bool _twoFactorAuth = false;
 
   @override
   Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: colors.background,
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Sécurité',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: colors.onPrimary,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: colors.primary,
+        iconTheme: IconThemeData(color: colors.onPrimary),
       ),
+
       body: ListView(
         children: [
-          // --- Section Mot de passe ---
           _buildSectionTitle('Gestion du mot de passe'),
           Container(
-            color: Colors.white,
+            color: colors.surface,
             child: Column(
               children: [
                 ListTile(
-                  leading: const Icon(Icons.lock_outline),
-                  title: const Text('Changer le mot de passe'),
-                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  leading: Icon(Icons.lock_outline, color: colors.onSurface),
+                  title: Text(
+                    'Changer le mot de passe',
+                    style: TextStyle(color: colors.onSurface),
+                  ),
+                  trailing: Icon(Icons.arrow_forward_ios,
+                      size: 16, color: colors.onSurface),
                   onTap: () {
-                    // 2. MISE À JOUR DE LA NAVIGATION
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => const ChangePasswordScreen(),
-                    ));
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const ChangePasswordScreen(),
+                      ),
+                    );
                   },
                 ),
               ],
             ),
           ),
 
-          // --- Section Authentification ---
           _buildSectionTitle('Authentification à deux facteurs'),
           Container(
-            color: Colors.white,
+            color: colors.surface,
             child: Column(
               children: [
                 SwitchListTile(
-                  secondary: const Icon(Icons.shield_outlined),
-                  title: const Text('Authentification à deux facteurs'),
-                  subtitle:
-                      const Text('Utilisez un code SMS pour plus de sécurité.'),
+                  secondary:
+                      Icon(Icons.shield_outlined, color: colors.onSurface),
+                  title: Text(
+                    'Authentification à deux facteurs',
+                    style: TextStyle(color: colors.onSurface),
+                  ),
+                  subtitle: Text(
+                    'Utilisez un code SMS pour plus de sécurité.',
+                    style: TextStyle(color: colors.onSurface.withOpacity(0.7)),
+                  ),
                   value: _twoFactorAuth,
                   onChanged: (bool value) {
                     setState(() {
                       _twoFactorAuth = value;
                     });
-                    // TODO: Logique pour activer/désactiver le 2FA
                   },
-                  activeThumbColor: Theme.of(context).colorScheme.primary,
+                  activeColor: colors.primary,
+                  activeTrackColor: colors.primary.withOpacity(0.5),
                 ),
               ],
             ),
           ),
-
-          // --- 3. SECTION VÉRIFICATION (SUPPRIMÉE) ---
         ],
       ),
     );
   }
 
-  // Helper pour les titres de section
   Widget _buildSectionTitle(String title) {
+    final colors = Theme.of(context).colorScheme;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
       child: Text(
         title.toUpperCase(),
         style: TextStyle(
-          color: Colors.grey[600],
+          color: colors.onSurface.withOpacity(0.6),
           fontWeight: FontWeight.bold,
           fontSize: 12,
         ),
