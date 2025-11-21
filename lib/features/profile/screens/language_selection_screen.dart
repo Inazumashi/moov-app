@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 
 class LanguageSelectionScreen extends StatelessWidget {
   const LanguageSelectionScreen({super.key});
-  
-  // Liste des langues supportées (basé sur votre demande)
+
   final List<Map<String, String>> languages = const [
     {'code': 'fr', 'name': 'Français'},
     {'code': 'en', 'name': 'English'},
@@ -12,42 +11,57 @@ class LanguageSelectionScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: Le code ici devrait lire la langue actuelle du système pour cocher l'élément
-    const String currentLangCode = 'fr'; 
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    const String currentLangCode = 'fr'; // TODO: lire la langue actuelle
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: theme.scaffoldBackgroundColor,
+
       appBar: AppBar(
-        title: const Text('Langue'),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        iconTheme: const IconThemeData(color: Colors.white),
+        title: Text(
+          'Langue',
+          style: TextStyle(color: colors.onPrimary),
+        ),
+        backgroundColor: colors.primary,
+        iconTheme: IconThemeData(color: colors.onPrimary),
       ),
+
       body: Container(
         margin: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.cardColor,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           children: List.generate(languages.length, (index) {
             final lang = languages[index];
             final bool isSelected = lang['code'] == currentLangCode;
-            
+
             return Column(
               children: [
                 ListTile(
-                  title: Text(lang['name']!),
+                  title: Text(
+                    lang['name']!,
+                    style: TextStyle(color: colors.onBackground),
+                  ),
                   trailing: isSelected
-                      ? Icon(Icons.check, color: Theme.of(context).colorScheme.primary)
+                      ? Icon(Icons.check, color: colors.primary)
                       : null,
                   onTap: () {
-                    // TODO: Implémenter la logique de changement de langue (i18n)
-                    // Cela nécessite une configuration dans pubspec.yaml
+                    // TODO: Logique de changement de langue
                     // Navigator.of(context).pop();
                   },
                 ),
+
                 if (index < languages.length - 1)
-                  const Divider(height: 1, indent: 16),
+                  Divider(
+                    height: 1,
+                    indent: 16,
+                    endIndent: 16,
+                    color: colors.outline.withOpacity(0.3),
+                  ),
               ],
             );
           }),

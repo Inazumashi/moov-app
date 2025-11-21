@@ -15,7 +15,7 @@ dependencies:
   # IMPORTANT: Ceci doit être dans 'dependencies', pas 'dev_dependencies'
   flutter_localizations:
     sdk: flutter
-  intl: ^0.19.0
+  intl: ^0.20.2
 
   # Icônes de base
   cupertino_icons: ^1.0.2

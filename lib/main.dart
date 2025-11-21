@@ -37,10 +37,8 @@ class MyApp extends StatelessWidget {
 
       // --- CONFIGURATION DU THÈME ---
       theme: AppTheme.lightTheme,
-      // On utilise le thème sombre par défaut de Flutter pour l'instant
-      // (ou AppTheme.darkTheme si vous l'avez défini)
-      darkTheme: ThemeData.dark(), 
-      themeMode: themeProvider.themeMode, // Bascule light/dark
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeProvider.themeMode,
 
       // --- CONFIGURATION DE LA TRADUCTION ---
       localizationsDelegates: const [

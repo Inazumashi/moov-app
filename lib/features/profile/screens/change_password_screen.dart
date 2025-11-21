@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moovapp/features/auth/widgets/auth_textfield.dart';
 
-// On utilise un StatefulWidget pour gérer les contrôleurs
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
 
@@ -24,70 +23,92 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+
       appBar: AppBar(
-        title: const Text(
+        backgroundColor: colorScheme.primary,
+        iconTheme: IconThemeData(color: colorScheme.onPrimary),
+        title: Text(
           'Changer le mot de passe',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: colorScheme.onPrimary,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        iconTheme: const IconThemeData(color: Colors.white),
       ),
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Container(
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(16),
           ),
+
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Mot de passe actuel',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: colorScheme.onBackground,
+                ),
               ),
               const SizedBox(height: 8),
+
               AuthTextField(
                 controller: _currentPasswordController,
                 hintText: '••••••••',
                 icon: Icons.lock_outline,
                 isPassword: true,
               ),
+
               const SizedBox(height: 24),
-              const Text(
+
+              Text(
                 'Nouveau mot de passe',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: colorScheme.onBackground,
+                ),
               ),
               const SizedBox(height: 8),
+
               AuthTextField(
                 controller: _newPasswordController,
                 hintText: 'Nouveau mot de passe',
                 icon: Icons.lock_outline,
                 isPassword: true,
               ),
+
               const SizedBox(height: 16),
+
               AuthTextField(
                 controller: _confirmPasswordController,
                 hintText: 'Confirmer le nouveau mot de passe',
                 icon: Icons.lock_outline,
                 isPassword: true,
               ),
+
               const SizedBox(height: 32),
+
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    // TODO: Logique pour appeler le backend
-                    // 1. Vérifier si newPassword == confirmPassword
-                    // 2. Appeler authService.changePassword(...)
-                    // 3. Afficher un message de succès
-                    // 4. Navigator.of(context).pop();
+                    // TODO: Backend
                   },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: colorScheme.primary,
+                    foregroundColor: colorScheme.onPrimary,
                   ),
                   child: const Text(
                     'Enregistrer les modifications',

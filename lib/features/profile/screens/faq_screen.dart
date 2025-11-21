@@ -5,33 +5,40 @@ class FaqScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: theme.scaffoldBackgroundColor,
+
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'FAQ (Questions fréquentes)',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: colors.onPrimary,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: colors.primary,
+        iconTheme: IconThemeData(color: colors.onPrimary),
       ),
+
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
-          // J'ajoute quelques questions/réponses d'exemple
-          _buildFaqItem(
+          _buildFaqItem(context,
             'Comment publier un trajet ?',
             'Allez dans l\'onglet "Publier" (l\'icône + au milieu). Remplissez les détails de votre trajet, y compris le départ, l\'arrivée, la date, l\'heure, et le prix. Appuyez ensuite sur "Publier le trajet".',
           ),
-          _buildFaqItem(
+          _buildFaqItem(context,
             'Comment réserver une place ?',
             'Allez dans l\'onglet "Rechercher". Entrez votre point de départ, d\'arrivée et la date. Parcourez les résultats et cliquez sur le trajet qui vous convient pour voir les détails et le réserver.',
           ),
-          _buildFaqItem(
+          _buildFaqItem(context,
             'La vérification est-elle obligatoire ?',
             'La vérification de votre email universitaire est obligatoire pour rejoindre votre communauté. La vérification de l\'identité et du téléphone est optionnelle mais fortement recommandée pour augmenter la confiance et la sécurité.',
           ),
-          _buildFaqItem(
+          _buildFaqItem(context,
             'Comment contacter un conducteur ?',
             'Une fois votre réservation confirmée, vous aurez accès à une messagerie privée pour discuter des détails (lieu de rendez-vous exact, etc.) avec le conducteur.',
           ),
@@ -40,27 +47,45 @@ class FaqScreen extends StatelessWidget {
     );
   }
 
-  // Helper widget pour un seul item de la FAQ (un titre cliquable qui s'ouvre)
-  Widget _buildFaqItem(String question, String answer) {
+  Widget _buildFaqItem(
+    BuildContext context,
+    String question,
+    String answer,
+  ) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Card(
       elevation: 0,
-      color: Colors.white,
+      color: theme.cardColor,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
       margin: const EdgeInsets.only(bottom: 12.0),
+
       child: ExpansionTile(
         title: Text(
           question,
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: colors.onBackground,
+          ),
         ),
-        // Ce qui s'affiche quand on clique
+
+        iconColor: colors.primary,
+        collapsedIconColor: colors.primary,
+
         childrenPadding: const EdgeInsets.all(16.0),
+
         children: [
           Text(
             answer,
-            style: TextStyle(color: Colors.grey[700], height: 1.5, fontSize: 15),
-          )
+            style: TextStyle(
+              color: colors.onBackground.withOpacity(0.8),
+              height: 1.5,
+              fontSize: 15,
+            ),
+          ),
         ],
       ),
     );

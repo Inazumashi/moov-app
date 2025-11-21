@@ -5,79 +5,88 @@ class PaymentMethodsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color primaryColor = Theme.of(context).colorScheme.primary;
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: theme.scaffoldBackgroundColor,
+
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Moyens de paiement',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: colors.onPrimary,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        backgroundColor: primaryColor,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: colors.primary,
+        iconTheme: IconThemeData(color: colors.onPrimary),
       ),
+
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
-          _buildSectionTitle('Cartes enregistrées'),
-          
-          // Exemple de carte déjà enregistrée (Placeholder)
+          _buildSectionTitle(context, 'Cartes enregistrées'),
+
           _buildPaymentCard(
             context,
             'Carte Bancaire **** 4242',
             'Visa',
             Colors.blue,
           ),
-          
+
           const SizedBox(height: 16),
-          
-          // Bouton pour ajouter une nouvelle carte
+
           OutlinedButton.icon(
-            onPressed: () {
-              // TODO: Logique pour ouvrir un formulaire d'ajout de carte
-            },
-            icon: Icon(Icons.add_circle_outline, color: primaryColor),
+            onPressed: () {},
+            icon: Icon(Icons.add_circle_outline, color: colors.primary),
             label: Text(
               'Ajouter un nouveau moyen de paiement',
-              style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: colors.primary,
+                fontWeight: FontWeight.bold,
+              ),
             ),
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 12),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              side: BorderSide(color: primaryColor),
+              side: BorderSide(color: colors.primary),
             ),
           ),
-          
+
           const SizedBox(height: 32),
-          
-          // Informations
+
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: theme.cardColor,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Text(
               'Vos informations de paiement sont sécurisées et cryptées selon les normes PCI DSS.',
-              style: TextStyle(color: Colors.grey[600]),
+              style: TextStyle(
+                color: colors.onBackground.withOpacity(0.7),
+              ),
             ),
           ),
         ],
       ),
     );
   }
-  
-  // Helper pour les titres de section
-  Widget _buildSectionTitle(String title) {
+
+  // TITRE DE SECTION
+  Widget _buildSectionTitle(BuildContext context, String title) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
       child: Text(
         title.toUpperCase(),
         style: TextStyle(
-          color: Colors.grey[600],
+          color: colors.onBackground.withOpacity(0.7),
           fontWeight: FontWeight.bold,
           fontSize: 12,
         ),
@@ -85,27 +94,34 @@ class PaymentMethodsScreen extends StatelessWidget {
     );
   }
 
-  // Helper pour afficher une carte de paiement
+  // CARTE DE PAIEMENT
   Widget _buildPaymentCard(
       BuildContext context, String title, String type, Color color) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Card(
       elevation: 0.5,
+      color: theme.cardColor,
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
       child: ListTile(
-        leading: Icon(
-          Icons.credit_card,
-          color: color,
-          size: 30,
+        leading: Icon(Icons.credit_card, color: color, size: 30),
+        title: Text(
+          title,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: colors.onBackground,
+          ),
         ),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(type),
-        trailing: const Icon(Icons.more_vert),
-        onTap: () {
-          // TODO: Option de modifier/supprimer
-        },
+        subtitle: Text(
+          type,
+          style: TextStyle(color: colors.onBackground.withOpacity(0.7)),
+        ),
+        trailing: Icon(Icons.more_vert, color: colors.onBackground),
+        onTap: () {},
       ),
     );
   }

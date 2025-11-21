@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-// On utilise un StatefulWidget pour gérer les contrôleurs de texte
 class ContactUsScreen extends StatefulWidget {
   const ContactUsScreen({super.key});
 
@@ -21,82 +20,115 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: theme.scaffoldBackgroundColor,
+
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Contactez-nous',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: colors.onPrimary,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: colors.primary,
+        iconTheme: IconThemeData(color: colors.onPrimary),
       ),
+
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
+
         child: Container(
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: theme.cardColor,
             borderRadius: BorderRadius.circular(16),
           ),
+
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
+              Text(
                 'Sujet',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: colors.onBackground,
+                ),
               ),
+
               const SizedBox(height: 8),
+
               TextField(
                 controller: _subjectController,
+                style: TextStyle(color: colors.onBackground),
                 decoration: InputDecoration(
                   hintText: 'Ex: Problème de réservation',
-                  prefixIcon: const Icon(Icons.subject_outlined),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
-                  ),
+                  hintStyle: TextStyle(color: colors.onBackground.withOpacity(0.6)),
+                  prefixIcon: Icon(Icons.subject_outlined, color: colors.onBackground),
+                  filled: true,
+                  fillColor: theme.cardColor,
+
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: colors.outline.withOpacity(0.4)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: colors.primary),
                   ),
                 ),
               ),
+
               const SizedBox(height: 24),
-              const Text(
+
+              Text(
                 'Message',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                  color: colors.onBackground,
+                ),
               ),
+
               const SizedBox(height: 8),
+
               TextField(
                 controller: _messageController,
+                style: TextStyle(color: colors.onBackground),
                 decoration: InputDecoration(
                   hintText: 'Bonjour, j\'ai un problème avec...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
-                  ),
+                  hintStyle: TextStyle(color: colors.onBackground.withOpacity(0.6)),
+                  filled: true,
+                  fillColor: theme.cardColor,
+
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: colors.outline.withOpacity(0.4)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: colors.primary),
                   ),
                 ),
                 maxLines: 6,
               ),
+
               const SizedBox(height: 32),
+
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    // TODO: Logique pour envoyer l'email ou appeler l'API de support
-                    // 1. Récupérer _subjectController.text
-                    // 2. Récupérer _messageController.text
-                    // 3. Envoyer
-                    // 4. Afficher un message de succès
-                    // 5. Navigator.of(context).pop();
+                    // TODO: envoyer message
                   },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: colors.primary,
+                    foregroundColor: colors.onPrimary,
                   ),
                   child: const Text(
                     'Envoyer le message',

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-// On utilise un StatefulWidget pour gérer l'état des Switchs
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
 
@@ -9,7 +8,6 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
-  // Valeurs d'exemple pour les Switchs
   bool _newRides = true;
   bool _newMessages = true;
   bool _bookingUpdates = true;
@@ -17,84 +15,78 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: theme.scaffoldBackgroundColor,
+
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Notifications',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            color: colors.onPrimary,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        iconTheme: const IconThemeData(color: Colors.white),
+        backgroundColor: colors.primary,
+        iconTheme: IconThemeData(color: colors.onPrimary),
       ),
+
       body: ListView(
         children: <Widget>[
           // --- Section Notifications Push ---
-          _buildSectionTitle('Notifications Push'),
+          _buildSectionTitle(context, 'Notifications Push'),
+
           Container(
-            color: Colors.white,
+            color: theme.cardColor,
             child: Column(
               children: <Widget>[
-                SwitchListTile(
-                  secondary: const Icon(Icons.directions_car_outlined),
-                  title: const Text('Nouveaux trajets publiés'),
-                  subtitle: const Text(
-                      'Recevoir une alerte pour les nouveaux trajets sur vos routes favorites.'),
+                _buildSwitch(
+                  context,
+                  icon: Icons.directions_car_outlined,
+                  title: 'Nouveaux trajets publiés',
+                  subtitle:
+                      'Recevoir une alerte pour les nouveaux trajets sur vos routes favorites.',
                   value: _newRides,
-                  onChanged: (bool value) {
-                    setState(() {
-                      _newRides = value;
-                    });
-                  },
-                  activeThumbColor: Theme.of(context).colorScheme.primary,
+                  onChanged: (v) => setState(() => _newRides = v),
                 ),
-                SwitchListTile(
-                  secondary: const Icon(Icons.message_outlined),
-                  title: const Text('Nouveaux messages'),
-                  subtitle: const Text(
-                      'Recevoir une alerte pour les nouveaux messages de conducteurs/passagers.'),
+                _buildSwitch(
+                  context,
+                  icon: Icons.message_outlined,
+                  title: 'Nouveaux messages',
+                  subtitle:
+                      'Recevoir une alerte pour les nouveaux messages de conducteurs/passagers.',
                   value: _newMessages,
-                  onChanged: (bool value) {
-                    setState(() {
-                      _newMessages = value;
-                    });
-                  },
-                  activeThumbColor: Theme.of(context).colorScheme.primary,
+                  onChanged: (v) => setState(() => _newMessages = v),
                 ),
-                SwitchListTile(
-                  secondary: const Icon(Icons.check_circle_outline),
-                  title: const Text('Mises à jour des réservations'),
-                  subtitle: const Text('Réservation confirmée, annulée, etc.'),
+                _buildSwitch(
+                  context,
+                  icon: Icons.check_circle_outline,
+                  title: 'Mises à jour des réservations',
+                  subtitle: 'Réservation confirmée, annulée, etc.',
                   value: _bookingUpdates,
-                  onChanged: (bool value) {
-                    setState(() {
-                      _bookingUpdates = value;
-                    });
-                  },
-                  activeThumbColor: Theme.of(context).colorScheme.primary,
+                  onChanged: (v) => setState(() => _bookingUpdates = v),
                 ),
               ],
             ),
           ),
 
           // --- Section Notifications Email ---
-          _buildSectionTitle('Notifications par E-mail'),
+          _buildSectionTitle(context, 'Notifications par E-mail'),
+
           Container(
-            color: Colors.white,
+            color: theme.cardColor,
             child: Column(
               children: <Widget>[
-                SwitchListTile(
-                  secondary: const Icon(Icons.local_offer_outlined),
-                  title: const Text('Promotions et actualités'),
+                _buildSwitch(
+                  context,
+                  icon: Icons.local_offer_outlined,
+                  title: 'Promotions et actualités',
                   subtitle:
-                      const Text('Recevoir les promotions et les nouvelles de Moov.'),
+                      'Recevoir les promotions et les nouvelles de Moov.',
                   value: _promotions,
-                  onChanged: (bool value) {
-                    setState(() {
-                      _promotions = value;
-                    });
-                  },
-                  activeThumbColor: Theme.of(context).colorScheme.primary,
+                  onChanged: (v) => setState(() => _promotions = v),
                 ),
               ],
             ),
@@ -104,19 +96,47 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  // Helper pour les titres de section
-  Widget _buildSectionTitle(String title) {
+  // TITRE DE SECTION
+  Widget _buildSectionTitle(BuildContext context, String title) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 24, 16, 8),
       child: Text(
         title.toUpperCase(),
-        // CORRECTION: Ajout de const ici
         style: TextStyle(
-          color: Colors.grey[600],
+          color: colors.onBackground.withOpacity(0.7),
           fontWeight: FontWeight.bold,
           fontSize: 12,
         ),
       ),
+    );
+  }
+
+  // SWITCH LIST TILE
+  Widget _buildSwitch(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required bool value,
+    required Function(bool) onChanged,
+  }) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    return SwitchListTile(
+      secondary: Icon(icon, color: colors.onBackground),
+      title: Text(title, style: TextStyle(color: colors.onBackground)),
+      subtitle: Text(
+        subtitle,
+        style: TextStyle(color: colors.onBackground.withOpacity(0.7)),
+      ),
+      value: value,
+      onChanged: onChanged,
+      activeColor: colors.primary,
+      activeTrackColor: colors.primary.withOpacity(0.4),
     );
   }
 }
