@@ -30,7 +30,7 @@ dependencies:
   
   # 3. Le "coffre-fort" sécurisé
   flutter_secure_storage: ^9.1.1 
-
+  shared_preferences: ^2.1.1
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:moovapp/core/providers/language_provider.dart'; // <-- à créer
 
 class LanguageSelectionScreen extends StatelessWidget {
-  const LanguageSelectionScreen({super.key});
+  LanguageSelectionScreen({super.key});
 
   final List<Map<String, String>> languages = const [
     {'code': 'fr', 'name': 'Français'},
@@ -14,11 +16,12 @@ class LanguageSelectionScreen extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
 
-    const String currentLangCode = 'fr'; // TODO: lire la langue actuelle
+    // On récupère le LanguageProvider pour connaître la langue actuelle
+    final languageProvider = Provider.of<LanguageProvider>(context);
+    final currentLocale = languageProvider.locale;
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-
       appBar: AppBar(
         title: Text(
           'Langue',
@@ -27,7 +30,6 @@ class LanguageSelectionScreen extends StatelessWidget {
         backgroundColor: colors.primary,
         iconTheme: IconThemeData(color: colors.onPrimary),
       ),
-
       body: Container(
         margin: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
@@ -37,7 +39,7 @@ class LanguageSelectionScreen extends StatelessWidget {
         child: Column(
           children: List.generate(languages.length, (index) {
             final lang = languages[index];
-            final bool isSelected = lang['code'] == currentLangCode;
+            final bool isSelected = lang['code'] == currentLocale.languageCode;
 
             return Column(
               children: [
@@ -46,15 +48,13 @@ class LanguageSelectionScreen extends StatelessWidget {
                     lang['name']!,
                     style: TextStyle(color: colors.onBackground),
                   ),
-                  trailing: isSelected
-                      ? Icon(Icons.check, color: colors.primary)
-                      : null,
+                  trailing:
+                      isSelected ? Icon(Icons.check, color: colors.primary) : null,
                   onTap: () {
-                    // TODO: Logique de changement de langue
-                    // Navigator.of(context).pop();
+                    // Mise à jour de la langue via le provider
+                    languageProvider.setLocale(Locale(lang['code']!));
                   },
                 ),
-
                 if (index < languages.length - 1)
                   Divider(
                     height: 1,

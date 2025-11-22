@@ -6,17 +6,28 @@ import 'package:moovapp/core/theme/app_theme.dart';
 import 'package:moovapp/core/providers/theme_provider.dart';
 import 'package:moovapp/core/providers/auth_provider.dart';
 import 'package:moovapp/features/auth/screens/welcome_screen.dart';
-
-
 import 'package:moovapp/l10n/app_localizations.dart';
+
+// --- NOUVEAU: LanguageProvider ---
+class LanguageProvider extends ChangeNotifier {
+  Locale _locale = const Locale('fr'); // Langue par défaut
+
+  Locale get locale => _locale;
+
+  void setLocale(Locale locale) {
+    if (!['fr', 'en', 'ar'].contains(locale.languageCode)) return;
+    _locale = locale;
+    notifyListeners();
+  }
+}
 
 void main() {
   runApp(
-    // On utilise MultiProvider pour injecter nos providers (Thème et Auth) dans l'app
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => LanguageProvider()), // <-- nouveau
       ],
       child: const MyApp(),
     ),
@@ -28,19 +39,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // On écoute le ThemeProvider pour changer le thème dynamiquement
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final languageProvider = Provider.of<LanguageProvider>(context);
 
     return MaterialApp(
       title: 'Moov',
       debugShowCheckedModeBanner: false,
-
-      // --- CONFIGURATION DU THÈME ---
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeProvider.themeMode,
 
-      // --- CONFIGURATION DE LA TRADUCTION ---
+      // --- LOCALISATIONS ---
       localizationsDelegates: const [
         AppLocalizations.delegate,
         GlobalMaterialLocalizations.delegate,
@@ -48,14 +57,12 @@ class MyApp extends StatelessWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [
-        Locale('fr'), // Français
-        Locale('en'), // Anglais
-        Locale('ar'), // Arabe
+        Locale('fr'),
+        Locale('en'),
+        Locale('ar'),
       ],
-      // Langue par défaut
-      locale: const Locale('fr'), 
+      locale: languageProvider.locale, // <-- dynamique maintenant
 
-      // L'écran de démarrage
       home: const WelcomeScreen(),
     );
   }
