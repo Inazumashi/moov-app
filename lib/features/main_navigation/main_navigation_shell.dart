@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 
-// --- ATTENTION : Ces 5 imports seront rouges (Erreurs) ---
-// C'est normal, nous n'avons pas encore créé ces fichiers.
+// (Les imports rouges sont normaux tant que les fichiers n'existent pas)
 import 'package:moovapp/features/home/screens/home_screen.dart';
 import 'package:moovapp/features/search/screens/search_screen.dart';
 import 'package:moovapp/features/publish/screens/publish_screen.dart';
 import 'package:moovapp/features/favorites/screens/favorites_screen.dart';
 import 'package:moovapp/features/profile/screens/profile_screen.dart';
-// ---------------------------------------------------------
 
 class MainNavigationShell extends StatefulWidget {
   const MainNavigationShell({super.key});
@@ -17,10 +15,8 @@ class MainNavigationShell extends StatefulWidget {
 }
 
 class _MainNavigationShellState extends State<MainNavigationShell> {
-  // Un 'int' pour mémoriser l'index de l'onglet sélectionné
   int _selectedIndex = 0;
 
-  // La liste des 5 écrans principaux
   static const List<Widget> _screens = <Widget>[
     HomeScreen(),
     SearchScreen(),
@@ -29,19 +25,13 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
     ProfileScreen(),
   ];
 
-  // La fonction qui est appelée quand on clique sur un onglet
   void _onItemTapped(int index) {
-    // Cas spécial pour le bouton "Publier" (index 2)
-    // On veut afficher un "modal" (pop-up) au lieu de changer d'écran
     if (index == 2) {
-      // TODO: Afficher le pop-up ou l'écran de publication
-      // Pour l'instant, on navigue, mais on pourra changer ça
       setState(() {
         _selectedIndex = index;
       });
     } else {
       setState(() {
-        // On met à jour l'index, ce qui va changer l'écran affiché
         _selectedIndex = index;
       });
     }
@@ -49,17 +39,20 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Scaffold(
-      // Le corps du Scaffold est l'écran actuellement sélectionné
+      backgroundColor: colors.background,
+
+      // Écran actif
       body: _screens.elementAt(_selectedIndex),
-      
-      // La barre de navigation en bas
+
       bottomNavigationBar: BottomNavigationBar(
-        // Les 5 icônes/boutons
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home), // Icône quand sélectionné
+            activeIcon: Icon(Icons.home),
             label: 'Accueil',
           ),
           BottomNavigationBarItem(
@@ -68,7 +61,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
             label: 'Rechercher',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle_outline, size: 32), // Icône plus grosse
+            icon: Icon(Icons.add_circle_outline, size: 32),
             activeIcon: Icon(Icons.add_circle, size: 32),
             label: 'Publier',
           ),
@@ -83,17 +76,16 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
             label: 'Profil',
           ),
         ],
-        
-        // --- Configuration importante ---
-        currentIndex: _selectedIndex, // L'onglet actif
-        onTap: _onItemTapped, // Ce qu'il faut faire quand on clique
-        
-        // --- Style (pour correspondre à la maquette) ---
-        selectedItemColor: Theme.of(context).colorScheme.primary, // Couleur de l'icône active
-        unselectedItemColor: Colors.grey[600], // Couleur des icônes inactives
-        showUnselectedLabels: true, // Toujours montrer les labels
-        type: BottomNavigationBarType.fixed, // Important pour 5 onglets
-        backgroundColor: Colors.white,
+
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+
+        // --- MODE SOMBRE/CLEAR AUTOMATIQUE ---
+        selectedItemColor: colors.primary,
+        unselectedItemColor: colors.onSurface.withOpacity(0.6),
+        backgroundColor: colors.surface,
+        showUnselectedLabels: true,
+        type: BottomNavigationBarType.fixed,
         elevation: 5.0,
       ),
     );

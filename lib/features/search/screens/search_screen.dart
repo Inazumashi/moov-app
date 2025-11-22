@@ -13,31 +13,30 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Color primaryColor = Theme.of(context).colorScheme.primary;
+    final colorScheme = Theme.of(context).colorScheme;
+    final primaryColor = colorScheme.primary;
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: colorScheme.surface,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            backgroundColor: Colors.white,
+            backgroundColor: colorScheme.surface,
             pinned: true,
-            expandedHeight: 360.0,   // 🔥 Corrigé : hauteur augmentée
+            expandedHeight: 360.0,
             flexibleSpace: FlexibleSpaceBar(
               titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
-              
               background: SafeArea(
-                child: SingleChildScrollView( // 🔥 Corrigé : empêche tout overflow
+                child: SingleChildScrollView(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 90, 16, 16),
-                    child: _buildSearchForm(primaryColor),
+                    child: _buildSearchForm(primaryColor, colorScheme),
                   ),
                 ),
               ),
             ),
           ),
 
-          // --- RESULTS LIST ---
           SliverList(
             delegate: SliverChildListDelegate(
               [
@@ -45,12 +44,10 @@ class _SearchScreenState extends State<SearchScreen> {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      if (_showAd) _buildAdCard(),
-
+                      if (_showAd) _buildAdCard(colorScheme),
                       _buildResultsHeader(primaryColor),
                       const SizedBox(height: 12),
 
-                      // RESULT CARD 1
                       const RideResultCard(
                         name: 'Karim El Idrissi',
                         rating: 4.7,
@@ -65,7 +62,6 @@ class _SearchScreenState extends State<SearchScreen> {
                       ),
                       const SizedBox(height: 12),
 
-                      // RESULT CARD 2
                       const RideResultCard(
                         name: 'Amina Laaroussi',
                         rating: 4.9,
@@ -90,9 +86,9 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   // ----------------------------
-  // 🔷 FORMULAIRE DE RECHERCHE
+  // FORMULAIRE SEARCH
   // ----------------------------
-  Widget _buildSearchForm(Color primaryColor) {
+  Widget _buildSearchForm(Color primaryColor, ColorScheme colorScheme) {
     return Column(
       children: [
         TextField(
@@ -100,7 +96,7 @@ class _SearchScreenState extends State<SearchScreen> {
             hintText: 'Départ',
             prefixIcon: Icon(Icons.location_on_outlined, color: primaryColor),
             filled: true,
-            fillColor: Colors.grey[100],
+            fillColor: colorScheme.surfaceVariant,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.0),
               borderSide: BorderSide.none,
@@ -114,7 +110,7 @@ class _SearchScreenState extends State<SearchScreen> {
             hintText: 'Arrivée',
             prefixIcon: Icon(Icons.location_on, color: Colors.green[600]),
             filled: true,
-            fillColor: Colors.grey[100],
+            fillColor: colorScheme.surfaceVariant,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.0),
               borderSide: BorderSide.none,
@@ -129,9 +125,9 @@ class _SearchScreenState extends State<SearchScreen> {
               child: TextField(
                 decoration: InputDecoration(
                   hintText: 'jj/mm/aaaa',
-                  prefixIcon: Icon(Icons.calendar_today_outlined, color: Colors.grey[600]),
+                  prefixIcon: Icon(Icons.calendar_today_outlined, color: colorScheme.onSurfaceVariant),
                   filled: true,
-                  fillColor: Colors.grey[100],
+                  fillColor: colorScheme.surfaceVariant,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.0),
                     borderSide: BorderSide.none,
@@ -145,7 +141,7 @@ class _SearchScreenState extends State<SearchScreen> {
               onPressed: () {},
               icon: const Icon(Icons.filter_list),
               style: IconButton.styleFrom(
-                backgroundColor: Colors.grey[100],
+                backgroundColor: colorScheme.surfaceVariant,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.0),
                 ),
@@ -160,7 +156,7 @@ class _SearchScreenState extends State<SearchScreen> {
           width: double.infinity,
           child: ElevatedButton.icon(
             onPressed: () {},
-            icon: const Icon(Icons.search, color: Colors.white),
+            icon: const Icon(Icons.search),
             label: const Text('Rechercher'),
             style: ElevatedButton.styleFrom(
               backgroundColor: primaryColor,
@@ -178,15 +174,15 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   // ----------------------------
-  // 🔶 CARTE PUBLICITÉ
+  // CARTE PUBLICITÉ
   // ----------------------------
-  Widget _buildAdCard() {
+  Widget _buildAdCard(ColorScheme colorScheme) {
     return Card(
       elevation: 0,
-      color: const Color(0xFFfff8e1),
+      color: colorScheme.secondaryContainer,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.yellow.shade700.withOpacity(0.5)),
+        side: BorderSide(color: colorScheme.secondary.withOpacity(0.4)),
       ),
       margin: const EdgeInsets.only(bottom: 16),
       child: Padding(
@@ -196,23 +192,27 @@ class _SearchScreenState extends State<SearchScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.yellow.shade700,
+                color: colorScheme.secondary,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Text(
+              child: Text(
                 'AD',
-                style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: colorScheme.onSecondary,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             const SizedBox(width: 12),
-            const Expanded(
+            Expanded(
               child: Text(
                 'Passez à Premium pour une expérience sans pub',
-                style: TextStyle(fontSize: 13),
+                style: TextStyle(fontSize: 13, color: colorScheme.onSurface),
               ),
             ),
             IconButton(
-              icon: Icon(Icons.close, size: 18, color: Colors.grey[700]),
+              icon: Icon(Icons.close, size: 18, color: colorScheme.onSurfaceVariant),
               onPressed: () {
                 setState(() {
                   _showAd = false;
@@ -226,7 +226,7 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   // ----------------------------
-  // 🔵 HEADER DES RESULTATS
+  // HEADER RÉSULTATS
   // ----------------------------
   Widget _buildResultsHeader(Color primaryColor) {
     return Row(

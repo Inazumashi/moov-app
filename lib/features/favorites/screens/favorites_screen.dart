@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-// Cet import devrait maintenant fonctionner !
 import '../widgets/favorite_ride_card.dart';
 
 class FavoritesScreen extends StatelessWidget {
@@ -7,49 +6,59 @@ class FavoritesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color primaryColor = Theme.of(context).colorScheme.primary;
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: colors.background,
+
       appBar: AppBar(
-        title: const Column(
+        backgroundColor: colors.primary,
+        toolbarHeight: 90,
+
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 16.0),
+          child: Icon(Icons.favorite, color: colors.onPrimary, size: 28),
+        ),
+
+        leadingWidth: 44,
+
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Mes favoris',
-              style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: colors.onPrimary,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-            SizedBox(height: 2),
+            const SizedBox(height: 2),
             Text(
-              '1 trajet sauvegardé', // TODO: Rendre ce chiffre dynamique
-              style: TextStyle(color: Colors.white70, fontSize: 14),
+              '1 trajet sauvegardé',
+              style: TextStyle(
+                color: colors.onPrimary.withOpacity(0.7),
+                fontSize: 14,
+              ),
             ),
           ],
         ),
-        backgroundColor: primaryColor,
-        toolbarHeight: 90,
-        // L'icône coeur est déjà dans le titre de l'AppBar
-        leading: const Padding(
-          padding: EdgeInsets.only(left: 16.0),
-          child: Icon(Icons.favorite, color: Colors.white, size: 28),
-        ),
-        leadingWidth: 44,
       ),
+
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
           Text(
             'Disponibles',
             style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey[700]),
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: colors.onBackground.withOpacity(0.8),
+            ),
           ),
+
           const SizedBox(height: 12),
 
-          // --- On appelle le widget pour la carte de favori ---
-          // TODO: Remplacer par des données réelles
           const FavoriteRideCard(
             name: 'Fatima Zahra',
             rating: 4.8,
@@ -61,13 +70,8 @@ class FavoritesScreen extends StatelessWidget {
             seats: 3,
             price: 15,
           ),
-
-          // Vous pouvez ajouter d'autres cartes ici
-          // const FavoriteRideCard(...),
         ],
       ),
     );
   }
 }
-
-

@@ -5,25 +5,26 @@ class PremiumScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: Colors.grey[100],
-      // L'AppBar orange
+      backgroundColor: cs.surface,
       appBar: AppBar(
         backgroundColor: Colors.orange[700],
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
+            const Text(
               'Premium',
               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
             Text(
               'Profitez d\'une expérience complète sans interruption',
-              style: TextStyle(color: Colors.white70, fontSize: 13),
+              style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 13),
             ),
           ],
         ),
@@ -34,53 +35,41 @@ class PremiumScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // --- Carte Premium ---
             _buildPremiumCard(context),
             const SizedBox(height: 24),
-            
-            // --- Carte Gratuit ---
             _buildFreeCard(context),
             const SizedBox(height: 24),
 
-            // --- Section "Pourquoi Premium ?" ---
-            const Text(
+            Text(
               'Pourquoi Premium ?',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: cs.onSurface,
+              ),
             ),
             const SizedBox(height: 16),
-            _buildWhyPremiumRow(
-              context,
-              Icons.block,
-              'Expérience sans publicité',
-              'Naviguez sans interruption',
-            ),
+
+            _buildWhyPremiumRow(context, Icons.block, 'Expérience sans publicité', 'Naviguez sans interruption'),
             const SizedBox(height: 12),
-            _buildWhyPremiumRow(
-              context,
-              Icons.bar_chart,
-              'Statistiques détaillées',
-              'Analysez vos habitudes de trajets',
-            ),
+            _buildWhyPremiumRow(context, Icons.bar_chart, 'Statistiques détaillées', 'Analysez vos habitudes de trajets'),
             const SizedBox(height: 12),
-            _buildWhyPremiumRow(
-              context,
-              Icons.verified_user,
-              'Badge Premium visible',
-              'Montrez votre engagement',
-            ),
+            _buildWhyPremiumRow(context, Icons.verified_user, 'Badge Premium visible', 'Montrez votre engagement'),
           ],
         ),
       ),
     );
   }
 
-  // Widget pour la carte bleue "Premium"
+  // ------------------------------------------------------
+  // PREMIUM CARD
+  // ------------------------------------------------------
   Widget _buildPremiumCard(BuildContext context) {
-    final Color primaryColor = Theme.of(context).colorScheme.primary;
+    final cs = Theme.of(context).colorScheme;
 
     return Container(
       decoration: BoxDecoration(
-        color: primaryColor,
+        color: cs.primary,
         borderRadius: BorderRadius.circular(16),
       ),
       padding: const EdgeInsets.all(24.0),
@@ -104,23 +93,29 @@ class PremiumScreen extends StatelessWidget {
               Icon(Icons.workspace_premium, color: Colors.orange[400], size: 32),
             ],
           ),
+
           const SizedBox(height: 16),
+
           RichText(
-            text: const TextSpan(
+            text: TextSpan(
               text: '49 MAD ',
-              style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
+              style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
               children: [
                 TextSpan(
                   text: '/ par mois',
-                  style: TextStyle(color: Colors.white70, fontSize: 16, fontWeight: FontWeight.normal),
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.8),
+                    fontSize: 16,
+                  ),
                 ),
               ],
             ),
           ),
-          const Text('Annulez à tout moment', style: TextStyle(color: Colors.white70, fontSize: 13)),
+
+          Text('Annulez à tout moment', style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 13)),
           const SizedBox(height: 24),
-          
-          // Liste des avantages
+
+          // Avantages premium
           _buildFeatureRow('Recherche de trajets', true),
           _buildFeatureRow('Publication de trajets', true),
           _buildFeatureRow('Messagerie illimitée', true),
@@ -130,16 +125,13 @@ class PremiumScreen extends StatelessWidget {
           _buildFeatureRow('Analyses détaillées', true),
           _buildFeatureRow('Badge Premium', true),
           _buildFeatureRow('Support prioritaire', true),
-          
+
           const SizedBox(height: 24),
-          
-          // Bouton Commencer Premium
+
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {
-                // TODO: Logique d'abonnement
-              },
+              onPressed: () {},
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange[400],
                 foregroundColor: Colors.black87,
@@ -157,13 +149,17 @@ class PremiumScreen extends StatelessWidget {
     );
   }
 
-  // Widget pour la carte blanche "Gratuit"
+  // ------------------------------------------------------
+  // FREE CARD
+  // ------------------------------------------------------
   Widget _buildFreeCard(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: cs.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(color: cs.outline.withOpacity(0.3)),
       ),
       padding: const EdgeInsets.all(24.0),
       child: Column(
@@ -172,30 +168,36 @@ class PremiumScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
-              color: Colors.grey[200],
+              color: cs.surfaceVariant,
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Text(
+            child: Text(
               'Plan actuel',
-              style: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold, fontSize: 12),
+              style: TextStyle(
+                color: cs.onSurfaceVariant,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
             ),
           ),
+
           const SizedBox(height: 16),
+
           RichText(
-            text: const TextSpan(
+            text: TextSpan(
               text: '0 MAD ',
-              style: TextStyle(color: Colors.black, fontSize: 32, fontWeight: FontWeight.bold),
+              style: TextStyle(color: cs.onSurface, fontSize: 32, fontWeight: FontWeight.bold),
               children: [
                 TextSpan(
                   text: '/ toujours',
-                  style: TextStyle(color: Colors.black54, fontSize: 16, fontWeight: FontWeight.normal),
+                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 16),
                 ),
               ],
             ),
           ),
+
           const SizedBox(height: 24),
 
-          // Liste des avantages/limitations
           _buildFeatureRow('Recherche de trajets', true, isFree: true),
           _buildFeatureRow('Publication de trajets', true, isFree: true),
           _buildFeatureRow('Messagerie basique', true, isFree: true),
@@ -209,27 +211,32 @@ class PremiumScreen extends StatelessWidget {
       ),
     );
   }
-  
-  // Helper pour les lignes d'avantages (Premium et Gratuit)
-  Widget _buildFeatureRow(String text, bool included, {bool isFree = false, bool isHighlighted = false}) {
-    IconData icon;
+
+  // ------------------------------------------------------
+  // FEATURE ROW (Premium + Free Cards)
+  // ------------------------------------------------------
+  Widget _buildFeatureRow(
+    String text,
+    bool included, {
+    bool isFree = false,
+    bool isHighlighted = false,
+  }) {
     Color iconColor;
-    Color textColor = isFree ? Colors.black87 : Colors.white;
+    Color textColor;
 
     if (included) {
-      icon = Icons.check_circle;
-      iconColor = isHighlighted ? (isFree ? Colors.orange.shade400 : Colors.orange.shade400) : (isFree ? Colors.green.shade400 : Colors.white);
+      iconColor = isHighlighted ? Colors.orange : (isFree ? Colors.green : Colors.white);
+      textColor = isFree ? Colors.black87 : Colors.white;
     } else {
-      icon = Icons.cancel;
-      iconColor = isFree ? Colors.grey.shade400 : Colors.white60;
-      textColor = isFree ? Colors.grey.shade600 : Colors.white60;
+      iconColor = isFree ? Colors.grey : Colors.white70;
+      textColor = isFree ? Colors.grey : Colors.white70;
     }
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(
         children: [
-          Icon(icon, color: iconColor, size: 20),
+          Icon(Icons.check_circle, color: iconColor, size: 20),
           const SizedBox(width: 12),
           Text(
             text,
@@ -244,25 +251,29 @@ class PremiumScreen extends StatelessWidget {
     );
   }
 
-  // Helper pour les lignes "Pourquoi Premium ?"
+  // ------------------------------------------------------
+  // WHY PREMIUM ROW
+  // ------------------------------------------------------
   Widget _buildWhyPremiumRow(BuildContext context, IconData icon, String title, String subtitle) {
+    final cs = Theme.of(context).colorScheme;
+
     return Row(
       children: [
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+            color: cs.primary.withOpacity(0.1),
             borderRadius: BorderRadius.circular(12),
           ),
-          child: Icon(icon, color: Theme.of(context).colorScheme.primary),
+          child: Icon(icon, color: cs.primary),
         ),
         const SizedBox(width: 16),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-              Text(subtitle, style: const TextStyle(color: Colors.black54)),
+              Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: cs.onSurface)),
+              Text(subtitle, style: TextStyle(color: cs.onSurfaceVariant)),
             ],
           ),
         ),
