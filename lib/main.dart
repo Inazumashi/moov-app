@@ -1,8 +1,14 @@
+// File: lib/main.dart
 import 'package:flutter/material.dart';
-import 'package:moovapp/core/theme/app_theme.dart'; // 1. Importer notre nouveau thème
+import 'package:moovapp/core/theme/app_theme.dart';
 import 'package:moovapp/features/auth/screens/welcome_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:moovapp/core/providers/auth_provider.dart';
+import 'package:moovapp/core/providers/reservation_provider.dart';
+import 'package:moovapp/core/providers/ride_provider.dart'; // NOUVEAU
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 
@@ -11,17 +17,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Moov',
-      // 2. Appliquer notre thème
-      theme: AppTheme.lightTheme, 
-      
-      // On enlève le bandeau "debug" en haut à droite
-      debugShowCheckedModeBanner: false, 
-      
-      // L'écran de démarrage est toujours le même
-      home: const WelcomeScreen(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => ReservationProvider()),
+        ChangeNotifierProvider(create: (_) => RideProvider()), // NOUVEAU
+      ],
+      child: MaterialApp(
+        title: 'Moov',
+        theme: AppTheme.lightTheme,
+        themeMode: ThemeMode.light,
+        debugShowCheckedModeBanner: false,
+        home: const WelcomeScreen(),
+      ),
     );
   }
 }
-

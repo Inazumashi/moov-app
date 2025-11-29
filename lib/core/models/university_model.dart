@@ -1,8 +1,9 @@
+// File: lib/core/models/university_model.dart
 class UniversityModel {
   final String universityId;
-  final String name; // "Université Mohammed VI Polytechnique"
-  final int studentCount; // 3200
-  final String domain; // "um6p.ma" (pour vérifier l'email)
+  final String name;
+  final int studentCount;
+  final String domain;
 
   UniversityModel({
     required this.universityId,
@@ -11,6 +12,21 @@ class UniversityModel {
     required this.domain,
   });
 
-  // Ici, on ajoutera plus tard des fonctions
-  // pour convertir ce modèle depuis/vers JSON (pour Firebase)
+  factory UniversityModel.fromJson(Map<String, dynamic> json) {
+    return UniversityModel(
+      universityId: json['universityId'] ?? json['id'] ?? '',
+      name: json['name'] ?? '',
+      studentCount: json['studentCount'] ?? 0,
+      domain: json['domain'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'universityId': universityId,
+      'name': name,
+      'studentCount': studentCount,
+      'domain': domain,
+    };
+  }
 }

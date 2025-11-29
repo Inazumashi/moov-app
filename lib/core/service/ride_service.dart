@@ -1,97 +1,144 @@
+// File: lib/core/service/ride_service.dart
+import 'package:moovapp/core/api/api_service.dart';
 import 'package:moovapp/core/models/ride_model.dart';
 import 'package:moovapp/core/models/university_model.dart';
 
-// Ce service gérera la recherche, la publication et la gestion des trajets.
-// Pour l'instant, ce sont des fonctions "bouchons" (placeholders).
-
 class RideService {
-  // Simule une recherche de trajets
-  Future<List<RideModel>> searchRides(
-      String from, String to, DateTime date) async {
-    print('Recherche de trajets de $from à $to pour le $date');
-    // TODO: Ajouter la vraie logique de recherche (ex: Firebase)
-    await Future.delayed(const Duration(seconds: 1));
+  final ApiService _apiService;
 
-    // On simule deux résultats de recherche
-    return [
-      RideModel(
-        rideId: 'ride_1',
-        driverId: 'driver_A',
-        driverName: 'Karim El Idrissi',
-        driverRating: 4.7,
-        startPoint: 'Ben Guerir',
-        endPoint: 'Casablanca',
-        departureTime: DateTime.now().add(const Duration(hours: 3)),
-        availableSeats: 4,
-        pricePerSeat: 70,
-      ),
-      RideModel(
-        rideId: 'ride_2',
-        driverId: 'driver_B',
-        driverName: 'Amina Laaroussi',
-        driverRating: 4.9,
-        driverIsPremium: true,
-        startPoint: 'UM6P Campus',
-        endPoint: 'Marrakech',
-        departureTime: DateTime.now().add(const Duration(hours: 5)),
-        availableSeats: 3,
-        pricePerSeat: 45,
-      ),
-    ];
+  RideService(this._apiService);
+
+  // Recherche de trajets
+  Future<List<RideModel>> searchRides({
+    required String from,
+    required String to,
+    required DateTime date,
+  }) async {
+    try {
+      final response = await _apiService.get(
+        'rides/search?from=$from&to=$to&date=${date.toIso8601String()}',
+      );
+      
+      return (response['rides'] as List)
+          .map((json) => RideModel.fromJson(json))
+          .toList();
+    } catch (e) {
+      print('Erreur recherche trajets: $e');
+      rethrow;
+    }
   }
 
-  // Simule la publication d'un trajet
+  // Publier un trajet
   Future<void> publishRide(RideModel ride) async {
-    print('Publication du trajet de ${ride.startPoint} à ${ride.endPoint}');
-    // TODO: Ajouter la vraie logique de publication (ex: Firebase)
-    await Future.delayed(const Duration(seconds: 1));
+    try {
+      await _apiService.post('rides', ride.toJson());
+    } catch (e) {
+      print('Erreur publication trajet: $e');
+      rethrow;
+    }
   }
 
-  // Simule la récupération des trajets favoris
-  Future<List<RideModel>> getFavoriteRides(String userId) async {
-    print('Récupération des favoris pour $userId');
-    // TODO: Ajouter la vraie logique
-    await Future.delayed(const Duration(milliseconds: 500));
-    return [
-      RideModel(
-        rideId: 'ride_3',
-        driverId: 'driver_C',
-        driverName: 'Fatima Zahra',
-        driverRating: 4.8,
-        driverIsPremium: true,
-        startPoint: 'Ben Guerir Centre',
-        endPoint: 'UM6P Campus',
-        departureTime: DateTime.now().add(const Duration(days: 1)),
-        availableSeats: 3,
-        pricePerSeat: 15,
-      ),
-    ];
+  // Récupérer les trajets publiés par l'utilisateur
+  Future<List<RideModel>> getMyPublishedRides() async {
+    try {
+      final response = await _apiService.get('rides/my-published');
+      
+      return (response['rides'] as List)
+          .map((json) => RideModel.fromJson(json))
+          .toList();
+    } catch (e) {
+      print('Erreur récupération trajets publiés: $e');
+      rethrow;
+    }
   }
 
-  // Simule la récupération de la liste des universités
+  // Supprimer un trajet publié
+  Future<void> deleteRide(String rideId) async {
+    try {
+      await _apiService.delete('rides/$rideId');
+    } catch (e) {
+      print('Erreur suppression trajet: $e');
+      rethrow;
+    }
+  }
+
+  // Mettre à jour un trajet
+  Future<void> updateRide(RideModel ride) async {
+    try {
+      await _apiService.put('rides/${ride.rideId}', ride.toJson());
+    } catch (e) {
+      print('Erreur mise à jour trajet: $e');
+      rethrow;
+    }
+  }
+
+  // Récupérer un trajet par ID
+  Future<RideModel> getRideById(String rideId) async {
+    try {
+      final response = await _apiService.get('rides/$rideId');
+      return RideModel.fromJson(response['ride']);
+    } catch (e) {
+      print('Erreur récupération trajet: $e');
+      rethrow;
+    }
+  }
+
+  // Récupérer les trajets favoris
+  Future<List<RideModel>> getFavoriteRides() async {
+    try {
+      final response = await _apiService.get('rides/favorites');
+      
+      return (response['favorites'] as List)
+          .map((json) => RideModel.fromJson(json))
+          .toList();
+    } catch (e) {
+      print('Erreur récupération favoris: $e');
+      rethrow;
+    }
+  }
+
+  // Récupérer la liste des universités
   Future<List<UniversityModel>> getUniversities() async {
-    print('Récupération des universités...');
-    // TODO: Ajouter la vraie logique
-    await Future.delayed(const Duration(milliseconds: 500));
-    return [
-      UniversityModel(
-        universityId: 'um6p',
-        name: 'Université Mohammed VI Polytechnique',
-        studentCount: 3200,
-        domain: 'um6p.ma',
-      ),
-      UniversityModel(
-        universityId: 'uca',
-        name: 'Université Cadi Ayyad',
-        studentCount: 45000,
-        domain: 'uca.ma',
-      ),
-      UniversityModel(
-        universityId: 'uir',
-        name: 'Université Internationale de Rabat',
-        studentCount: 5000,
-        domain: 'uir.ac.ma',
-      ),
-    ];
+    try {
+      final response = await _apiService.get('universities');
+      
+      return (response['universities'] as List)
+          .map((json) => UniversityModel.fromJson(json))
+          .toList();
+    } catch (e) {
+      print('Erreur récupération universités: $e');
+      rethrow;
+    }
+  }
+
+  // Ajouter aux favoris
+  Future<void> addToFavorites(String rideId) async {
+    try {
+      await _apiService.post('rides/$rideId/favorite', {});
+    } catch (e) {
+      print('Erreur ajout aux favoris: $e');
+      rethrow;
+    }
+  }
+
+  // Retirer des favoris
+  Future<void> removeFromFavorites(String rideId) async {
+    try {
+      await _apiService.delete('rides/$rideId/favorite');
+    } catch (e) {
+      print('Erreur suppression des favoris: $e');
+      rethrow;
+    }
+  }
+
+  // Vérifier si un trajet est dans les favoris
+  Future<bool> isFavorite(String rideId) async {
+    try {
+      final response = await _apiService.get('rides/$rideId/favorite-status');
+      return response['isFavorite'] ?? false;
+    } catch (e) {
+      print('Erreur vérification favori: $e');
+      return false;
+    }
   }
 }

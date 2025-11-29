@@ -1,54 +1,26 @@
+# File: pubspec.yaml
 name: moovapp
 description: "Application de covoiturage universitaire Moov."
-publish_to: 'none' # Ne pas publier sur pub.dev
+publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.0 <4.0.0' # Assurez-vous d'utiliser une version récente de Flutter/Dart
+  sdk: '>=3.0.0 <4.0.0'
 
-# --- DÉPENDANCES DE L'APPLICATION ---
 dependencies:
   flutter:
     sdk: flutter
 
-  # Icônes de base
   cupertino_icons: ^1.0.2
-  
-  # Ajouté pour le formatage des dates (dans utils/formatters.dart)
   intl: ^0.18.1
-
-  # --- NOS NOUVEAUX PACKAGES POUR LE BACKEND ---
-  
-  # 1. Le package pour faire les appels API (remplace Firebase)
   http: ^1.2.1
-  
-  # 2. Le package de "State Management" (pour partager l'info "utilisateur connecté")
   provider: ^6.1.2
-  
-  # 3. Le "coffre-fort" sécurisé pour stocker le Token JWT
-  flutter_secure_storage: ^9.1.1 
+  flutter_secure_storage: ^9.1.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  
-  # C'est ce package qui vous donne les erreurs 'const' et 'dynamic'
   flutter_lints: ^3.0.0
 
 flutter:
   uses-material-design: true
-
-  # --- DÉCLARATION DES ASSETS ---
-  # (Pour que Flutter trouve votre logo et vos icônes)
-  #assets:
-  #  - assets/images/
-  #  - assets/icons/
-
-  # --- DÉCLARATION DES POLICES ---
-  # (Exemple si vous ajoutez une police personnalisée)
-  # fonts:
-  #   - family: Inter
-  #     fonts:
-  #       - asset: assets/fonts/Inter-Regular.ttf
-  #       - asset: assets/fonts/Inter-Bold.ttf
-  #         weight: 700
