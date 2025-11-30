@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:moovapp/core/providers/ride_provider.dart';
+import 'package:moovapp/core/providers/auth_provider.dart';
 import 'package:moovapp/core/models/ride_model.dart';
 
 class PublishRideScreen extends StatefulWidget {
@@ -67,12 +68,25 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final currentUser = authProvider.user;
+      
+      if (currentUser == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Vous devez être connecté pour publier un trajet'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        return;
+      }
+
       final ride = RideModel(
         rideId: '', // Généré par le backend
-        driverId: 'current_user_id', // À remplacer par l'ID réel de l'utilisateur
-        driverName: 'Nom Conducteur', // À remplacer par le nom réel
-        driverRating: 5.0,
-        driverIsPremium: false,
+        driverId: currentUser.uid,
+        driverName: currentUser.fullName,
+        driverRating: currentUser.averageRating,
+        driverIsPremium: currentUser.isPremium,
         startPoint: _startPoint,
         endPoint: _endPoint,
         departureTime: _departureTime,
@@ -89,15 +103,16 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Trajet publié avec succès !'),
+            content: Text('🎉 Trajet publié avec succès !'),
             backgroundColor: Colors.green,
+            duration: Duration(seconds: 3),
           ),
         );
         Navigator.pop(context, true);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erreur: ${rideProvider.error}'),
+            content: Text('❌ Erreur: ${rideProvider.error}'),
             backgroundColor: Colors.red,
           ),
         );
@@ -134,6 +149,7 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
                   labelText: 'Point de départ',
                   prefixIcon: Icon(Icons.location_on, color: Colors.red),
                   border: OutlineInputBorder(),
+                  hintText: 'Ex: UM6P Campus, Ben Guerir',
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -151,6 +167,7 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
                   labelText: 'Point d\'arrivée',
                   prefixIcon: Icon(Icons.place, color: Colors.green),
                   border: OutlineInputBorder(),
+                  hintText: 'Ex: Casablanca, Marrakech',
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -204,6 +221,7 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
                   labelText: 'Nombre de places disponibles',
                   prefixIcon: Icon(Icons.people),
                   border: OutlineInputBorder(),
+                  hintText: '1-8',
                 ),
                 keyboardType: TextInputType.number,
                 initialValue: _availableSeats.toString(),
@@ -227,6 +245,7 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
                   labelText: 'Prix par place (DH)',
                   prefixIcon: Icon(Icons.attach_money),
                   border: OutlineInputBorder(),
+                  hintText: 'Ex: 45',
                 ),
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
                 validator: (value) {
@@ -249,6 +268,7 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
                   labelText: 'Véhicule (optionnel)',
                   prefixIcon: Icon(Icons.directions_car),
                   border: OutlineInputBorder(),
+                  hintText: 'Ex: Renault Clio - Blanc',
                 ),
                 onSaved: (value) => _vehicleInfo = value,
               ),
@@ -260,6 +280,7 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
                   labelText: 'Notes (optionnel)',
                   prefixIcon: Icon(Icons.note),
                   border: OutlineInputBorder(),
+                  hintText: 'Ex: Bagages légers uniquement',
                 ),
                 maxLines: 3,
                 onSaved: (value) => _notes = value,

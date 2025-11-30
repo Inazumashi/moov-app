@@ -1,27 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:moovapp/core/models/ride_model.dart';
 
 class FavoriteRideCard extends StatelessWidget {
-  final String name;
-  final double rating;
-  final bool isPremium;
-  final String departure;
-  final String arrival;
-  final String date;
-  final String time;
-  final int seats;
-  final double price;
+  final RideModel ride;
+  final VoidCallback onRemove;
+  final VoidCallback onView;
 
   const FavoriteRideCard({
     super.key,
-    required this.name,
-    required this.rating,
-    required this.isPremium,
-    required this.departure,
-    required this.arrival,
-    required this.date,
-    required this.time,
-    required this.seats,
-    required this.price,
+    required this.ride,
+    required this.onRemove,
+    required this.onView,
   });
 
   @override
@@ -50,7 +39,7 @@ class FavoriteRideCard extends StatelessWidget {
                   backgroundColor: primaryColor,
                   radius: 20,
                   child: Text(
-                    name.isNotEmpty ? name[0] : '?',
+                    ride.driverName.isNotEmpty ? ride.driverName[0] : '?',
                     style: const TextStyle(
                         color: Colors.white, fontWeight: FontWeight.bold),
                   ),
@@ -64,11 +53,11 @@ class FavoriteRideCard extends StatelessWidget {
                       Row(
                         children: [
                           Text(
-                            name,
+                            ride.driverName,
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 16),
                           ),
-                          if (isPremium) ...[
+                          if (ride.driverIsPremium) ...[
                             const SizedBox(width: 8),
                             Chip(
                               label: const Text(
@@ -90,7 +79,7 @@ class FavoriteRideCard extends StatelessWidget {
                               color: Colors.amber[600], size: 16),
                           const SizedBox(width: 4),
                           Text(
-                            rating.toString(),
+                            ride.driverRating.toStringAsFixed(1),
                             style: const TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 13),
                           ),
@@ -102,9 +91,7 @@ class FavoriteRideCard extends StatelessWidget {
                 // Icône poubelle
                 IconButton(
                   icon: const Icon(Icons.delete_outline, color: Colors.red),
-                  onPressed: () {
-                    // TODO: Gérer la suppression du favori
-                  },
+                  onPressed: onRemove,
                 ),
               ],
             ),
@@ -113,7 +100,7 @@ class FavoriteRideCard extends StatelessWidget {
             // --- Trajet : Départ & Arrivée ---
             _buildRideInfo(
               icon: Icons.my_location,
-              text: departure,
+              text: ride.startPoint,
               color: primaryColor,
             ),
             // Ligne verticale
@@ -127,7 +114,7 @@ class FavoriteRideCard extends StatelessWidget {
             ),
             _buildRideInfo(
               icon: Icons.location_on,
-              text: arrival,
+              text: ride.endPoint,
               color: Colors.green[600]!,
             ),
             const Divider(height: 32),
@@ -145,16 +132,16 @@ class FavoriteRideCard extends StatelessWidget {
                         Icon(Icons.calendar_today,
                             color: Colors.grey[600], size: 14),
                         const SizedBox(width: 6),
-                        Text('$date  ·  $time'),
+                        Text('${_formatDate(ride.departureTime)}  ·  ${_formatTime(ride.departureTime)}'),
                         const SizedBox(width: 12),
                         Icon(Icons.people, color: Colors.grey[600], size: 16),
                         const SizedBox(width: 6),
-                        Text('$seats'),
+                        Text('${ride.availableSeats}'),
                       ],
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      '${price.toInt()} MAD',
+                      '${ride.pricePerSeat.toInt()} MAD',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
@@ -164,9 +151,7 @@ class FavoriteRideCard extends StatelessWidget {
                 ),
                 // Bouton
                 ElevatedButton(
-                  onPressed: () {
-                    // TODO: Naviguer vers les détails du trajet
-                  },
+                  onPressed: onView,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryColor,
                     foregroundColor: Colors.white,
@@ -200,5 +185,13 @@ class FavoriteRideCard extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
+  }
+
+  String _formatTime(DateTime date) {
+    return '${date.hour}h${date.minute.toString().padLeft(2, '0')}';
   }
 }

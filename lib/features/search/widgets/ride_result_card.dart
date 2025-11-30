@@ -1,32 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:moovapp/core/models/ride_model.dart';
 
 // Un widget réutilisable pour afficher une carte de résultat
 class RideResultCard extends StatelessWidget {
-  final String name;
-  final double rating;
-  final String departure;
-  final String departureDetail;
-  final String arrival;
-  final String arrivalDetail;
-  final String dateTime;
-  final String price;
-  final int seats;
-  final String? tag;
-  final bool isPremium;
+  final RideModel ride;
+  final bool isFavorite;
+  final VoidCallback onFavoriteToggle;
+  final VoidCallback onTap;
 
   const RideResultCard({
     super.key,
-    required this.name,
-    required this.rating,
-    required this.departure,
-    required this.departureDetail,
-    required this.arrival,
-    required this.arrivalDetail,
-    required this.dateTime,
-    required this.price,
-    required this.seats,
-    this.tag,
-    this.isPremium = false,
+    required this.ride,
+    required this.isFavorite,
+    required this.onFavoriteToggle,
+    required this.onTap,
   });
 
   @override
@@ -52,15 +39,15 @@ class RideResultCard extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        Text(name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                        if (isPremium) _buildPremiumChip(),
+                        Text(ride.driverName, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                        if (ride.driverIsPremium) _buildPremiumChip(),
                       ],
                     ),
                     Row(
                       children: [
                         Icon(Icons.star, color: Colors.amber.shade600, size: 16),
                         const SizedBox(width: 4),
-                        Text('$rating', style: const TextStyle(fontWeight: FontWeight.bold)),
+                        Text(ride.driverRating.toStringAsFixed(1), style: const TextStyle(fontWeight: FontWeight.bold)),
                       ],
                     ),
                   ],
@@ -70,7 +57,7 @@ class RideResultCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Text(
-                      price,
+                      '${ride.pricePerSeat.toInt()} MAD',
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: primaryColor),
                     ),
                     const Text('par place', style: TextStyle(color: Colors.grey, fontSize: 12)),
@@ -82,12 +69,13 @@ class RideResultCard extends StatelessWidget {
             Align(
               alignment: Alignment.topRight,
               child: Padding(
-                padding: const EdgeInsets.only(top: 28.0), // Ajuster pour aligner sous le prix
+                padding: const EdgeInsets.only(top: 28.0),
                 child: IconButton(
-                  icon: const Icon(Icons.favorite_border, color: Colors.grey),
-                  onPressed: () {
-                    // TODO: Logique pour ajouter aux favoris
-                  },
+                  icon: Icon(
+                    isFavorite ? Icons.favorite : Icons.favorite_border,
+                    color: isFavorite ? Colors.red : Colors.grey,
+                  ),
+                  onPressed: onFavoriteToggle,
                 ),
               ),
             ),
@@ -100,15 +88,15 @@ class RideResultCard extends StatelessWidget {
             _buildRouteDetail(
               icon: Icons.location_on_outlined,
               iconColor: primaryColor,
-              title: departure,
-              subtitle: departureDetail,
+              title: ride.startPoint,
+              subtitle: 'Départ',
             ),
             const SizedBox(height: 12),
             _buildRouteDetail(
               icon: Icons.location_on,
               iconColor: Colors.green.shade600,
-              title: arrival,
-              subtitle: arrivalDetail,
+              title: ride.endPoint,
+              subtitle: 'Arrivée',
             ),
             const SizedBox(height: 16),
 
@@ -116,13 +104,13 @@ class RideResultCard extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildInfoChip(Icons.calendar_today_outlined, dateTime),
-                _buildInfoChip(Icons.person_outline, '$seats places'),
+                _buildInfoChip(Icons.calendar_today_outlined, _formatDateTime(ride.departureTime)),
+                _buildInfoChip(Icons.person_outline, '${ride.availableSeats} places'),
               ],
             ),
-            if (tag != null) ...[
+            if (ride.isRegularRide) ...[
               const SizedBox(height: 8),
-              _buildTagChip(tag!, primaryColor),
+              _buildTagChip('Trajet régulier', primaryColor),
             ],
           ],
         ),
@@ -186,5 +174,8 @@ class RideResultCard extends StatelessWidget {
       ),
     );
   }
-}
 
+  String _formatDateTime(DateTime date) {
+    return '${date.day}/${date.month} • ${date.hour}h${date.minute.toString().padLeft(2, '0')}';
+  }
+}

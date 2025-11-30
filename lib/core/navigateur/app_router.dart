@@ -4,11 +4,8 @@ import 'package:moovapp/features/auth/screens/welcome_screen.dart';
 import 'package:moovapp/features/main_navigation/main_navigation_shell.dart';
 import 'package:moovapp/features/inscription/screens/routes_config_screen.dart';
 import 'package:moovapp/features/inscription/screens/university_select_screen.dart';
-// ... (importer d'autres écrans au besoin)
-
-// Ce fichier pourrait gérer la navigation complexe (GoRouter, etc.)
-// Pour l'instant, il peut contenir les noms de routes statiques
-// pour éviter les "magic strings" (chaînes de caractères magiques).
+// ✅ AJOUT: Import de l'écran de test de connexion
+import 'package:moovapp/features/test/screens/connection_test_screen.dart';
 
 class AppRouter {
   // Noms des routes statiques
@@ -17,6 +14,8 @@ class AppRouter {
   static const String onboardingRoutes = '/onboarding/routes';
   static const String onboardingUniversity = '/onboarding/university';
   static const String home = '/home';
+  // ✅ AJOUT: Route de test de connexion backend
+  static const String connectionTest = '/test/connection';
 
   // Fonction pour générer les routes
   static Route<dynamic> generateRoute(RouteSettings settings) {
@@ -31,6 +30,9 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const UniversitySelectScreen());
       case home:
         return MaterialPageRoute(builder: (_) => const MainNavigationShell());
+      // ✅ AJOUT: Route de test de connexion
+      case connectionTest:
+        return MaterialPageRoute(builder: (_) => const ConnectionTestScreen());
 
       // Route par défaut en cas d'erreur
       default:
@@ -42,6 +44,5 @@ class AppRouter {
           ),
         );
     }
-            
   }
 }

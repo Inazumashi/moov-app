@@ -3,22 +3,47 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:moovapp/core/models/user_model.dart';
+import 'dart:io';
 
 class AuthService {
-  static const String _baseUrl = 'http://localhost:3000/api/auth';
+  // ✅ URL DYNAMIQUE POUR CHAQUE PLATEFORME
+  static String get _baseUrl {
+    // Pour le web (Chrome)
+    if (identical(0, 0.0)) { // kIsWeb alternative
+      return 'http://localhost:3000/api/auth';
+    }
+    // Pour Android
+    if (Platform.isAndroid) {
+      return 'http://10.0.2.2:3000/api/auth';
+    }
+    // Pour iOS
+    if (Platform.isIOS) {
+      return 'http://localhost:3000/api/auth';
+    }
+    // Par défaut
+    return 'http://localhost:3000/api/auth';
+  }
+
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
   Future<UserModel?> signIn(String email, String password) async {
     try {
+      final url = '$_baseUrl/login';
+      print('🔄 AUTH: Connexion avec $email');
+      print('📍 URL: $url');
+      
       final response = await http.post(
-        Uri.parse('$_baseUrl/login'),
+        Uri.parse(url),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'email': email,
           'password': password,
         }),
-      );
+      ).timeout(Duration(seconds: 10));
 
+      print('✅ AUTH RESPONSE: ${response.statusCode}');
+      print('📊 AUTH BODY: ${response.body}');
+      
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         await _storage.write(key: 'jwt_token', value: data['token']);
@@ -26,10 +51,10 @@ class AuthService {
         return UserModel.fromJson(data['user']);
       } else {
         final errorData = jsonDecode(response.body);
-        throw Exception(errorData['message'] ?? 'Échec de la connexion');
+        throw Exception(errorData['error'] ?? 'Échec de la connexion');
       }
     } catch (e) {
-      print('Erreur connexion: $e');
+      print('❌ AUTH ERROR: $e');
       rethrow;
     }
   }
@@ -43,8 +68,11 @@ class AuthService {
     required String phoneNumber,
   }) async {
     try {
+      final url = '$_baseUrl/register';
+      print('🔄 AUTH: Inscription avec $email');
+      
       final response = await http.post(
-        Uri.parse('$_baseUrl/register'),
+        Uri.parse(url),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'email': email,
@@ -54,19 +82,20 @@ class AuthService {
           'profileType': profileType,
           'phoneNumber': phoneNumber,
         }),
-      );
+      ).timeout(Duration(seconds: 10));
 
+      print('✅ AUTH RESPONSE: ${response.statusCode}');
+      
       if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
         await _storage.write(key: 'jwt_token', value: data['token']);
-        
         return UserModel.fromJson(data['user']);
       } else {
         final errorData = jsonDecode(response.body);
-        throw Exception(errorData['message'] ?? 'Échec de l\'inscription');
+        throw Exception(errorData['error'] ?? 'Échec de l\'inscription');
       }
     } catch (e) {
-      print('Erreur inscription: $e');
+      print('❌ AUTH ERROR: $e');
       rethrow;
     }
   }

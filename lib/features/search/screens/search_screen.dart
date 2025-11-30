@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:moovapp/features/search/widgets/ride_result_card.dart';
+import 'package:moovapp/core/providers/ride_provider.dart';
+import 'package:moovapp/core/models/ride_model.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -9,11 +12,24 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
+  final TextEditingController _departureController = TextEditingController();
+  final TextEditingController _arrivalController = TextEditingController();
+  DateTime _selectedDate = DateTime.now();
   bool _showAd = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // Charger les universités au démarrage
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<RideProvider>(context, listen: false).loadUniversities();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final Color primaryColor = Theme.of(context).colorScheme.primary;
+    final rideProvider = Provider.of<RideProvider>(context);
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
@@ -22,15 +38,14 @@ class _SearchScreenState extends State<SearchScreen> {
           SliverAppBar(
             backgroundColor: Colors.white,
             pinned: true,
-            expandedHeight: 360.0,   // 🔥 Corrigé : hauteur augmentée
+            expandedHeight: 360.0,
             flexibleSpace: FlexibleSpaceBar(
               titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
-              
               background: SafeArea(
-                child: SingleChildScrollView( // 🔥 Corrigé : empêche tout overflow
+                child: SingleChildScrollView(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(16, 90, 16, 16),
-                    child: _buildSearchForm(primaryColor),
+                    child: _buildSearchForm(primaryColor, rideProvider),
                   ),
                 ),
               ),
@@ -47,36 +62,37 @@ class _SearchScreenState extends State<SearchScreen> {
                     children: [
                       if (_showAd) _buildAdCard(),
 
-                      _buildResultsHeader(primaryColor),
+                      _buildResultsHeader(primaryColor, rideProvider),
                       const SizedBox(height: 12),
 
-                      // RESULT CARD 1
-                      const RideResultCard(
-                        name: 'Karim El Idrissi',
-                        rating: 4.7,
-                        departure: 'Ben Guerir',
-                        departureDetail: 'Départ',
-                        arrival: 'Casablanca',
-                        arrivalDetail: 'Arrivée',
-                        dateTime: '12 Oct • 15:00',
-                        price: '70 MAD',
-                        seats: 4,
-                        tag: 'UM6P - Étudiants',
-                      ),
-                      const SizedBox(height: 12),
+                      if (rideProvider.isLoading) ...[
+                        Center(child: CircularProgressIndicator()),
+                        SizedBox(height: 20),
+                      ],
 
-                      // RESULT CARD 2
-                      const RideResultCard(
-                        name: 'Amina Laaroussi',
-                        rating: 4.9,
-                        departure: 'UM6P Campus',
-                        departureDetail: 'Départ',
-                        arrival: 'Marrakech',
-                        arrivalDetail: 'Arrivée',
-                        dateTime: '13 Oct • 09:00',
-                        price: '45 MAD',
-                        seats: 2,
-                        isPremium: true,
+                      if (rideProvider.error.isNotEmpty) ...[
+                        _buildErrorState(rideProvider),
+                        SizedBox(height: 20),
+                      ],
+
+                      if (rideProvider.searchResults.isEmpty && !rideProvider.isLoading) ...[
+                        _buildEmptyState(),
+                        SizedBox(height: 20),
+                      ],
+
+                      // RÉSULTATS DYNAMIQUES
+                      ...rideProvider.searchResults.map((ride) => 
+                        Column(
+                          children: [
+                            RideResultCard(
+                              ride: ride,
+                              isFavorite: rideProvider.isFavorite(ride.rideId),
+                              onFavoriteToggle: () => _toggleFavorite(ride.rideId, rideProvider),
+                              onTap: () => _viewRideDetails(context, ride),
+                            ),
+                            const SizedBox(height: 12),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -89,13 +105,68 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
+  void _performSearch(RideProvider provider) async {
+    if (_departureController.text.isEmpty || _arrivalController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Veuillez remplir les champs de départ et d\'arrivée'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    await provider.searchRides(
+      from: _departureController.text,
+      to: _arrivalController.text,
+      date: _selectedDate,
+    );
+  }
+
+  void _toggleFavorite(String rideId, RideProvider provider) async {
+    await provider.toggleFavorite(rideId);
+    
+    if (provider.isFavorite(rideId)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Trajet ajouté aux favoris'),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
+  }
+
+  void _viewRideDetails(BuildContext context, RideModel ride) {
+    // TODO: Naviguer vers l'écran de réservation ou détails
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Voir détails: ${ride.startPoint} → ${ride.endPoint}'),
+      ),
+    );
+  }
+
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime.now(),
+      lastDate: DateTime.now().add(Duration(days: 365)),
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+      });
+    }
+  }
+
   // ----------------------------
   // 🔷 FORMULAIRE DE RECHERCHE
   // ----------------------------
-  Widget _buildSearchForm(Color primaryColor) {
+  Widget _buildSearchForm(Color primaryColor, RideProvider provider) {
     return Column(
       children: [
         TextField(
+          controller: _departureController,
           decoration: InputDecoration(
             hintText: 'Départ',
             prefixIcon: Icon(Icons.location_on_outlined, color: primaryColor),
@@ -110,6 +181,7 @@ class _SearchScreenState extends State<SearchScreen> {
         const SizedBox(height: 12),
 
         TextField(
+          controller: _arrivalController,
           decoration: InputDecoration(
             hintText: 'Arrivée',
             prefixIcon: Icon(Icons.location_on, color: Colors.green[600]),
@@ -137,12 +209,22 @@ class _SearchScreenState extends State<SearchScreen> {
                     borderSide: BorderSide.none,
                   ),
                 ),
+                readOnly: true,
+                controller: TextEditingController(
+                  text: '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+                ),
+                onTap: () => _selectDate(context),
               ),
             ),
             const SizedBox(width: 8),
 
             IconButton(
-              onPressed: () {},
+              onPressed: () {
+                // TODO: Implémenter l'écran de filtres avancés
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Filtres avancés - À implémenter')),
+                );
+              },
               icon: const Icon(Icons.filter_list),
               style: IconButton.styleFrom(
                 backgroundColor: Colors.grey[100],
@@ -159,9 +241,15 @@ class _SearchScreenState extends State<SearchScreen> {
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
-            onPressed: () {},
+            onPressed: provider.isLoading ? null : () => _performSearch(provider),
             icon: const Icon(Icons.search, color: Colors.white),
-            label: const Text('Rechercher'),
+            label: provider.isLoading 
+                ? SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  )
+                : Text('Rechercher'),
             style: ElevatedButton.styleFrom(
               backgroundColor: primaryColor,
               foregroundColor: Colors.white,
@@ -228,20 +316,64 @@ class _SearchScreenState extends State<SearchScreen> {
   // ----------------------------
   // 🔵 HEADER DES RESULTATS
   // ----------------------------
-  Widget _buildResultsHeader(Color primaryColor) {
+  Widget _buildResultsHeader(Color primaryColor, RideProvider provider) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        const Text(
-          'Résultats (2)',
+        Text(
+          'Résultats (${provider.searchResults.length})',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         TextButton(
-          onPressed: () {},
+          onPressed: () {
+            // TODO: Implémenter le tri
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Tri par prix - À implémenter')),
+            );
+          },
           child: Text(
             'Trier par prix',
             style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold),
           ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildErrorState(RideProvider provider) {
+    return Column(
+      children: [
+        Icon(Icons.error_outline, size: 64, color: Colors.red),
+        SizedBox(height: 16),
+        Text(
+          'Erreur de recherche',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 8),
+        Text(provider.error),
+        SizedBox(height: 16),
+        ElevatedButton(
+          onPressed: () => _performSearch(provider),
+          child: Text('Réessayer'),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Column(
+      children: [
+        Icon(Icons.search_off, size: 80, color: Colors.grey[400]),
+        SizedBox(height: 16),
+        Text(
+          'Aucun trajet trouvé',
+          style: TextStyle(fontSize: 18, color: Colors.grey[600]),
+        ),
+        SizedBox(height: 8),
+        Text(
+          'Essayez de modifier vos critères de recherche',
+          style: TextStyle(color: Colors.grey[500]),
+          textAlign: TextAlign.center,
         ),
       ],
     );
