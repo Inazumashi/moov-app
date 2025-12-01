@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:moovapp/features/auth/widgets/auth_textfield.dart';
 import 'package:moovapp/features/inscription/screens/routes_config_screen.dart';
 import 'package:moovapp/features/main_navigation/main_navigation_shell.dart';
+//import 'package:moovapp/utils/email_utils.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,7 +14,17 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController.addListener(_refresh);
+    _passwordController.addListener(_refresh);
+  }
+
+  void _refresh() => setState(() {});
 
   @override
   void dispose() {
@@ -22,15 +33,68 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  /* -------------------------------------------------------------------------- */
+  /*                           VALIDATION EMAIL UNIV                            */
+  /* -------------------------------------------------------------------------- */
+
+ bool isAcademicEmail(String email) {
+  return RegExp(
+    r'^[a-zA-Z0-9._%+-]+@(um6p\.ma|uir\.ma|uic\.ma|aui\.ac\.ma|alakhawayn\.ma)$',
+  ).hasMatch(email);
+}
+
+
+
+  /* -------------------------------------------------------------------------- */
+  /*                               SNACKBAR UTILS                               */
+  /* -------------------------------------------------------------------------- */
+
+  void _showError(String message) {
+    final colors = Theme.of(context).colorScheme;
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: colors.error),
+      );
+  }
+
+  void _showSuccess(String message) {
+    final colors = Theme.of(context).colorScheme;
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: colors.secondary),
+      );
+  }
+
+  void _showInfo(String message) {
+    final colors = Theme.of(context).colorScheme;
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: colors.primary),
+      );
+  }
+
+  /* -------------------------------------------------------------------------- */
+  /*                                   LOGIN                                    */
+  /* -------------------------------------------------------------------------- */
+
   Future<void> _handleLogin() async {
-    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (email.isEmpty || password.isEmpty) {
       _showError('Veuillez remplir tous les champs');
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    if (!isAcademicEmail(email)) {
+      _showError('Veuillez utiliser un email universitaire valide');
+      return;
+    }
+
+    setState(() => _isLoading = true);
 
     await Future.delayed(const Duration(seconds: 2));
 
@@ -41,40 +105,26 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       _showSuccess('Connexion simulée - API en développement');
-
     } catch (e) {
       _showError('Erreur simulée: $e');
     } finally {
-      setState(() {
-        _isLoading = false;
-      });
+      setState(() => _isLoading = false);
     }
   }
 
-  void _showError(String message) {
-    final colors = Theme.of(context).colorScheme;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: colors.error,
-      ),
-    );
-  }
-
-  void _showSuccess(String message) {
-    final colors = Theme.of(context).colorScheme;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: colors.secondary,
-      ),
-    );
-  }
+  /* -------------------------------------------------------------------------- */
+  /*                                  UI BUILD                                  */
+  /* -------------------------------------------------------------------------- */
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+
+    final bool isButtonEnabled =
+        _emailController.text.isNotEmpty &&
+        _passwordController.text.isNotEmpty &&
+        !_isLoading;
 
     return Scaffold(
       backgroundColor: colors.background,
@@ -140,10 +190,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 alignment: Alignment.centerRight,
                 child: TextButton(
                   onPressed: () => _showInfo('Fonctionnalité à venir'),
-                  child: Text(
-                    'Mot de passe oublié ?',
-                    style: TextStyle(color: colors.primary),
-                  ),
+                  child: Text('Mot de passe oublié ?', style: TextStyle(color: colors.primary)),
                 ),
               ),
 
@@ -152,7 +199,7 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _isLoading ? null : _handleLogin,
+                  onPressed: isButtonEnabled ? _handleLogin : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: colors.primary,
                     foregroundColor: colors.onPrimary,
@@ -164,15 +211,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: _isLoading
                       ? CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(colors.onPrimary),
+                          valueColor: AlwaysStoppedAnimation<Color>(colors.onPrimary),
                         )
                       : const Text(
                           'Se connecter (Mode Test)',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                 ),
               ),
@@ -193,10 +236,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     Flexible(
                       child: Text(
                         'Mode test activé - L\'API est en cours de développement',
-                        style: TextStyle(
-                          color: colors.secondary,
-                          fontSize: 12,
-                        ),
+                        style: TextStyle(color: colors.secondary, fontSize: 12),
                       ),
                     ),
                   ],
@@ -208,26 +248,18 @@ class _LoginScreenState extends State<LoginScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    "Pas encore de compte ?",
-                    style: TextStyle(color: colors.onBackground),
-                  ),
+                  Text("Pas encore de compte ?", style: TextStyle(color: colors.onBackground)),
                   TextButton(
                     onPressed: _isLoading
                         ? null
                         : () {
                             Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => const RoutesConfigScreen(),
-                              ),
+                              MaterialPageRoute(builder: (context) => const RoutesConfigScreen()),
                             );
                           },
                     child: Text(
                       'Créer un compte',
-                      style: TextStyle(
-                        color: colors.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: TextStyle(color: colors.primary, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],
@@ -240,9 +272,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 decoration: BoxDecoration(
                   color: colors.surface,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: colors.outline.withOpacity(0.4),
-                  ),
+                  border: Border.all(color: colors.outline.withOpacity(0.4)),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -262,16 +292,6 @@ class _LoginScreenState extends State<LoginScreen> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  void _showInfo(String message) {
-    final colors = Theme.of(context).colorScheme;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: colors.primary,
       ),
     );
   }

@@ -7,10 +7,11 @@ import 'package:moovapp/core/providers/theme_provider.dart';
 import 'package:moovapp/core/providers/auth_provider.dart';
 import 'package:moovapp/features/auth/screens/welcome_screen.dart';
 import 'package:moovapp/l10n/app_localizations.dart';
+import 'package:moovapp/features/favorites/providers/favorite_rides_provider.dart';
 
-// --- NOUVEAU: LanguageProvider ---
+// --- LanguageProvider ---
 class LanguageProvider extends ChangeNotifier {
-  Locale _locale = const Locale('fr'); // Langue par défaut
+  Locale _locale = const Locale('fr');
 
   Locale get locale => _locale;
 
@@ -21,13 +22,16 @@ class LanguageProvider extends ChangeNotifier {
   }
 }
 
-void main() {
+void main() async { 
+  WidgetsFlutterBinding.ensureInitialized(); 
+
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => LanguageProvider()), // <-- nouveau
+        ChangeNotifierProvider(create: (_) => LanguageProvider()), 
+        ChangeNotifierProvider(create: (_) => FavoriteRidesProvider()), 
       ],
       child: const MyApp(),
     ),
@@ -35,6 +39,7 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  // ... (Reste du code inchangé)
   const MyApp({super.key});
 
   @override
@@ -61,8 +66,7 @@ class MyApp extends StatelessWidget {
         Locale('en'),
         Locale('ar'),
       ],
-      locale: languageProvider.locale, // <-- dynamique maintenant
-
+      locale: languageProvider.locale,
       home: const WelcomeScreen(),
     );
   }

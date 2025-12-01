@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:moovapp/features/search/widgets/ride_result_card.dart';
+import 'package:provider/provider.dart';
+import '../../favorites/providers/favorite_rides_provider.dart';
+import 'package:moovapp/core/models/favorite_ride.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -15,6 +18,7 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final primaryColor = colorScheme.primary;
+    final favoriteProvider = Provider.of<FavoriteRidesProvider>(context);
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -36,7 +40,6 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             ),
           ),
-
           SliverList(
             delegate: SliverChildListDelegate(
               [
@@ -48,7 +51,8 @@ class _SearchScreenState extends State<SearchScreen> {
                       _buildResultsHeader(primaryColor),
                       const SizedBox(height: 12),
 
-                      const RideResultCard(
+                      // -- Premier trajet --
+                      RideResultCard(
                         name: 'Karim El Idrissi',
                         rating: 4.7,
                         departure: 'Ben Guerir',
@@ -59,10 +63,26 @@ class _SearchScreenState extends State<SearchScreen> {
                         price: '70 MAD',
                         seats: 4,
                         tag: 'UM6P - Étudiants',
+                        isFavorited: favoriteProvider.isFavorite('Karim El Idrissi'),
+                        onFavoriteTap: () {
+                          final ride = FavoriteRide(
+                            name: 'Karim El Idrissi',
+                            rating: 4.7,
+                            isPremium: false,
+                            departure: 'Ben Guerir',
+                            arrival: 'Casablanca',
+                            date: '12 Oct',
+                            time: '15:00',
+                            seats: 4,
+                            price: 70,
+                          );
+                          favoriteProvider.toggleFavorite(ride);
+                        },
                       ),
                       const SizedBox(height: 12),
 
-                      const RideResultCard(
+                      // -- Deuxième trajet --
+                      RideResultCard(
                         name: 'Amina Laaroussi',
                         rating: 4.9,
                         departure: 'UM6P Campus',
@@ -73,6 +93,21 @@ class _SearchScreenState extends State<SearchScreen> {
                         price: '45 MAD',
                         seats: 2,
                         isPremium: true,
+                        isFavorited: favoriteProvider.isFavorite('Amina Laaroussi'),
+                        onFavoriteTap: () {
+                          final ride = FavoriteRide(
+                            name: 'Amina Laaroussi',
+                            rating: 4.9,
+                            isPremium: true,
+                            departure: 'UM6P Campus',
+                            arrival: 'Marrakech',
+                            date: '13 Oct',
+                            time: '09:00',
+                            seats: 2,
+                            price: 45,
+                          );
+                          favoriteProvider.toggleFavorite(ride);
+                        },
                       ),
                     ],
                   ),
@@ -104,7 +139,6 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
         const SizedBox(height: 12),
-
         TextField(
           decoration: InputDecoration(
             hintText: 'Arrivée',
@@ -118,7 +152,6 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
         const SizedBox(height: 12),
-
         Row(
           children: [
             Expanded(
@@ -136,7 +169,6 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             ),
             const SizedBox(width: 8),
-
             IconButton(
               onPressed: () {},
               icon: const Icon(Icons.filter_list),
@@ -151,7 +183,6 @@ class _SearchScreenState extends State<SearchScreen> {
           ],
         ),
         const SizedBox(height: 16),
-
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(

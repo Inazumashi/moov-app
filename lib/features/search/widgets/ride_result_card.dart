@@ -12,7 +12,11 @@ class RideResultCard extends StatelessWidget {
   final String price;
   final int seats;
   final String? tag;
+  final bool isFavorited;
+  final VoidCallback onFavoriteTap;
   final bool isPremium;
+  
+  
 
   const RideResultCard({
     super.key,
@@ -25,8 +29,11 @@ class RideResultCard extends StatelessWidget {
     required this.dateTime,
     required this.price,
     required this.seats,
+    required this.isFavorited,
+    required this.onFavoriteTap,
     this.tag,
     this.isPremium = false,
+    
   });
 
   @override
@@ -84,13 +91,16 @@ class RideResultCard extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.only(top: 28.0), // Ajuster pour aligner sous le prix
                 child: IconButton(
-                  icon: const Icon(Icons.favorite_border, color: Colors.grey),
-                  onPressed: () {
-                    // TODO: Logique pour ajouter aux favoris
-                  },
+                  icon: Icon(
+                    isFavorited ? Icons.favorite : Icons.favorite_border,
+                    color: isFavorited ? Colors.red : Colors.grey,
+                  ),
+                  onPressed: onFavoriteTap,
                 ),
               ),
             ),
+            // Bouton Favori dynamique (remplacement)
+
             
             const SizedBox(height: 16),
             const Divider(),
