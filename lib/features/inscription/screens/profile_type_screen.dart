@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-// On prépare l'import pour l'écran suivant (il sera rouge pour l'instant)
 import 'package:moovapp/features/inscription/screens/create_account_screen.dart';
+import 'package:moovapp/features/inscription/screens/routes_config_screen.dart'; // pour RouteInfo
 
 class ProfileTypeScreen extends StatelessWidget {
-  // On reçoit le nom de l'université de l'écran précédent
   final String universityName;
+  final List<RouteInfo> routes; // ✅ liste des trajets reçus
 
   const ProfileTypeScreen({
     super.key,
     required this.universityName,
+    required this.routes,
   });
 
   @override
@@ -43,7 +44,6 @@ class ProfileTypeScreen extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 8),
-            // On utilise un helper pour ne pas répéter le code
             _buildProfileCard(
               context: context,
               icon: Icons.school_outlined,
@@ -74,9 +74,7 @@ class ProfileTypeScreen extends StatelessWidget {
                 _navigateToNextScreen(context, 'Enseignant');
               },
             ),
-            const Spacer(), // Pousse la boîte jaune en bas
-            
-            // La boîte d'information en bas
+            const Spacer(),
             Container(
               padding: const EdgeInsets.all(16.0),
               decoration: BoxDecoration(
@@ -97,14 +95,13 @@ class ProfileTypeScreen extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 16), // Marge en bas
+            const SizedBox(height: 16),
           ],
         ),
       ),
     );
   }
 
-  // Fonction pour naviguer vers l'écran suivant
   void _navigateToNextScreen(BuildContext context, String profileType) {
     Navigator.push(
       context,
@@ -112,12 +109,12 @@ class ProfileTypeScreen extends StatelessWidget {
         builder: (context) => CreateAccountScreen(
           universityName: universityName,
           profileType: profileType,
+          routes: routes, // ✅ On passe également la liste des trajets
         ),
       ),
     );
   }
 
-  // Widget pour chaque carte de profil
   Widget _buildProfileCard({
     required BuildContext context,
     required IconData icon,

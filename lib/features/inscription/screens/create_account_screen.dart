@@ -1,17 +1,42 @@
 import 'package:flutter/material.dart';
-// On importe notre widget réutilisable
 import 'package:moovapp/features/auth/widgets/auth_textfield.dart';
-// --- REMPLACEZ CET IMPORT ---
 import 'package:moovapp/features/inscription/screens/email_verification_screen.dart';
+import 'package:moovapp/features/inscription/screens/routes_config_screen.dart'; // pour RouteInfo
+
+// 👇 1. J'ai ajouté cet import pour connecter le backend
+import 'package:moovapp/core/service/auth_service.dart'; 
+
+// --- Modèle pour stocker toutes les infos utilisateur ---
+class UserProfileData {
+  final String nom;
+  final String email;
+  final String? telephone;
+  final String motDePasse;
+  final String universityName;
+  final String profileType;
+  final List<RouteInfo> routes;
+
+  UserProfileData({
+    required this.nom,
+    required this.email,
+    this.telephone,
+    required this.motDePasse,
+    required this.universityName,
+    required this.profileType,
+    required this.routes,
+  });
+}
 
 class CreateAccountScreen extends StatefulWidget {
   final String universityName;
   final String profileType;
+  final List<RouteInfo> routes; // ✅ on reçoit la liste des trajets
 
   const CreateAccountScreen({
     super.key,
     required this.universityName,
     required this.profileType,
+    required this.routes,
   });
 
   @override
@@ -19,14 +44,16 @@ class CreateAccountScreen extends StatefulWidget {
 }
 
 class _CreateAccountScreenState extends State<CreateAccountScreen> {
-  // Un contrôleur pour chaque champ
   final _nomController = TextEditingController();
   final _emailController = TextEditingController();
   final _telephoneController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
-  // On n'oublie pas de les "dispose" pour libérer la mémoire
+  // 👇 Instance du service d'authentification
+  final AuthService _authService = AuthService();
+  bool _isLoading = false; // Pour éviter de cliquer deux fois
+
   @override
   void dispose() {
     _nomController.dispose();
@@ -71,7 +98,6 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 8),
-              
               _buildSectionTitle('Nom complet'),
               AuthTextField(
                 controller: _nomController,
@@ -79,7 +105,6 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                 icon: Icons.person_outline,
               ),
               const SizedBox(height: 16),
-              
               _buildSectionTitle('Email universitaire'),
               AuthTextField(
                 controller: _emailController,
@@ -92,7 +117,6 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                 style: TextStyle(color: Colors.grey, fontSize: 12),
               ),
               const SizedBox(height: 16),
-              
               _buildSectionTitle('Téléphone (optionnel)'),
               AuthTextField(
                 controller: _telephoneController,
@@ -101,7 +125,6 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                 keyboardType: TextInputType.phone,
               ),
               const SizedBox(height: 16),
-              
               _buildSectionTitle('Mot de passe'),
               AuthTextField(
                 controller: _passwordController,
@@ -110,7 +133,6 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                 isPassword: true,
               ),
               const SizedBox(height: 16),
-              
               _buildSectionTitle('Confirmer le mot de passe'),
               AuthTextField(
                 controller: _confirmPasswordController,
@@ -119,39 +141,12 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                 isPassword: true,
               ),
               const SizedBox(height: 24),
-              
-              // Boîte d'information sur la vérification
               _buildInfoBox(),
               const SizedBox(height: 24),
-
-              // Bouton "Créer mon compte"
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Validation des champs
-                    if (_nomController.text.isEmpty || 
-                        _emailController.text.isEmpty || 
-                        _passwordController.text.isEmpty) {
-                      _showError('Veuillez remplir tous les champs obligatoires');
-                      return;
-                    }
-
-                    if (_passwordController.text != _confirmPasswordController.text) {
-                      _showError('Les mots de passe ne correspondent pas');
-                      return;
-                    }
-
-                    // --- NAVIGATION VERS VÉRIFICATION EMAIL ---
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => EmailVerificationScreen(
-                          email: _emailController.text,
-                        ),
-                      ),
-                    );
-                  },
+                  onPressed: _isLoading ? null : _createAccount, // Désactive si chargement
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryColor,
                     foregroundColor: Colors.white,
@@ -160,15 +155,19 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    'Créer mon compte',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
+                  child: _isLoading 
+                      ? const SizedBox(
+                          height: 20, 
+                          width: 20, 
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                        )
+                      : const Text(
+                          'Créer mon compte',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
                 ),
               ),
               const SizedBox(height: 16),
-              
-              // Texte des conditions d'utilisation
               const Text(
                 "En créant un compte, vous acceptez nos conditions d'utilisation et notre politique de confidentialité",
                 textAlign: TextAlign.center,
@@ -181,27 +180,81 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     );
   }
 
+  // 👇 2. C'EST ICI QUE J'AI FAIT LA CONNEXION AVEC LE BACKEND
+  void _createAccount() async {
+    // 1. Validation de base
+    if (_nomController.text.isEmpty || 
+        _emailController.text.isEmpty || 
+        _passwordController.text.isEmpty) {
+      _showError('Veuillez remplir tous les champs obligatoires');
+      return;
+    }
+    if (_passwordController.text != _confirmPasswordController.text) {
+      _showError('Les mots de passe ne correspondent pas');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true; // Affiche le chargement
+    });
+
+    try {
+      // 2. Appel au AuthService (Communication avec le Backend Node.js)
+      await _authService.signUp(
+        email: _emailController.text,
+        password: _passwordController.text,
+        fullName: _nomController.text, // Sera découpé en Nom/Prénom dans le service
+        universityId: widget.universityName, 
+        profileType: widget.profileType,
+        phoneNumber: _telephoneController.text,
+        routes: widget.routes, // ✅ Envoi des trajets au backend
+      );
+
+      // 3. Si succès, on arrête le chargement
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+
+        // 4. Navigation vers la vérification d'email
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => EmailVerificationScreen(
+              email: _emailController.text,
+            ),
+          ),
+        );
+      }
+
+    } catch (e) {
+      // 5. Gestion des erreurs (ex: Email déjà utilisé)
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        
+        // On affiche l'erreur brute ou un message plus sympa
+        // Le `rethrow` dans AuthService envoie l'erreur ici
+        _showError("Erreur lors de l'inscription. Vérifiez votre connexion ou l'email.");
+        print("Erreur inscription: $e");
+      }
+    }
+  }
+
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
     );
   }
 
-  // Helper pour les titres de section
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
-      child: Text(
-        title,
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-      ),
+      child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
     );
   }
 
-  // Helper pour la boîte d'information
   Widget _buildInfoBox() {
     return Container(
       padding: const EdgeInsets.all(12),

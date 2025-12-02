@@ -28,7 +28,15 @@ class AppRouter {
       case onboardingRoutes:
         return MaterialPageRoute(builder: (_) => const RoutesConfigScreen());
       case onboardingUniversity:
-        return MaterialPageRoute(builder: (_) => const UniversitySelectScreen());
+        // --- MODIFICATION ICI ---
+        // 1. On récupère la liste envoyée via les arguments
+        final args = settings.arguments as List<RouteInfo>;
+        
+        // 2. On injecte 'args' dans le paramètre 'routes'.
+        // Note : On a retiré le mot 'const' devant UniversitySelectScreen
+        return MaterialPageRoute(
+          builder: (_) => UniversitySelectScreen(routes: args),
+        );
       case home:
         return MaterialPageRoute(builder: (_) => const MainNavigationShell());
 
