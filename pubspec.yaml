@@ -57,7 +57,7 @@ flutter:
   # Active la génération automatique de code (pour la traduction i18n)
   generate: true
   assets:
-    - assets/images/logo.jpg
+    - assets/images/logo.png
   
 
   # --- DÉCLARATION DES POLICES ---

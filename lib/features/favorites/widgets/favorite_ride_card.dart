@@ -88,11 +88,14 @@ class FavoriteRideCard extends StatelessWidget {
                     ],
                   ),
                 ),
+<<<<<<< HEAD
                 // Icône poubelle
                 IconButton(
                   icon: const Icon(Icons.delete_outline, color: Colors.red),
                   onPressed: onRemove,
                 ),
+=======
+>>>>>>> cef8c6aabcde6ab6828e1abee46d73d006194ee9
               ],
             ),
             const SizedBox(height: 16),

@@ -3,6 +3,7 @@ import 'package:moovapp/core/models/ride_model.dart';
 
 // Un widget réutilisable pour afficher une carte de résultat
 class RideResultCard extends StatelessWidget {
+<<<<<<< HEAD
   final RideModel ride;
   final bool isFavorite;
   final VoidCallback onFavoriteToggle;
@@ -14,6 +15,40 @@ class RideResultCard extends StatelessWidget {
     required this.isFavorite,
     required this.onFavoriteToggle,
     required this.onTap,
+=======
+  final String name;
+  final double rating;
+  final String departure;
+  final String departureDetail;
+  final String arrival;
+  final String arrivalDetail;
+  final String dateTime;
+  final String price;
+  final int seats;
+  final String? tag;
+  final bool isFavorited;
+  final VoidCallback onFavoriteTap;
+  final bool isPremium;
+  
+  
+
+  const RideResultCard({
+    super.key,
+    required this.name,
+    required this.rating,
+    required this.departure,
+    required this.departureDetail,
+    required this.arrival,
+    required this.arrivalDetail,
+    required this.dateTime,
+    required this.price,
+    required this.seats,
+    required this.isFavorited,
+    required this.onFavoriteTap,
+    this.tag,
+    this.isPremium = false,
+    
+>>>>>>> cef8c6aabcde6ab6828e1abee46d73d006194ee9
   });
 
   @override
@@ -72,13 +107,22 @@ class RideResultCard extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 28.0),
                 child: IconButton(
                   icon: Icon(
+<<<<<<< HEAD
                     isFavorite ? Icons.favorite : Icons.favorite_border,
                     color: isFavorite ? Colors.red : Colors.grey,
                   ),
                   onPressed: onFavoriteToggle,
+=======
+                    isFavorited ? Icons.favorite : Icons.favorite_border,
+                    color: isFavorited ? Colors.red : Colors.grey,
+                  ),
+                  onPressed: onFavoriteTap,
+>>>>>>> cef8c6aabcde6ab6828e1abee46d73d006194ee9
                 ),
               ),
             ),
+            // Bouton Favori dynamique (remplacement)
+
             
             const SizedBox(height: 16),
             const Divider(),

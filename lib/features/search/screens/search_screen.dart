@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:moovapp/features/search/widgets/ride_result_card.dart';
+<<<<<<< HEAD
 import 'package:moovapp/core/providers/ride_provider.dart';
 import 'package:moovapp/core/models/ride_model.dart';
+=======
+import 'package:provider/provider.dart';
+import '../../favorites/providers/favorite_rides_provider.dart';
+import 'package:moovapp/core/models/favorite_ride.dart';
+>>>>>>> cef8c6aabcde6ab6828e1abee46d73d006194ee9
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -28,8 +34,14 @@ class _SearchScreenState extends State<SearchScreen> {
 
   @override
   Widget build(BuildContext context) {
+<<<<<<< HEAD
     final Color primaryColor = Theme.of(context).colorScheme.primary;
     final rideProvider = Provider.of<RideProvider>(context);
+=======
+    final colorScheme = Theme.of(context).colorScheme;
+    final primaryColor = colorScheme.primary;
+    final favoriteProvider = Provider.of<FavoriteRidesProvider>(context);
+>>>>>>> cef8c6aabcde6ab6828e1abee46d73d006194ee9
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -51,7 +63,6 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             ),
           ),
-
           SliverList(
             delegate: SliverChildListDelegate(
               [
@@ -64,19 +75,20 @@ class _SearchScreenState extends State<SearchScreen> {
                       _buildResultsHeader(primaryColor, rideProvider),
                       const SizedBox(height: 12),
 
+<<<<<<< HEAD
                       if (rideProvider.isLoading) ...[
-                        Center(child: CircularProgressIndicator()),
-                        SizedBox(height: 20),
+                        const Center(child: CircularProgressIndicator()),
+                        const SizedBox(height: 20),
                       ],
 
                       if (rideProvider.error.isNotEmpty) ...[
                         _buildErrorState(rideProvider),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                       ],
 
                       if (rideProvider.searchResults.isEmpty && !rideProvider.isLoading) ...[
                         _buildEmptyState(),
-                        SizedBox(height: 20),
+                        const SizedBox(height: 20),
                       ],
 
                       // RÉSULTATS DYNAMIQUES
@@ -92,6 +104,65 @@ class _SearchScreenState extends State<SearchScreen> {
                             const SizedBox(height: 12),
                           ],
                         ),
+=======
+                      // -- Premier trajet --
+                      RideResultCard(
+                        name: 'Karim El Idrissi',
+                        rating: 4.7,
+                        departure: 'Ben Guerir',
+                        departureDetail: 'Départ',
+                        arrival: 'Casablanca',
+                        arrivalDetail: 'Arrivée',
+                        dateTime: '12 Oct • 15:00',
+                        price: '70 MAD',
+                        seats: 4,
+                        tag: 'UM6P - Étudiants',
+                        isFavorited: favoriteProvider.isFavorite('Karim El Idrissi'),
+                        onFavoriteTap: () {
+                          final ride = FavoriteRide(
+                            name: 'Karim El Idrissi',
+                            rating: 4.7,
+                            isPremium: false,
+                            departure: 'Ben Guerir',
+                            arrival: 'Casablanca',
+                            date: '12 Oct',
+                            time: '15:00',
+                            seats: 4,
+                            price: 70,
+                          );
+                          favoriteProvider.toggleFavorite(ride);
+                        },
+                      ),
+                      const SizedBox(height: 12),
+
+                      // -- Deuxième trajet --
+                      RideResultCard(
+                        name: 'Amina Laaroussi',
+                        rating: 4.9,
+                        departure: 'UM6P Campus',
+                        departureDetail: 'Départ',
+                        arrival: 'Marrakech',
+                        arrivalDetail: 'Arrivée',
+                        dateTime: '13 Oct • 09:00',
+                        price: '45 MAD',
+                        seats: 2,
+                        isPremium: true,
+                        isFavorited: favoriteProvider.isFavorite('Amina Laaroussi'),
+                        onFavoriteTap: () {
+                          final ride = FavoriteRide(
+                            name: 'Amina Laaroussi',
+                            rating: 4.9,
+                            isPremium: true,
+                            departure: 'UM6P Campus',
+                            arrival: 'Marrakech',
+                            date: '13 Oct',
+                            time: '09:00',
+                            seats: 2,
+                            price: 45,
+                          );
+                          favoriteProvider.toggleFavorite(ride);
+                        },
+>>>>>>> cef8c6aabcde6ab6828e1abee46d73d006194ee9
                       ),
                     ],
                   ),
@@ -107,7 +178,7 @@ class _SearchScreenState extends State<SearchScreen> {
   void _performSearch(RideProvider provider) async {
     if (_departureController.text.isEmpty || _arrivalController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Veuillez remplir les champs de départ et d\'arrivée'),
           backgroundColor: Colors.orange,
         ),
@@ -127,7 +198,7 @@ class _SearchScreenState extends State<SearchScreen> {
     
     if (provider.isFavorite(rideId)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Trajet ajouté aux favoris'),
           backgroundColor: Colors.green,
         ),
@@ -149,7 +220,7 @@ class _SearchScreenState extends State<SearchScreen> {
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(Duration(days: 365)),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
     );
     if (picked != null && picked != _selectedDate) {
       setState(() {
@@ -178,7 +249,6 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
         const SizedBox(height: 12),
-
         TextField(
           controller: _arrivalController,
           decoration: InputDecoration(
@@ -193,7 +263,6 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
         ),
         const SizedBox(height: 12),
-
         Row(
           children: [
             Expanded(
@@ -216,12 +285,11 @@ class _SearchScreenState extends State<SearchScreen> {
               ),
             ),
             const SizedBox(width: 8),
-
             IconButton(
               onPressed: () {
                 // TODO: Implémenter l'écran de filtres avancés
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Filtres avancés - À implémenter')),
+                  const SnackBar(content: Text('Filtres avancés - À implémenter')),
                 );
               },
               icon: const Icon(Icons.filter_list),
@@ -236,19 +304,18 @@ class _SearchScreenState extends State<SearchScreen> {
           ],
         ),
         const SizedBox(height: 16),
-
         SizedBox(
           width: double.infinity,
           child: ElevatedButton.icon(
             onPressed: provider.isLoading ? null : () => _performSearch(provider),
             icon: const Icon(Icons.search, color: Colors.white),
             label: provider.isLoading 
-                ? SizedBox(
+                ? const SizedBox(
                     width: 20,
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                   )
-                : Text('Rechercher'),
+                : const Text('Rechercher'),
             style: ElevatedButton.styleFrom(
               backgroundColor: primaryColor,
               foregroundColor: Colors.white,
@@ -325,13 +392,13 @@ class _SearchScreenState extends State<SearchScreen> {
       children: [
         Text(
           'Résultats (${provider.searchResults.length})',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
         TextButton(
           onPressed: () {
             // TODO: Implémenter le tri
             ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Tri par prix - À implémenter')),
+              const SnackBar(content: Text('Tri par prix - À implémenter')),
             );
           },
           child: Text(
@@ -346,18 +413,18 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget _buildErrorState(RideProvider provider) {
     return Column(
       children: [
-        Icon(Icons.error_outline, size: 64, color: Colors.red),
-        SizedBox(height: 16),
-        Text(
+        const Icon(Icons.error_outline, size: 64, color: Colors.red),
+        const SizedBox(height: 16),
+        const Text(
           'Erreur de recherche',
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Text(provider.error),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         ElevatedButton(
           onPressed: () => _performSearch(provider),
-          child: Text('Réessayer'),
+          child: const Text('Réessayer'),
         ),
       ],
     );
@@ -367,12 +434,12 @@ class _SearchScreenState extends State<SearchScreen> {
     return Column(
       children: [
         Icon(Icons.search_off, size: 80, color: Colors.grey[400]),
-        SizedBox(height: 16),
+        const SizedBox(height: 16),
         Text(
           'Aucun trajet trouvé',
           style: TextStyle(fontSize: 18, color: Colors.grey[600]),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Text(
           'Essayez de modifier vos critères de recherche',
           style: TextStyle(color: Colors.grey[500]),

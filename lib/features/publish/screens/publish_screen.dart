@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-// Reste rouge jusqu’à ce que tu crées le fichier
+import 'package:moovapp/core/service/ride_service.dart';
+import 'package:moovapp/core/models/ride_model.dart';
 import '../widgets/publish_ride_form.dart';
 
 class PublishScreen extends StatefulWidget {
@@ -22,6 +23,7 @@ class _PublishScreenState extends State<PublishScreen> {
   final _notesController = TextEditingController();
 
   bool _isRegularRide = false;
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -85,14 +87,63 @@ class _PublishScreenState extends State<PublishScreen> {
     }
   }
 
+  Future<void> _publishRide() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isLoading = true);
+
+    try {
+      // Convertir date et heure en DateTime
+      final dateParts = _dateController.text.split('/');
+      final timeParts = _timeController.text.split(':');
+
+      final departureDateTime = DateTime(
+        int.parse(dateParts[2]),
+        int.parse(dateParts[1]),
+        int.parse(dateParts[0]),
+        int.parse(timeParts[0]),
+        int.parse(timeParts[1]),
+      );
+
+      final ride = RideModel(
+        rideId: '', // backend génère l'ID
+        driverId: '', // à remplacer par l'ID de l'utilisateur connecté
+        driverName: '', // optionnel, backend peut remplir
+        driverRating: 0.0,
+        startPoint: _departureController.text,
+        endPoint: _arrivalController.text,
+        departureTime: departureDateTime,
+        availableSeats: int.tryParse(_seatsController.text) ?? 0,
+        pricePerSeat: double.tryParse(_priceController.text) ?? 0.0,
+        vehicleInfo: _vehicleController.text,
+        notes: _notesController.text,
+        isRegularRide: _isRegularRide,
+      );
+
+      await RideService().publishRide(ride);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Trajet publié avec succès !')),
+      );
+
+      _formKey.currentState!.reset();
+      setState(() => _isRegularRide = false);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur lors de la publication: $e')),
+      );
+    }
+
+    setState(() => _isLoading = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: colors.background,
-
+      backgroundColor: colors.surface,
       appBar: AppBar(
         title: Text(
           'Publier un trajet',
@@ -123,13 +174,11 @@ class _PublishScreenState extends State<PublishScreen> {
         centerTitle: false,
         elevation: 0,
       ),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // FORMULAIRE EXTERNE
             PublishRideForm(
               formKey: _formKey,
               departureController: _departureController,
@@ -149,18 +198,11 @@ class _PublishScreenState extends State<PublishScreen> {
               onSelectDate: _selectDate,
               onSelectTime: _selectTime,
             ),
-
             const SizedBox(height: 24),
-
-            // PRÉVISUALISATION
             _buildPreviewCard(colors),
-
             const SizedBox(height: 24),
-
             ElevatedButton(
-              onPressed: () {
-                // TODO: logique de publication
-              },
+              onPressed: _isLoading ? null : _publishRide,
               style: ElevatedButton.styleFrom(
                 backgroundColor: colors.primary,
                 foregroundColor: colors.onPrimary,
@@ -169,10 +211,13 @@ class _PublishScreenState extends State<PublishScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
-              child: const Text(
-                'Publier le trajet',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
+              child: _isLoading
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : const Text(
+                      'Publier le trajet',
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
             ),
           ],
         ),
@@ -181,12 +226,11 @@ class _PublishScreenState extends State<PublishScreen> {
   }
 
   Widget _buildPreviewCard(ColorScheme colors) {
-    String departure =
-        _departureController.text.isEmpty ? 'Départ' : _departureController.text;
-
+    String departure = _departureController.text.isEmpty
+        ? 'Départ'
+        : _departureController.text;
     String arrival =
         _arrivalController.text.isEmpty ? 'Arrivée' : _arrivalController.text;
-
     String date = _dateController.text;
     String time = _timeController.text;
     String seats = _seatsController.text.isEmpty ? '0' : _seatsController.text;
@@ -209,7 +253,6 @@ class _PublishScreenState extends State<PublishScreen> {
               ),
             ),
             const SizedBox(height: 4),
-
             Text(
               'Voici comment votre trajet apparaîtra aux autres utilisateurs',
               style: TextStyle(
@@ -218,11 +261,10 @@ class _PublishScreenState extends State<PublishScreen> {
               ),
             ),
             const SizedBox(height: 16),
-
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: colors.surfaceVariant.withOpacity(0.2),
+                color: colors.surfaceContainerHighest.withOpacity(0.2),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: colors.outline.withOpacity(0.3)),
               ),
@@ -230,7 +272,6 @@ class _PublishScreenState extends State<PublishScreen> {
                 children: [
                   Icon(Icons.directions_car, color: colors.primary),
                   const SizedBox(width: 12),
-
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -244,7 +285,6 @@ class _PublishScreenState extends State<PublishScreen> {
                           overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
-
                         Text(
                           '$date · $time · $seats places disponibles',
                           style: TextStyle(
