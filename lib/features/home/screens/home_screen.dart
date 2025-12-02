@@ -1,102 +1,98 @@
 import 'package:flutter/material.dart';
-// ERREUR NORMALE: Ce fichier sera créé à la prochaine étape
+
 import 'package:moovapp/features/home/widgets/my_reservations_widget.dart';
-// ERREUR NORMALE: Ce fichier sera créé à la prochaine étape
 import 'package:moovapp/features/home/widgets/ride_to_rate_card.dart';
-// ERREUR NORMALE: Ce fichier sera créé à la prochaine étape
 import 'package:moovapp/features/premium/screens/premium_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  // Fonction pour afficher la pop-up de notation (moov7.jpg)
+  // ------------------------------------------------------------
+  // POP-UP NOTATION
+  // ------------------------------------------------------------
   void _showRatingDialog(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: cs.surface,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           contentPadding: const EdgeInsets.all(24.0),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Bouton Fermer
                 Align(
                   alignment: Alignment.topRight,
                   child: IconButton(
-                    icon: Icon(Icons.close, color: Colors.grey[600]),
+                    icon: Icon(Icons.close, color: cs.onSurfaceVariant),
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ),
-                // Infos utilisateur
+
                 const CircleAvatar(
                   radius: 32,
-                  backgroundColor: Colors.blue, // Couleur exemple
+                  backgroundColor: Colors.blue,
                   child: Text('F', style: TextStyle(color: Colors.white, fontSize: 30)),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Fatima Zahra',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                ),
-                const Text(
-                  'Ben Guerir → UM6P Campus',
-                  style: TextStyle(color: Colors.grey, fontSize: 14),
-                ),
-                const Text(
-                  '9 Oct 2025',
-                  style: TextStyle(color: Colors.grey, fontSize: 12),
-                ),
+
+                Text('Fatima Zahra',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: cs.onSurface)),
+                Text('Ben Guerir → UM6P Campus',
+                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 14)),
+                Text('9 Oct 2025',
+                    style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
                 const SizedBox(height: 16),
-                const Divider(),
+
+                Divider(color: cs.outlineVariant),
                 const SizedBox(height: 16),
-                
-                // Notation
-                const Text('Votre note', style: TextStyle(fontWeight: FontWeight.bold)),
+
+                Text('Votre note',
+                    style: TextStyle(fontWeight: FontWeight.bold, color: cs.onSurface)),
                 const SizedBox(height: 8),
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(5, (index) {
-                    return Icon(
-                      Icons.star_border,
-                      color: Colors.grey[400],
-                      size: 36,
-                    );
-                    // TODO: Ajouter la logique pour changer les étoiles pleines/vides
+                    return Icon(Icons.star_border, color: cs.outlineVariant, size: 36);
                   }),
                 ),
                 const SizedBox(height: 24),
-                
-                // Commentaire
+
                 TextField(
                   maxLines: 3,
                   decoration: InputDecoration(
                     hintText: 'Commentaire (optionnel)\nPartagez votre expérience...',
+                    hintStyle: TextStyle(color: cs.onSurfaceVariant),
+                    fillColor: cs.surfaceVariant.withOpacity(0.3),
+                    filled: true,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
+                      borderSide: BorderSide(color: cs.outlineVariant),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
+                      borderSide: BorderSide(color: cs.outlineVariant),
                     ),
                   ),
                 ),
                 const Align(
                   alignment: Alignment.bottomRight,
-                  child: Text('0/300', style: TextStyle(color: Colors.grey, fontSize: 12)),
+                  child: Text('0/300', style: TextStyle(fontSize: 12)),
                 ),
+
                 const SizedBox(height: 24),
-                
-                // Boutons
+
                 Row(
                   children: [
                     Expanded(
                       child: TextButton(
                         onPressed: () => Navigator.of(context).pop(),
                         style: TextButton.styleFrom(
-                          foregroundColor: Colors.black,
+                          foregroundColor: cs.onSurface,
                         ),
                         child: const Text('Annuler'),
                       ),
@@ -104,17 +100,14 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(width: 8),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {
-                          // TODO: Logique d'envoi de l'avis
-                          Navigator.of(context).pop();
-                        },
+                        onPressed: () => Navigator.of(context).pop(),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.7), // Couleur 'Envoyer l'avis'
-                          foregroundColor: Colors.white,
+                          backgroundColor: cs.primary,
+                          foregroundColor: cs.onPrimary,
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
-                        child: const Text('Envoyer l\'avis'),
+                        child: const Text("Envoyer l'avis"),
                       ),
                     ),
                   ],
@@ -127,23 +120,24 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  // ------------------------------------------------------------
+  // BUILD
+  // ------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
-    final Color primaryColor = Theme.of(context).colorScheme.primary;
+    final cs = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: cs.surface,
       appBar: AppBar(
-        backgroundColor: primaryColor,
-        // 'Bonjour'
-        title: const Column(
+        backgroundColor: cs.primary,
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'Bonjour 👋', // J'ai ajouté l'emoji
+            const Text(
+              'Bonjour 👋',
               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22),
             ),
-            // TODO: Rendre ce texte dynamique
             Text(
               'uir - Étudiant',
               style: TextStyle(color: Colors.white70, fontSize: 14),
@@ -151,117 +145,120 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
         actions: [
-          // Bouton Premium (Couronne)
           IconButton(
             icon: Icon(Icons.workspace_premium_outlined, color: Colors.orange.shade300, size: 28),
             onPressed: () {
-              // --- NOUVELLE LOGIQUE ---
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const PremiumScreen()),
               );
-              // --- FIN NOUVELLE LOGIQUE ---
             },
           ),
-          // Bouton Notifications (Cloche)
           IconButton(
             icon: const Icon(Icons.notifications_none_outlined, color: Colors.white, size: 28),
-            onPressed: () {
-              // TODO: Logique pour les notifications
-            },
+            onPressed: () {},
           ),
           const SizedBox(width: 8),
         ],
-        toolbarHeight: 70, // Augmente la hauteur de l'AppBar
+        toolbarHeight: 70,
       ),
+
+      // ------------------------------------------------------------
+      // BODY
+      // ------------------------------------------------------------
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Carte des trajets disponibles
+            // --------------------------------------------------------
+            // CARTE DES TRAJETS DISPONIBLES
+            // --------------------------------------------------------
             Card(
               elevation: 0.5,
-              color: const Color(0xFFe6f7ff), // Fond bleu très clair
+              color: cs.primary.withOpacity(0.1),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.map_outlined, size: 36, color: primaryColor),
+                    Icon(Icons.map_outlined, size: 36, color: cs.primary),
                     const SizedBox(width: 16),
                     Text(
                       'Carte des trajets disponibles',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: primaryColor),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: cs.primary,
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 24),
-            
-            // --- SECTION "Trajets à noter" ---
+
+            // --------------------------------------------------------
+            // TRAJETS À NOTER
+            // --------------------------------------------------------
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
+                Text(
                   'Trajets à noter',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: cs.onSurface),
                 ),
-                // Bulle de notification rouge
                 Container(
                   padding: const EdgeInsets.all(6),
-                  decoration: const BoxDecoration(
-                    color: Colors.red,
+                  decoration: BoxDecoration(
+                    color: cs.error,
                     shape: BoxShape.circle,
                   ),
-                  child: const Text(
+                  child: Text(
                     '1',
-                    style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                    style: TextStyle(color: cs.onError, fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
             ),
+
             const SizedBox(height: 12),
-            // --- UTILISATION DU NOUVEAU WIDGET ---
-            RideToRateCard(
-              onRatePressed: () {
-                _showRatingDialog(context); // Ouvre la pop-up
-              },
-            ),
-            // --- FIN NOUVEAU WIDGET ---
-            
+            RideToRateCard(onRatePressed: () => _showRatingDialog(context)),
             const SizedBox(height: 24),
 
-            // --- SECTION "Mes statistiques" (Les 3 petites cartes) ---
+            // --------------------------------------------------------
+            // STATISTIQUES
+            // --------------------------------------------------------
             Row(
               children: [
-                _buildStatCard('12', 'Trajets', Colors.blue),
+                _buildStatCard('12', 'Trajets', cs.primary),
                 const SizedBox(width: 12),
-                _buildStatCard('4.9', 'Note', Colors.green),
+                _buildStatCard('4.9', 'Note', cs.tertiary),
                 const SizedBox(width: 12),
-                _buildStatCard('350', 'MAD Économisés', Colors.purple),
+                _buildStatCard('350', 'MAD Économisés', cs.secondary),
               ],
             ),
             const SizedBox(height: 24),
-            
-            // --- SECTION "Mes réservations" ---
-            const Text(
+
+            // --------------------------------------------------------
+            // MES RÉSERVATIONS
+            // --------------------------------------------------------
+            Text(
               'Mes réservations',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: cs.onSurface),
             ),
             const SizedBox(height: 12),
-            // --- UTILISATION DU NOUVEAU WIDGET ---
             const MyReservationsWidget(),
-            // --- FIN NOUVEAU WIDGET ---
           ],
         ),
       ),
     );
   }
 
-  // Helper widget pour les petites cartes de statistiques
+  // ------------------------------------------------------------
+  // HELPER: STAT CARD
+  // ------------------------------------------------------------
   Widget _buildStatCard(String value, String label, Color color) {
     return Expanded(
       child: Card(
@@ -272,16 +269,10 @@ class HomeScreen extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
           child: Column(
             children: [
-              Text(
-                value,
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color),
-              ),
+              Text(value,
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color)),
               const SizedBox(height: 4),
-              Text(
-                label,
-                style: const TextStyle(color: Colors.grey, fontSize: 13),
-                textAlign: TextAlign.center,
-              ),
+              Text(label, style: const TextStyle(color: Colors.grey, fontSize: 13)),
             ],
           ),
         ),

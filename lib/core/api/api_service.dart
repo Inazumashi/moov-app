@@ -1,131 +1,116 @@
-// File: lib/core/api/api_service.dart
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'dart:io';
+import 'dart:convert'; // Pour convertir les données en JSON
+import 'package:http/http.dart' as http; // Pour faire les appels réseau
+import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // Pour stocker le token
 
 class ApiService {
-  // ✅ URL DYNAMIQUE POUR CHAQUE PLATEFORME
-  static String get _baseUrl {
-    // Pour le web (Chrome)
-    if (kIsWeb) {
-      return "http://localhost:3000/api";
-    }
-    // Pour Android
-    if (Platform.isAndroid) {
-      return "http://10.0.2.2:3000/api";
-    }
-    // Pour iOS
-    if (Platform.isIOS) {
-      return "http://localhost:3000/api";
-    }
-    // Par défaut
-    return "http://localhost:3000/api";
+  // 1. DÉFINIR L'URL DE VOTRE API NODE.JS
+  // IMPORTANT:
+  // - Émulateur Android : utilisez 'http://10.0.2.2:5000/api/v1'
+  // - Émulateur iOS : utilisez 'http://localhost:5000/api/v1'
+  // - Téléphone réel : utilisez l'adresse IP de votre PC (ex: 'http://192.168.1.15:5000/api/v1')
+  final String _baseUrl = "http://10.0.2.2:5000/api/v1";
+
+  // 2. INITIALISER LE STOCKAGE SÉCURISÉ
+  final _storage = const FlutterSecureStorage();
+  final String _tokenKey = 'jwt_token'; // La clé pour retrouver notre token
+
+  // --- GESTION DU TOKEN ---
+
+  // Sauvegarder le token (après connexion/inscription)
+  Future<void> storeToken(String token) async {
+    await _storage.write(key: _tokenKey, value: token);
   }
 
-  // ✅ AJOUT: Pour détecter si on est sur le web
-  static bool get kIsWeb => identical(0, 0.0);
+  // Lire le token (pour les requêtes)
+  Future<String?> _getToken() async {
+    return await _storage.read(key: _tokenKey);
+  }
 
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  // Supprimer le token (pour la déconnexion)
+  Future<void> deleteToken() async {
+    await _storage.delete(key: _tokenKey);
+  }
 
-  Future<Map<String, String>> _getHeaders() async {
-    final token = await _storage.read(key: 'jwt_token');
-    return {
-      'Content-Type': 'application/json',
-      if (token != null) 'Authorization': 'Bearer $token',
+  // --- PRÉPARATION DES REQUÊTES ---
+
+  // Cette fonction prépare les en-têtes (headers) de la requête
+  // Si 'isProtected' est vrai, elle ajoute le token JWT.
+  Future<Map<String, String>> _getHeaders({bool isProtected = false}) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
     };
-  }
 
-  Future<dynamic> get(String endpoint) async {
-    try {
-      final url = '$_baseUrl/$endpoint';
-      print('🔄 API CALL: GET $url');
-      
-      final response = await http.get(
-        Uri.parse(url),
-        headers: await _getHeaders(),
-      ).timeout(Duration(seconds: 10));
-      
-      print('✅ API RESPONSE: ${response.statusCode}');
-      return _handleResponse(response);
-    } catch (e) {
-      print('❌ API ERROR: $e');
-      throw Exception('Erreur réseau: $e');
-    }
-  }
-
-  Future<dynamic> post(String endpoint, Map<String, dynamic> data) async {
-    try {
-      final url = '$_baseUrl/$endpoint';
-      print('🔄 API CALL: POST $url');
-      
-      final response = await http.post(
-        Uri.parse(url),
-        headers: await _getHeaders(),
-        body: jsonEncode(data),
-      ).timeout(Duration(seconds: 10));
-      
-      print('✅ API RESPONSE: ${response.statusCode}');
-      return _handleResponse(response);
-    } catch (e) {
-      print('❌ API ERROR: $e');
-      throw Exception('Erreur réseau: $e');
-    }
-  }
-
-  Future<dynamic> put(String endpoint, Map<String, dynamic> data) async {
-    try {
-      final url = '$_baseUrl/$endpoint';
-      final response = await http.put(
-        Uri.parse(url),
-        headers: await _getHeaders(),
-        body: jsonEncode(data),
-      ).timeout(Duration(seconds: 10));
-      return _handleResponse(response);
-    } catch (e) {
-      throw Exception('Erreur réseau: $e');
-    }
-  }
-
-  Future<dynamic> delete(String endpoint) async {
-    try {
-      final url = '$_baseUrl/$endpoint';
-      final response = await http.delete(
-        Uri.parse(url),
-        headers: await _getHeaders(),
-      ).timeout(Duration(seconds: 10));
-      return _handleResponse(response);
-    } catch (e) {
-      throw Exception('Erreur réseau: $e');
-    }
-  }
-
-  dynamic _handleResponse(http.Response response) {
-    print('📊 Response status: ${response.statusCode}');
-    print('📊 Response body: ${response.body}');
-    
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      if (response.body.isEmpty) return {};
-      try {
-        return jsonDecode(response.body);
-      } catch (e) {
-        throw Exception('Erreur de parsing JSON: $e');
+    if (isProtected) {
+      final String? token = await _getToken();
+      if (token != null) {
+        // C'est ici qu'on ajoute le "pass" pour le serveur
+        headers['Authorization'] = 'Bearer $token';
       }
-    } else {
-      throw HttpException(
-        'HTTP ${response.statusCode}: ${response.reasonPhrase}',
-        statusCode: response.statusCode,
-      );
+    }
+    return headers;
+  }
+
+  // --- GESTION DES RÉPONSES ---
+
+  // Cette fonction vérifie si le serveur a répondu avec succès ou erreur
+  dynamic _handleResponse(http.Response response) {
+    // Codes 200 (OK) et 201 (Créé) sont des succès
+    if (response.statusCode >= 200 && response.statusCode < 300) {
+      // On décode le JSON reçu du serveur
+      return json.decode(response.body);
+    } 
+    
+    // Code 401 (Non autorisé) : Le token est invalide ou expiré
+    else if (response.statusCode == 401) {
+      deleteToken(); // On supprime le token localement
+      throw Exception('Session expirée. Veuillez vous reconnecter.');
+    } 
+    
+    // Autres erreurs (400, 404, 500...)
+    else {
+      // On essaie de lire le message d'erreur envoyé par le serveur
+      try {
+        final errorData = json.decode(response.body);
+        throw Exception(errorData['message'] ?? 'Erreur inconnue');
+      } catch (e) {
+        throw Exception('Erreur serveur (${response.statusCode})');
+      }
     }
   }
-}
 
-class HttpException implements Exception {
-  final String message;
-  final int statusCode;
+  // --- MÉTHODES PUBLIQUES (GET, POST) ---
 
-  HttpException(this.message, {this.statusCode = 0});
+  // Fonction GET (pour récupérer des données, ex: liste de trajets)
+  Future<dynamic> get(String endpoint, {bool isProtected = true}) async {
+    final Uri url = Uri.parse('$_baseUrl/$endpoint');
+    
+    try {
+      final headers = await _getHeaders(isProtected: isProtected);
+      final response = await http.get(url, headers: headers);
+      
+      return _handleResponse(response);
+    } catch (e) {
+      throw Exception('Erreur de connexion : $e');
+    }
+  }
 
-  @override
-  String toString() => message;
+  // Fonction POST (pour envoyer des données, ex: connexion, publication)
+  Future<dynamic> post(String endpoint, Map<String, dynamic> data, {bool isProtected = false}) async {
+    final Uri url = Uri.parse('$_baseUrl/$endpoint');
+    
+    try {
+      final headers = await _getHeaders(isProtected: isProtected);
+      final response = await http.post(
+        url,
+        headers: headers,
+        body: json.encode(data), // On convertit les données en JSON
+      );
+
+      return _handleResponse(response);
+    } catch (e) {
+      throw Exception('Erreur de connexion : $e');
+    }
+  }
+  
+  // Vous pourrez ajouter PUT et DELETE plus tard si nécessaire
 }

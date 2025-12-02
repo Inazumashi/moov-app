@@ -26,7 +26,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     final rideProvider = Provider.of<RideProvider>(context);
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: colors.background,
+
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -35,7 +36,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               'Mes favoris',
               style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 2),
+            const SizedBox(height: 2),
             Text(
               '${rideProvider.favoriteRides.length} trajet(s) sauvegardé(s)',
               style: TextStyle(color: Colors.white70, fontSize: 14),
@@ -135,10 +136,12 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           Text(
             'Disponibles',
             style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey[700]),
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: colors.onBackground.withOpacity(0.8),
+            ),
           ),
+
           const SizedBox(height: 12),
           ...provider.favoriteRides.map((ride) => FavoriteRideCard(
                 ride: ride,

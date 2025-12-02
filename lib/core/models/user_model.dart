@@ -22,31 +22,40 @@ class UserModel {
     this.isPremium = false,
   });
 
+  // --- C'EST CETTE PARTIE QUI MANQUAIT OU ÉTAIT INCORRECTE ---
+  
+  // Factory : Crée un objet UserModel à partir d'un JSON (reçu de l'API)
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      uid: json['uid'] ?? json['id'] ?? '',
+      // On convertit les données reçues (API) vers nos variables (Flutter)
+      // Note : 'id', 'email', 'fullName' doivent correspondre à ce que votre 
+      // API Node.js renvoie dans le auth.controller.js
+      uid: json['id']?.toString() ?? '', 
       email: json['email'] ?? '',
-      fullName: json['fullName'] ?? json['name'] ?? '',
-      universityId: json['universityId'] ?? '',
-      profileType: json['profileType'] ?? 'Étudiant',
+      fullName: json['fullName'] ?? '',
+      universityId: json['university'] ?? '',
+      profileType: json['profileType'] ?? '',
       phoneNumber: json['phoneNumber'],
-      averageRating: double.tryParse(json['averageRating']?.toString() ?? '0') ?? 0.0,
-      ridesCompleted: json['ridesCompleted'] ?? 0,
-      isPremium: json['isPremium'] ?? false,
+      
+      // Conversion sécurisée pour les nombres (parfois reçus en int, parfois en double)
+      averageRating: (json['rating'] is int) 
+          ? (json['rating'] as int).toDouble() 
+          : (json['rating'] as double?) ?? 0.0,
+          
+      ridesCompleted: json['rides_count'] ?? 0,
+      isPremium: json['is_premium'] ?? false,
     );
   }
 
+  // Fonction : Convertit un objet UserModel vers un JSON (pour l'envoyer à l'API)
   Map<String, dynamic> toJson() {
     return {
-      'uid': uid,
+      'id': uid,
       'email': email,
       'fullName': fullName,
-      'universityId': universityId,
+      'university': universityId,
       'profileType': profileType,
       'phoneNumber': phoneNumber,
-      'averageRating': averageRating,
-      'ridesCompleted': ridesCompleted,
-      'isPremium': isPremium,
     };
   }
 }

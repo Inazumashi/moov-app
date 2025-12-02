@@ -50,19 +50,16 @@ class RideModel {
 
   Map<String, dynamic> toJson() {
     return {
-      'rideId': rideId,
-      'driverId': driverId,
-      'driverName': driverName,
-      'driverRating': driverRating,
-      'driverIsPremium': driverIsPremium,
-      'startPoint': startPoint,
-      'endPoint': endPoint,
-      'departureTime': departureTime.toIso8601String(),
-      'availableSeats': availableSeats,
-      'pricePerSeat': pricePerSeat,
-      'vehicleInfo': vehicleInfo,
+      'ride_id': rideId,
+      'driver_id': driverId,
+      'departure_address': startPoint,
+      'arrival_address': endPoint,
+      'departure_time': departureTime.toIso8601String(),
+      'available_seats': availableSeats,
+      'price_per_seat': pricePerSeat,
+      'is_regular': isRegularRide,
+      'vehicle_details': vehicleInfo,
       'notes': notes,
-      'isRegularRide': isRegularRide,
     };
   }
 }

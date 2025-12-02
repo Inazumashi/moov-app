@@ -32,11 +32,11 @@ class _SearchScreenState extends State<SearchScreen> {
     final rideProvider = Provider.of<RideProvider>(context);
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: colorScheme.surface,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            backgroundColor: Colors.white,
+            backgroundColor: colorScheme.surface,
             pinned: true,
             expandedHeight: 360.0,
             flexibleSpace: FlexibleSpaceBar(
@@ -52,7 +52,6 @@ class _SearchScreenState extends State<SearchScreen> {
             ),
           ),
 
-          // --- RESULTS LIST ---
           SliverList(
             delegate: SliverChildListDelegate(
               [
@@ -160,7 +159,7 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   // ----------------------------
-  // 🔷 FORMULAIRE DE RECHERCHE
+  // FORMULAIRE SEARCH
   // ----------------------------
   Widget _buildSearchForm(Color primaryColor, RideProvider provider) {
     return Column(
@@ -171,7 +170,7 @@ class _SearchScreenState extends State<SearchScreen> {
             hintText: 'Départ',
             prefixIcon: Icon(Icons.location_on_outlined, color: primaryColor),
             filled: true,
-            fillColor: Colors.grey[100],
+            fillColor: colorScheme.surfaceVariant,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.0),
               borderSide: BorderSide.none,
@@ -186,7 +185,7 @@ class _SearchScreenState extends State<SearchScreen> {
             hintText: 'Arrivée',
             prefixIcon: Icon(Icons.location_on, color: Colors.green[600]),
             filled: true,
-            fillColor: Colors.grey[100],
+            fillColor: colorScheme.surfaceVariant,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12.0),
               borderSide: BorderSide.none,
@@ -201,9 +200,9 @@ class _SearchScreenState extends State<SearchScreen> {
               child: TextField(
                 decoration: InputDecoration(
                   hintText: 'jj/mm/aaaa',
-                  prefixIcon: Icon(Icons.calendar_today_outlined, color: Colors.grey[600]),
+                  prefixIcon: Icon(Icons.calendar_today_outlined, color: colorScheme.onSurfaceVariant),
                   filled: true,
-                  fillColor: Colors.grey[100],
+                  fillColor: colorScheme.surfaceVariant,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12.0),
                     borderSide: BorderSide.none,
@@ -227,7 +226,7 @@ class _SearchScreenState extends State<SearchScreen> {
               },
               icon: const Icon(Icons.filter_list),
               style: IconButton.styleFrom(
-                backgroundColor: Colors.grey[100],
+                backgroundColor: colorScheme.surfaceVariant,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12.0),
                 ),
@@ -266,15 +265,15 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   // ----------------------------
-  // 🔶 CARTE PUBLICITÉ
+  // CARTE PUBLICITÉ
   // ----------------------------
-  Widget _buildAdCard() {
+  Widget _buildAdCard(ColorScheme colorScheme) {
     return Card(
       elevation: 0,
-      color: const Color(0xFFfff8e1),
+      color: colorScheme.secondaryContainer,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: Colors.yellow.shade700.withOpacity(0.5)),
+        side: BorderSide(color: colorScheme.secondary.withOpacity(0.4)),
       ),
       margin: const EdgeInsets.only(bottom: 16),
       child: Padding(
@@ -284,23 +283,27 @@ class _SearchScreenState extends State<SearchScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.yellow.shade700,
+                color: colorScheme.secondary,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Text(
+              child: Text(
                 'AD',
-                style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: colorScheme.onSecondary,
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             const SizedBox(width: 12),
-            const Expanded(
+            Expanded(
               child: Text(
                 'Passez à Premium pour une expérience sans pub',
-                style: TextStyle(fontSize: 13),
+                style: TextStyle(fontSize: 13, color: colorScheme.onSurface),
               ),
             ),
             IconButton(
-              icon: Icon(Icons.close, size: 18, color: Colors.grey[700]),
+              icon: Icon(Icons.close, size: 18, color: colorScheme.onSurfaceVariant),
               onPressed: () {
                 setState(() {
                   _showAd = false;
@@ -314,7 +317,7 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   // ----------------------------
-  // 🔵 HEADER DES RESULTATS
+  // HEADER RÉSULTATS
   // ----------------------------
   Widget _buildResultsHeader(Color primaryColor, RideProvider provider) {
     return Row(

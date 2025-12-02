@@ -242,27 +242,6 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                         ),
                       ),
                     ),
-                    
-                    // Bouton "Vérifier plus tard"
-                    Center(
-                      child: TextButton(
-                        onPressed: _isLoading ? null : () {
-                          Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(
-                              builder: (context) => const MainNavigationShell(),
-                            ),
-                            (route) => false,
-                          );
-                        },
-                        child: Text(
-                          'Vérifier plus tard',
-                          style: TextStyle(
-                            color: Colors.grey[600],
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:moovapp/features/inscription/screens/otp_verification_screen.dart';
 import 'package:moovapp/features/premium/screens/premium_screen.dart';
 import '../widgets/profile_activity_item.dart';
-import '../widgets/profile_header.dart';
 import '../widgets/profile_menu_item.dart';
+import '../widgets/profile_header.dart';
 import '../widgets/profile_stat_card.dart';
 import 'communities_screen.dart';
 import 'notifications_screen.dart';
@@ -16,28 +15,29 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Scaffold(
-      // On utilise un CustomScrollView pour avoir une AppBar qui disparaît
-      // quand on scrolle vers le bas.
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            expandedHeight: 220.0,
+            backgroundColor: colors.primary,
+            expandedHeight: 220,
             floating: false,
             pinned: true,
             elevation: 0,
-            title: const Text(
+            title: Text(
               'Mon Profil',
               style: TextStyle(
-                color: Colors.white,
+                color: colors.onPrimary,
                 fontWeight: FontWeight.bold,
               ),
             ),
             centerTitle: true,
             actions: [
               IconButton(
-                icon: const Icon(Icons.settings_outlined, color: Colors.white),
+                icon: Icon(Icons.settings_outlined, color: colors.onPrimary),
                 onPressed: () {
                   Navigator.of(context).push(MaterialPageRoute(
                     builder: (context) => const SettingsScreen(),
@@ -45,8 +45,7 @@ class ProfileScreen extends StatelessWidget {
                 },
               ),
             ],
-            // Le header flexible qui contient l'avatar, le nom, etc.
-            flexibleSpace: const FlexibleSpaceBar(
+            flexibleSpace: FlexibleSpaceBar(
               background: ProfileHeader(
                 name: 'Ahmed Benali',
                 email: 'ahmed.benali@um6p.ma',
@@ -56,29 +55,18 @@ class ProfileScreen extends StatelessWidget {
               collapseMode: CollapseMode.pin,
             ),
           ),
-          // Le reste du contenu de la page
+
           SliverToBoxAdapter(
             child: Container(
-              color: Colors.grey[100], // Fond gris clair pour le contenu
+              color: theme.scaffoldBackgroundColor,
               child: Column(
                 children: [
-                  // Carte Premium
-                  _buildPremiumCard(context),
-
-                  // Carte Coordonnées
-                  _buildContactCard(context),
-
-                  // Cartes de statistiques
-                  _buildStatsRow(),
-
-                  // Section Activité récente
-                  _buildActivitySection(),
-
-                  // Section Menu (Notifications, Sécurité, etc.)
-                  _buildMenuSection(context),
-
-                  // Bouton Déconnexion
-                  _buildLogoutButton(context),
+                  _buildPremiumCard(context, theme, colors),
+                  _buildContactCard(context, theme, colors),
+                  _buildStatsRow(colors),
+                  _buildActivitySection(theme, colors),
+                  _buildMenuSection(context, theme, colors),
+                  _buildLogoutButton(context, colors),
                   const SizedBox(height: 32),
                 ],
               ),
@@ -89,20 +77,23 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPremiumCard(BuildContext context) {
+  Widget _buildPremiumCard(BuildContext context, ThemeData theme, ColorScheme colors) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          gradient: const LinearGradient(
-            colors: [Colors.orange, Colors.deepOrange],
+          gradient: LinearGradient(
+            colors: [
+              colors.primary,
+              colors.primary.withOpacity(0.8),
+            ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.orange.withOpacity(0.3),
+              color: colors.primary.withOpacity(0.25),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),
@@ -118,18 +109,18 @@ class ProfileScreen extends StatelessWidget {
             },
             borderRadius: BorderRadius.circular(16),
             child: Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.workspace_premium, color: Colors.white),
-                      SizedBox(width: 8),
+                      Icon(Icons.workspace_premium, color: colors.onPrimary),
+                      const SizedBox(width: 8),
                       Text(
                         'Passez à Premium',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: colors.onPrimary,
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
@@ -137,9 +128,9 @@ class ProfileScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 8),
-                  const Text(
+                  Text(
                     'Sans pub, stats avancées et fonctionnalités exclusives',
-                    style: TextStyle(color: Colors.white70),
+                    style: TextStyle(color: colors.onPrimary.withOpacity(0.7)),
                   ),
                   const SizedBox(height: 16),
                   Align(
@@ -148,13 +139,13 @@ class ProfileScreen extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 24, vertical: 10),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: colors.onPrimary,
                         borderRadius: BorderRadius.circular(30),
                       ),
                       child: Text(
                         'Découvrir Premium',
                         style: TextStyle(
-                          color: Colors.deepOrange,
+                          color: colors.primary,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -169,26 +160,60 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildContactCard(BuildContext context) {
+  Widget _buildContactCard(BuildContext context, ThemeData theme, ColorScheme colors) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.cardColor,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Coordonnées',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: colors.onBackground,
+              ),
             ),
             const SizedBox(height: 16),
+
             Row(
               children: [
-                Icon(Icons.phone_outlined, color: Colors.grey[600]),
+                Icon(Icons.email_outlined, color: colors.onBackground.withOpacity(0.7)),
+                const SizedBox(width: 16),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'ahmed.benali@um6p.ma',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: colors.onBackground,
+                      ),
+                    ),
+                    Text(
+                      'Email universitaire vérifié',
+                      style: TextStyle(
+                        color: Colors.green[500],
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 16),
+
+            Row(
+              children: [
+                Icon(Icons.phone_outlined, color: colors.onBackground.withOpacity(0.7)),
                 const SizedBox(width: 16),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -198,39 +223,45 @@ class ProfileScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: Colors.grey[600],
+                        color: colors.onBackground.withOpacity(0.5),
                       ),
                     ),
                     Text(
-                      'Numéro de téléphone',
-                      style: TextStyle(color: Colors.grey[600]),
+                      'Numéro de téléphone (optionnel)',
+                      style: TextStyle(
+                        color: colors.onBackground.withOpacity(0.5),
+                      ),
                     ),
                   ],
                 ),
               ],
             ),
+
             const SizedBox(height: 16),
+
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
                 onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                    // L'import 'onboarding' devrait corriger ceci
-                    builder: (context) => const OtpVerificationScreen(),
-                  ));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('L\'ajout de téléphone est optionnel'),
+                      backgroundColor: colors.primary,
+                    ),
+                  );
                 },
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
-                  side: BorderSide(color: Colors.grey.shade300),
+                  side: BorderSide(color: colors.onBackground.withOpacity(0.2)),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text(
-                  'Ajouter un numéro',
+                child: Text(
+                  'Ajouter un numéro (optionnel)',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Colors.black87,
+                    color: colors.onBackground,
                   ),
                 ),
               ),
@@ -241,9 +272,9 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsRow() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  Widget _buildStatsRow(ColorScheme colors) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         children: [
           Expanded(
@@ -251,10 +282,10 @@ class ProfileScreen extends StatelessWidget {
               icon: Icons.directions_car_filled_outlined,
               value: '12',
               label: 'Trajets effectués',
-              iconColor: Colors.blue,
+              iconColor: colors.primary,
             ),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Expanded(
             child: ProfileStatCard(
               icon: Icons.star_border_outlined,
@@ -263,7 +294,7 @@ class ProfileScreen extends StatelessWidget {
               iconColor: Colors.orange,
             ),
           ),
-          SizedBox(width: 12),
+          const SizedBox(width: 12),
           Expanded(
             child: ProfileStatCard(
               icon: Icons.people_outline,
@@ -277,34 +308,38 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActivitySection() {
+  Widget _buildActivitySection(ThemeData theme, ColorScheme colors) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.cardColor,
           borderRadius: BorderRadius.circular(16),
         ),
-        child: const Column(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Activité récente',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: colors.onBackground,
+              ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             ProfileActivityItem(
               icon: Icons.directions_car_outlined,
-              iconBgColor: Colors.green,
+              iconBgColor: colors.primary,
               title: 'Trajet complété',
               subtitle: 'Ben Guerir → UM6P Campus',
               trailing: 'Hier',
             ),
-            Divider(height: 24),
+            Divider(height: 24, color: colors.onBackground.withOpacity(0.2)),
             ProfileActivityItem(
               icon: Icons.star_outline,
-              iconBgColor: Colors.blue,
+              iconBgColor: colors.primary,
               title: 'Nouvel avis reçu',
               subtitle: '5 étoiles de Fatima Z.',
               trailing: '2j',
@@ -315,12 +350,12 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuSection(BuildContext context) {
+  Widget _buildMenuSection(BuildContext context, ThemeData theme, ColorScheme colors) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.cardColor,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
@@ -341,50 +376,58 @@ class ProfileScreen extends StatelessWidget {
               ),
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const NotificationsScreen(),
+                  builder: (_) => const NotificationsScreen(),
                 ));
               },
             ),
-            const Divider(height: 1, indent: 16, endIndent: 16),
+
+            Divider(height: 1, indent: 16, endIndent: 16, color: colors.onBackground.withOpacity(0.2)),
+
             ProfileMenuItem(
               icon: Icons.people_alt_outlined,
               title: 'Mes communautés',
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const CommunitiesScreen(),
+                  builder: (_) => const CommunitiesScreen(),
                 ));
               },
             ),
-            const Divider(height: 1, indent: 16, endIndent: 16),
+
+            Divider(height: 1, indent: 16, endIndent: 16, color: colors.onBackground.withOpacity(0.2)),
+
             ProfileMenuItem(
               icon: Icons.security_outlined,
               title: 'Sécurité',
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const SecurityScreen(),
+                  builder: (_) => const SecurityScreen(),
                 ));
               },
             ),
-            const Divider(height: 1, indent: 16, endIndent: 16),
+
+            Divider(height: 1, indent: 16, endIndent: 16, color: colors.onBackground.withOpacity(0.2)),
+
             ProfileMenuItem(
               icon: Icons.settings_outlined,
               title: 'Paramètres',
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const SettingsScreen(),
+                  builder: (_) => const SettingsScreen(),
                 ));
               },
             ),
-            const Divider(height: 1, indent: 16, endIndent: 16),
+
+            Divider(height: 1, indent: 16, endIndent: 16, color: colors.onBackground.withOpacity(0.2)),
+
             ProfileMenuItem(
               icon: Icons.help_outline,
               title: 'Aide & Support',
+              hasBorder: false,
               onTap: () {
                 Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const SupportScreen(),
+                  builder: (_) => const SupportScreen(),
                 ));
               },
-              hasBorder: false, // Pas de bordure pour le dernier item
             ),
           ],
         ),
@@ -392,22 +435,20 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLogoutButton(BuildContext context) {
+  Widget _buildLogoutButton(BuildContext context, ColorScheme colors) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: TextButton(
-        onPressed: () {
-          // TODO: Gérer la déconnexion
-        },
-        child: const Row(
+        onPressed: () {},
+        child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.logout, color: Colors.red),
-            SizedBox(width: 8),
+            Icon(Icons.logout, color: Colors.redAccent),
+            const SizedBox(width: 8),
             Text(
               'Se déconnecter',
               style: TextStyle(
-                color: Colors.red,
+                color: Colors.redAccent,
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
@@ -418,5 +459,3 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 }
-
-
