@@ -5,9 +5,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // Pour sto
 class ApiService {
   // 1. DÉFINIR L'URL DE VOTRE API NODE.JS
   // IMPORTANT:
-  // - Émulateur Android : utilisez 'http://10.0.2.2:5000/api/v1'
+  // - Émulateur Android : utilisez 'http://10.0.2.2:5000/api/v1' (ou 3000 selon votre port)
   // - Émulateur iOS : utilisez 'http://localhost:5000/api/v1'
-  // - Téléphone réel : utilisez l'adresse IP de votre PC (ex: 'http://192.168.1.15:5000/api/v1')
   final String _baseUrl = "http://10.0.2.2:5000/api/v1";
 
   // 2. INITIALISER LE STOCKAGE SÉCURISÉ
@@ -78,7 +77,7 @@ class ApiService {
     }
   }
 
-  // --- MÉTHODES PUBLIQUES (GET, POST) ---
+  // --- MÉTHODES PUBLIQUES (GET, POST, PUT) ---
 
   // Fonction GET (pour récupérer des données, ex: liste de trajets)
   Future<dynamic> get(String endpoint, {bool isProtected = true}) async {
@@ -111,6 +110,24 @@ class ApiService {
       throw Exception('Erreur de connexion : $e');
     }
   }
-  
-  // Vous pourrez ajouter PUT et DELETE plus tard si nécessaire
+
+  // 👇 VOICI LA MÉTHODE PUT AJOUTÉE
+  // Fonction PUT (pour modifier des données, ex: modifier profil)
+  Future<dynamic> put(String endpoint, Map<String, dynamic> data, {bool isProtected = true}) async {
+    final Uri url = Uri.parse('$_baseUrl/$endpoint');
+
+    try {
+      // Pour une modification, c'est généralement protégé (besoin du token)
+      final headers = await _getHeaders(isProtected: isProtected);
+      final response = await http.put(
+        url,
+        headers: headers,
+        body: json.encode(data),
+      );
+
+      return _handleResponse(response);
+    } catch (e) {
+      throw Exception('Erreur de connexion : $e');
+    }
+  }
 }

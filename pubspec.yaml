@@ -10,38 +10,20 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  
-  # --- Localisation (Nécessaire pour la traduction) ---
-  # IMPORTANT: Ceci doit être dans 'dependencies', pas 'dev_dependencies'
   flutter_localizations:
     sdk: flutter
   intl: ^0.20.2
-
-  # Icônes de base
   cupertino_icons: ^1.0.2
-
-  # --- NOS NOUVEAUX PACKAGES POUR LE BACKEND ---
-  
-  # 1. Le package pour faire les appels API
   http: ^1.2.1
-  
-  # 2. Le package de "State Management"
   provider: ^6.1.2
-  
-  # 3. Le "coffre-fort" sécurisé
   flutter_secure_storage: ^9.1.1 
   shared_preferences: ^2.1.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  
-  # Linting (règles de style)
   flutter_lints: ^3.0.0
-
 flutter:
   uses-material-design: true
-  
-  # Active la génération automatique de code (pour la traduction i18n)
   generate: true
   assets:
     - assets/images/logo.png
