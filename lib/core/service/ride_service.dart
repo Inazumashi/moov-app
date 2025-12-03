@@ -31,7 +31,7 @@ import 'package:intl/intl.dart';
 
 class RideService {
   // On utilise notre service API pour faire les requêtes
-  final ApiService _api = ApiService();
+  final ApiService api = ApiService();
 
   // 1. RECHERCHER DES TRAJETS
   Future<List<RideModel>> searchRides(
@@ -42,7 +42,7 @@ class RideService {
 
       // Appel GET vers /rides/search avec des paramètres dans l'URL
       // Exemple: /rides/search?departure=Casa&arrival=Rabat&date=2025-10-12
-      final response = await _api.get(
+      final response = await api.get(
         'rides/search?departure=$from&arrival=$to&date=$formattedDate',
         isProtected: false, // La recherche peut être publique
       );
@@ -74,7 +74,7 @@ class RideService {
     try {
       // Appel POST vers /rides/publish
       // On doit être connecté (isProtected: true)
-      await _api.post(
+      await api.post(
         'rides/publish',
         ride.toJson(), // On convertit l'objet RideModel en JSON
         isProtected: true,
@@ -91,7 +91,7 @@ class RideService {
     try {
       // Appel GET vers une route imaginaire pour les favoris
       // (À implémenter dans le backend si elle n'existe pas)
-      final response = await _api.get(
+      final response = await api.get(
         'users/me/favorites', // Exemple d'URL
         isProtected: true,
       );

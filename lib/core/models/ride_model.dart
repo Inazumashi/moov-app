@@ -34,14 +34,18 @@ class RideModel {
     return RideModel(
       rideId: json['rideId'] ?? json['id']?.toString() ?? '',
       driverId: json['driverId']?.toString() ?? '',
-      driverName: json['driverName'] ?? '${json['driverFirstName']} ${json['driverLastName']}',
-      driverRating: double.tryParse(json['driverRating']?.toString() ?? '0') ?? 0.0,
+      driverName: json['driverName'] ??
+          '${json['driverFirstName']} ${json['driverLastName']}',
+      driverRating:
+          double.tryParse(json['driverRating']?.toString() ?? '0') ?? 0.0,
       driverIsPremium: json['driverIsPremium'] ?? false,
       startPoint: json['startPoint'] ?? json['departureAddress'] ?? '',
       endPoint: json['endPoint'] ?? json['destinationAddress'] ?? '',
-      departureTime: DateTime.parse(json['departureTime'] ?? json['departureDate']),
+      departureTime:
+          DateTime.parse(json['departureTime'] ?? json['departureDate']),
       availableSeats: json['availableSeats'] ?? 0,
-      pricePerSeat: double.tryParse(json['pricePerSeat']?.toString() ?? '0') ?? 0.0,
+      pricePerSeat:
+          double.tryParse(json['pricePerSeat']?.toString() ?? '0') ?? 0.0,
       vehicleInfo: json['vehicleInfo'] ?? json['carModel'],
       notes: json['notes'] ?? json['description'],
       isRegularRide: json['isRegularRide'] ?? false,

@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:moovapp/core/providers/language_provider.dart'; // <-- à créer
 
 class LanguageSelectionScreen extends StatelessWidget {
-  LanguageSelectionScreen({super.key});
+  const LanguageSelectionScreen({super.key});
 
   final List<Map<String, String>> languages = const [
     {'code': 'fr', 'name': 'Français'},
@@ -46,10 +46,11 @@ class LanguageSelectionScreen extends StatelessWidget {
                 ListTile(
                   title: Text(
                     lang['name']!,
-                    style: TextStyle(color: colors.onBackground),
+                    style: TextStyle(color: colors.onSurface),
                   ),
-                  trailing:
-                      isSelected ? Icon(Icons.check, color: colors.primary) : null,
+                  trailing: isSelected
+                      ? Icon(Icons.check, color: colors.primary)
+                      : null,
                   onTap: () {
                     // Mise à jour de la langue via le provider
                     languageProvider.setLocale(Locale(lang['code']!));

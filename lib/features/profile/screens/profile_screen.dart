@@ -45,7 +45,7 @@ class ProfileScreen extends StatelessWidget {
                 },
               ),
             ],
-            flexibleSpace: FlexibleSpaceBar(
+            flexibleSpace: const FlexibleSpaceBar(
               background: ProfileHeader(
                 name: 'Ahmed Benali',
                 email: 'ahmed.benali@um6p.ma',
@@ -55,7 +55,6 @@ class ProfileScreen extends StatelessWidget {
               collapseMode: CollapseMode.pin,
             ),
           ),
-
           SliverToBoxAdapter(
             child: Container(
               color: theme.scaffoldBackgroundColor,
@@ -77,7 +76,8 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildPremiumCard(BuildContext context, ThemeData theme, ColorScheme colors) {
+  Widget _buildPremiumCard(
+      BuildContext context, ThemeData theme, ColorScheme colors) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
       child: Container(
@@ -160,7 +160,8 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildContactCard(BuildContext context, ThemeData theme, ColorScheme colors) {
+  Widget _buildContactCard(
+      BuildContext context, ThemeData theme, ColorScheme colors) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Container(
@@ -177,14 +178,14 @@ class ProfileScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: colors.onBackground,
+                color: colors.onSurface,
               ),
             ),
             const SizedBox(height: 16),
-
             Row(
               children: [
-                Icon(Icons.email_outlined, color: colors.onBackground.withOpacity(0.7)),
+                Icon(Icons.email_outlined,
+                    color: colors.onSurface.withOpacity(0.7)),
                 const SizedBox(width: 16),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -194,7 +195,7 @@ class ProfileScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: colors.onBackground,
+                        color: colors.onSurface,
                       ),
                     ),
                     Text(
@@ -208,12 +209,11 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ],
             ),
-
             const SizedBox(height: 16),
-
             Row(
               children: [
-                Icon(Icons.phone_outlined, color: colors.onBackground.withOpacity(0.7)),
+                Icon(Icons.phone_outlined,
+                    color: colors.onSurface.withOpacity(0.7)),
                 const SizedBox(width: 16),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -223,36 +223,35 @@ class ProfileScreen extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: colors.onBackground.withOpacity(0.5),
+                        color: colors.onSurface.withOpacity(0.5),
                       ),
                     ),
                     Text(
                       'Numéro de téléphone (optionnel)',
                       style: TextStyle(
-                        color: colors.onBackground.withOpacity(0.5),
+                        color: colors.onSurface.withOpacity(0.5),
                       ),
                     ),
                   ],
                 ),
               ],
             ),
-
             const SizedBox(height: 16),
-
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
                 onPressed: () {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: const Text('L\'ajout de téléphone est optionnel'),
+                      content:
+                          const Text('L\'ajout de téléphone est optionnel'),
                       backgroundColor: colors.primary,
                     ),
                   );
                 },
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
-                  side: BorderSide(color: colors.onBackground.withOpacity(0.2)),
+                  side: BorderSide(color: colors.onSurface.withOpacity(0.2)),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -261,7 +260,7 @@ class ProfileScreen extends StatelessWidget {
                   'Ajouter un numéro (optionnel)',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: colors.onBackground,
+                    color: colors.onSurface,
                   ),
                 ),
               ),
@@ -286,7 +285,7 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          Expanded(
+          const Expanded(
             child: ProfileStatCard(
               icon: Icons.star_border_outlined,
               value: '4.9',
@@ -295,7 +294,7 @@ class ProfileScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 12),
-          Expanded(
+          const Expanded(
             child: ProfileStatCard(
               icon: Icons.people_outline,
               value: '28',
@@ -325,7 +324,7 @@ class ProfileScreen extends StatelessWidget {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: colors.onBackground,
+                color: colors.onSurface,
               ),
             ),
             const SizedBox(height: 16),
@@ -336,7 +335,7 @@ class ProfileScreen extends StatelessWidget {
               subtitle: 'Ben Guerir → UM6P Campus',
               trailing: 'Hier',
             ),
-            Divider(height: 24, color: colors.onBackground.withOpacity(0.2)),
+            Divider(height: 24, color: colors.onSurface.withOpacity(0.2)),
             ProfileActivityItem(
               icon: Icons.star_outline,
               iconBgColor: colors.primary,
@@ -350,7 +349,8 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuSection(BuildContext context, ThemeData theme, ColorScheme colors) {
+  Widget _buildMenuSection(
+      BuildContext context, ThemeData theme, ColorScheme colors) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Container(
@@ -380,9 +380,11 @@ class ProfileScreen extends StatelessWidget {
                 ));
               },
             ),
-
-            Divider(height: 1, indent: 16, endIndent: 16, color: colors.onBackground.withOpacity(0.2)),
-
+            Divider(
+                height: 1,
+                indent: 16,
+                endIndent: 16,
+                color: colors.onSurface.withOpacity(0.2)),
             ProfileMenuItem(
               icon: Icons.people_alt_outlined,
               title: 'Mes communautés',
@@ -392,9 +394,11 @@ class ProfileScreen extends StatelessWidget {
                 ));
               },
             ),
-
-            Divider(height: 1, indent: 16, endIndent: 16, color: colors.onBackground.withOpacity(0.2)),
-
+            Divider(
+                height: 1,
+                indent: 16,
+                endIndent: 16,
+                color: colors.onSurface.withOpacity(0.2)),
             ProfileMenuItem(
               icon: Icons.security_outlined,
               title: 'Sécurité',
@@ -404,9 +408,11 @@ class ProfileScreen extends StatelessWidget {
                 ));
               },
             ),
-
-            Divider(height: 1, indent: 16, endIndent: 16, color: colors.onBackground.withOpacity(0.2)),
-
+            Divider(
+                height: 1,
+                indent: 16,
+                endIndent: 16,
+                color: colors.onSurface.withOpacity(0.2)),
             ProfileMenuItem(
               icon: Icons.settings_outlined,
               title: 'Paramètres',
@@ -416,9 +422,11 @@ class ProfileScreen extends StatelessWidget {
                 ));
               },
             ),
-
-            Divider(height: 1, indent: 16, endIndent: 16, color: colors.onBackground.withOpacity(0.2)),
-
+            Divider(
+                height: 1,
+                indent: 16,
+                endIndent: 16,
+                color: colors.onSurface.withOpacity(0.2)),
             ProfileMenuItem(
               icon: Icons.help_outline,
               title: 'Aide & Support',
@@ -440,11 +448,11 @@ class ProfileScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: TextButton(
         onPressed: () {},
-        child: Row(
+        child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.logout, color: Colors.redAccent),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             Text(
               'Se déconnecter',
               style: TextStyle(

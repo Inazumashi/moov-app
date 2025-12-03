@@ -4,7 +4,7 @@ import 'package:moovapp/core/api/api_service.dart';
 import 'package:moovapp/core/service/auth_service.dart';
 
 class ConnectionTestScreen extends StatefulWidget {
-  const ConnectionTestScreen({Key? key}) : super(key: key);
+  const ConnectionTestScreen({super.key});
 
   @override
   _ConnectionTestScreenState createState() => _ConnectionTestScreenState();
@@ -23,7 +23,7 @@ class _ConnectionTestScreenState extends State<ConnectionTestScreen> {
     try {
       final apiService = ApiService();
       final result = await apiService.get('health');
-      
+
       setState(() {
         _testResult = '✅ SUCCÈS: ${result['message']}';
       });
@@ -47,9 +47,10 @@ class _ConnectionTestScreenState extends State<ConnectionTestScreen> {
     try {
       final apiService = ApiService();
       final result = await apiService.get('universities');
-      
+
       setState(() {
-        _testResult = '✅ UNIVERSITÉS: ${result['universities'].length} trouvées';
+        _testResult =
+            '✅ UNIVERSITÉS: ${result['universities'].length} trouvées';
       });
     } catch (e) {
       setState(() {
@@ -71,7 +72,7 @@ class _ConnectionTestScreenState extends State<ConnectionTestScreen> {
     try {
       final authService = AuthService();
       final user = await authService.signIn('test@example.com', 'password');
-      
+
       setState(() {
         _testResult = '✅ AUTH: Connecté en tant que ${user?.fullName}';
       });
@@ -90,71 +91,75 @@ class _ConnectionTestScreenState extends State<ConnectionTestScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Test Connexion Backend'),
-        backgroundColor: Color(0xFF1E3A8A),
+        title: const Text('Test Connexion Backend'),
+        backgroundColor: const Color(0xFF1E3A8A),
         foregroundColor: Colors.white,
       ),
       body: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Card(
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
-                    Text(
+                    const Text(
                       'Statut Backend',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Text(
                       _testResult,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: _testResult.contains('✅') ? Colors.green : 
-                               _testResult.contains('❌') ? Colors.red : Colors.grey,
+                        color: _testResult.contains('✅')
+                            ? Colors.green
+                            : _testResult.contains('❌')
+                                ? Colors.red
+                                : Colors.grey,
                       ),
                     ),
                   ],
                 ),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: _isTesting ? null : _testBackendConnection,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF1E3A8A),
+                backgroundColor: const Color(0xFF1E3A8A),
                 foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(vertical: 15),
+                padding: const EdgeInsets.symmetric(vertical: 15),
               ),
-              child: _isTesting 
-                  ? CircularProgressIndicator(color: Colors.white)
-                  : Text('Tester Connexion Backend'),
+              child: _isTesting
+                  ? const CircularProgressIndicator(color: Colors.white)
+                  : const Text('Tester Connexion Backend'),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             ElevatedButton(
               onPressed: _isTesting ? null : _testUniversities,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(vertical: 15),
+                padding: const EdgeInsets.symmetric(vertical: 15),
               ),
-              child: Text('Tester Universités'),
+              child: const Text('Tester Universités'),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: 10),
             ElevatedButton(
               onPressed: _isTesting ? null : _testAuth,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 foregroundColor: Colors.white,
-                padding: EdgeInsets.symmetric(vertical: 15),
+                padding: const EdgeInsets.symmetric(vertical: 15),
               ),
-              child: Text('Tester Authentification'),
+              child: const Text('Tester Authentification'),
             ),
-            SizedBox(height: 20),
-            Expanded(
+            const SizedBox(height: 20),
+            const Expanded(
               child: Card(
                 child: Padding(
                   padding: EdgeInsets.all(16),
@@ -177,7 +182,8 @@ class _ConnectionTestScreenState extends State<ConnectionTestScreen> {
                       ),
                       SizedBox(height: 10),
                       Text('• Health: http://localhost:3000/api/health'),
-                      Text('• Universities: http://localhost:3000/api/universities'),
+                      Text(
+                          '• Universities: http://localhost:3000/api/universities'),
                       Text('• Auth: http://localhost:3000/api/auth/login'),
                     ],
                   ),

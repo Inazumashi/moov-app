@@ -20,7 +20,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-
       appBar: AppBar(
         title: Text(
           'Notifications',
@@ -32,7 +31,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         backgroundColor: colors.primary,
         iconTheme: IconThemeData(color: colors.onPrimary),
       ),
-
       body: ListView(
         children: <Widget>[
           // --- Section Notifications Push ---
@@ -83,8 +81,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   context,
                   icon: Icons.local_offer_outlined,
                   title: 'Promotions et actualités',
-                  subtitle:
-                      'Recevoir les promotions et les nouvelles de Moov.',
+                  subtitle: 'Recevoir les promotions et les nouvelles de Moov.',
                   value: _promotions,
                   onChanged: (v) => setState(() => _promotions = v),
                 ),
@@ -106,7 +103,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       child: Text(
         title.toUpperCase(),
         style: TextStyle(
-          color: colors.onBackground.withOpacity(0.7),
+          color: colors.onSurface.withOpacity(0.7),
           fontWeight: FontWeight.bold,
           fontSize: 12,
         ),
@@ -127,15 +124,15 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     final colors = theme.colorScheme;
 
     return SwitchListTile(
-      secondary: Icon(icon, color: colors.onBackground),
-      title: Text(title, style: TextStyle(color: colors.onBackground)),
+      secondary: Icon(icon, color: colors.onSurface),
+      title: Text(title, style: TextStyle(color: colors.onSurface)),
       subtitle: Text(
         subtitle,
-        style: TextStyle(color: colors.onBackground.withOpacity(0.7)),
+        style: TextStyle(color: colors.onSurface.withOpacity(0.7)),
       ),
       value: value,
       onChanged: onChanged,
-      activeColor: colors.primary,
+      activeThumbColor: colors.primary,
       activeTrackColor: colors.primary.withOpacity(0.4),
     );
   }

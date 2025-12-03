@@ -13,8 +13,7 @@ class SupportScreen extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: colors.background,
-
+      backgroundColor: colors.surface,
       appBar: AppBar(
         title: Text(
           'Aide & Support',
@@ -26,7 +25,6 @@ class SupportScreen extends StatelessWidget {
         backgroundColor: colors.primary,
         iconTheme: IconThemeData(color: colors.onPrimary),
       ),
-
       body: ListView(
         children: <Widget>[
           // SECTION AIDE
@@ -94,8 +92,8 @@ class SupportScreen extends StatelessWidget {
                   },
                 ),
                 ListTile(
-                  leading: Icon(Icons.privacy_tip_outlined,
-                      color: colors.onSurface),
+                  leading:
+                      Icon(Icons.privacy_tip_outlined, color: colors.onSurface),
                   title: Text(
                     'Politique de confidentialité',
                     style: TextStyle(color: colors.onSurface),

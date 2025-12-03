@@ -18,7 +18,8 @@ class HomeScreen extends StatelessWidget {
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: cs.surface,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           contentPadding: const EdgeInsets.all(24.0),
           content: SingleChildScrollView(
             child: Column(
@@ -31,43 +32,44 @@ class HomeScreen extends StatelessWidget {
                     onPressed: () => Navigator.of(context).pop(),
                   ),
                 ),
-
                 const CircleAvatar(
                   radius: 32,
                   backgroundColor: Colors.blue,
-                  child: Text('F', style: TextStyle(color: Colors.white, fontSize: 30)),
+                  child: Text('F',
+                      style: TextStyle(color: Colors.white, fontSize: 30)),
                 ),
                 const SizedBox(height: 8),
-
                 Text('Fatima Zahra',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: cs.onSurface)),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: cs.onSurface)),
                 Text('Ben Guerir → UM6P Campus',
                     style: TextStyle(color: cs.onSurfaceVariant, fontSize: 14)),
                 Text('9 Oct 2025',
                     style: TextStyle(color: cs.onSurfaceVariant, fontSize: 12)),
                 const SizedBox(height: 16),
-
                 Divider(color: cs.outlineVariant),
                 const SizedBox(height: 16),
-
                 Text('Votre note',
-                    style: TextStyle(fontWeight: FontWeight.bold, color: cs.onSurface)),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold, color: cs.onSurface)),
                 const SizedBox(height: 8),
-
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(5, (index) {
-                    return Icon(Icons.star_border, color: cs.outlineVariant, size: 36);
+                    return Icon(Icons.star_border,
+                        color: cs.outlineVariant, size: 36);
                   }),
                 ),
                 const SizedBox(height: 24),
-
                 TextField(
                   maxLines: 3,
                   decoration: InputDecoration(
-                    hintText: 'Commentaire (optionnel)\nPartagez votre expérience...',
+                    hintText:
+                        'Commentaire (optionnel)\nPartagez votre expérience...',
                     hintStyle: TextStyle(color: cs.onSurfaceVariant),
-                    fillColor: cs.surfaceVariant.withOpacity(0.3),
+                    fillColor: cs.surfaceContainerHighest.withOpacity(0.3),
                     filled: true,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
@@ -83,9 +85,7 @@ class HomeScreen extends StatelessWidget {
                   alignment: Alignment.bottomRight,
                   child: Text('0/300', style: TextStyle(fontSize: 12)),
                 ),
-
                 const SizedBox(height: 24),
-
                 Row(
                   children: [
                     Expanded(
@@ -105,7 +105,8 @@ class HomeScreen extends StatelessWidget {
                           backgroundColor: cs.primary,
                           foregroundColor: cs.onPrimary,
                           padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12)),
                         ),
                         child: const Text("Envoyer l'avis"),
                       ),
@@ -131,12 +132,15 @@ class HomeScreen extends StatelessWidget {
       backgroundColor: cs.surface,
       appBar: AppBar(
         backgroundColor: cs.primary,
-        title: Column(
+        title: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Bonjour 👋',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22),
+              style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 22),
             ),
             Text(
               'uir - Étudiant',
@@ -146,7 +150,8 @@ class HomeScreen extends StatelessWidget {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.workspace_premium_outlined, color: Colors.orange.shade300, size: 28),
+            icon: Icon(Icons.workspace_premium_outlined,
+                color: Colors.orange.shade300, size: 28),
             onPressed: () {
               Navigator.push(
                 context,
@@ -155,7 +160,8 @@ class HomeScreen extends StatelessWidget {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.notifications_none_outlined, color: Colors.white, size: 28),
+            icon: const Icon(Icons.notifications_none_outlined,
+                color: Colors.white, size: 28),
             onPressed: () {},
           ),
           const SizedBox(width: 8),
@@ -177,9 +183,11 @@ class HomeScreen extends StatelessWidget {
             Card(
               elevation: 0.5,
               color: cs.primary.withOpacity(0.1),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -207,7 +215,10 @@ class HomeScreen extends StatelessWidget {
               children: [
                 Text(
                   'Trajets à noter',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: cs.onSurface),
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: cs.onSurface),
                 ),
                 Container(
                   padding: const EdgeInsets.all(6),
@@ -217,7 +228,10 @@ class HomeScreen extends StatelessWidget {
                   ),
                   child: Text(
                     '1',
-                    style: TextStyle(color: cs.onError, fontSize: 12, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        color: cs.onError,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -246,7 +260,10 @@ class HomeScreen extends StatelessWidget {
             // --------------------------------------------------------
             Text(
               'Mes réservations',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: cs.onSurface),
+              style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: cs.onSurface),
             ),
             const SizedBox(height: 12),
             const MyReservationsWidget(),
@@ -270,9 +287,11 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             children: [
               Text(value,
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: color)),
+                  style: TextStyle(
+                      fontSize: 22, fontWeight: FontWeight.bold, color: color)),
               const SizedBox(height: 4),
-              Text(label, style: const TextStyle(color: Colors.grey, fontSize: 13)),
+              Text(label,
+                  style: const TextStyle(color: Colors.grey, fontSize: 13)),
             ],
           ),
         ),

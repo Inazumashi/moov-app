@@ -10,11 +10,11 @@ class ReservationList extends StatelessWidget {
   final Function(Reservation) onTapReservation;
 
   const ReservationList({
-    Key? key,
+    super.key,
     required this.reservations,
     required this.onCancelReservation,
     required this.onTapReservation,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -24,12 +24,12 @@ class ReservationList extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.event_note, size: 80, color: Colors.grey[400]),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               'Aucune réservation',
               style: TextStyle(fontSize: 18, color: Colors.grey[600]),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               'Les réservations correspondant au filtre\napparaîtront ici',
               textAlign: TextAlign.center,
@@ -41,7 +41,7 @@ class ReservationList extends StatelessWidget {
     }
 
     return ListView.builder(
-      padding: EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: reservations.length,
       itemBuilder: (context, index) {
         final reservation = reservations[index];

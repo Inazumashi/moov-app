@@ -43,7 +43,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
     final colors = theme.colorScheme;
 
     return Scaffold(
-      backgroundColor: colors.background,
+      backgroundColor: colors.surface,
 
       // Écran actif
       body: _screens.elementAt(_selectedIndex),

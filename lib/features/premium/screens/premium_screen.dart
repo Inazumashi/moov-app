@@ -20,11 +20,13 @@ class PremiumScreen extends StatelessWidget {
           children: [
             const Text(
               'Premium',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
             Text(
               'Profitez d\'une expérience complète sans interruption',
-              style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 13),
+              style:
+                  TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 13),
             ),
           ],
         ),
@@ -39,7 +41,6 @@ class PremiumScreen extends StatelessWidget {
             const SizedBox(height: 24),
             _buildFreeCard(context),
             const SizedBox(height: 24),
-
             Text(
               'Pourquoi Premium ?',
               style: TextStyle(
@@ -49,12 +50,14 @@ class PremiumScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-
-            _buildWhyPremiumRow(context, Icons.block, 'Expérience sans publicité', 'Naviguez sans interruption'),
+            _buildWhyPremiumRow(context, Icons.block,
+                'Expérience sans publicité', 'Naviguez sans interruption'),
             const SizedBox(height: 12),
-            _buildWhyPremiumRow(context, Icons.bar_chart, 'Statistiques détaillées', 'Analysez vos habitudes de trajets'),
+            _buildWhyPremiumRow(context, Icons.bar_chart,
+                'Statistiques détaillées', 'Analysez vos habitudes de trajets'),
             const SizedBox(height: 12),
-            _buildWhyPremiumRow(context, Icons.verified_user, 'Badge Premium visible', 'Montrez votre engagement'),
+            _buildWhyPremiumRow(context, Icons.verified_user,
+                'Badge Premium visible', 'Montrez votre engagement'),
           ],
         ),
       ),
@@ -80,17 +83,22 @@ class PremiumScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
                   color: Colors.orange[400],
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Text(
                   'Le plus populaire',
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12),
                 ),
               ),
-              Icon(Icons.workspace_premium, color: Colors.orange[400], size: 32),
+              Icon(Icons.workspace_premium,
+                  color: Colors.orange[400], size: 32),
             ],
           ),
 
@@ -99,7 +107,10 @@ class PremiumScreen extends StatelessWidget {
           RichText(
             text: TextSpan(
               text: '49 MAD ',
-              style: const TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold),
               children: [
                 TextSpan(
                   text: '/ par mois',
@@ -112,7 +123,9 @@ class PremiumScreen extends StatelessWidget {
             ),
           ),
 
-          Text('Annulez à tout moment', style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 13)),
+          Text('Annulez à tout moment',
+              style: TextStyle(
+                  color: Colors.white.withOpacity(0.8), fontSize: 13)),
           const SizedBox(height: 24),
 
           // Avantages premium
@@ -136,7 +149,8 @@ class PremiumScreen extends StatelessWidget {
                 backgroundColor: Colors.orange[400],
                 foregroundColor: Colors.black87,
                 padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
               ),
               child: const Text(
                 'Commencer Premium',
@@ -168,7 +182,7 @@ class PremiumScreen extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
             decoration: BoxDecoration(
-              color: cs.surfaceVariant,
+              color: cs.surfaceContainerHighest,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
@@ -180,13 +194,14 @@ class PremiumScreen extends StatelessWidget {
               ),
             ),
           ),
-
           const SizedBox(height: 16),
-
           RichText(
             text: TextSpan(
               text: '0 MAD ',
-              style: TextStyle(color: cs.onSurface, fontSize: 32, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  color: cs.onSurface,
+                  fontSize: 32,
+                  fontWeight: FontWeight.bold),
               children: [
                 TextSpan(
                   text: '/ toujours',
@@ -195,13 +210,12 @@ class PremiumScreen extends StatelessWidget {
               ],
             ),
           ),
-
           const SizedBox(height: 24),
-
           _buildFeatureRow('Recherche de trajets', true, isFree: true),
           _buildFeatureRow('Publication de trajets', true, isFree: true),
           _buildFeatureRow('Messagerie basique', true, isFree: true),
-          _buildFeatureRow('Publicités', false, isFree: true, isHighlighted: true),
+          _buildFeatureRow('Publicités', false,
+              isFree: true, isHighlighted: true),
           _buildFeatureRow('Statistiques basiques', true, isFree: true),
           _buildFeatureRow('Sous-communautés', true, isFree: true),
           _buildFeatureRow('Stats avancées', false, isFree: true),
@@ -225,7 +239,9 @@ class PremiumScreen extends StatelessWidget {
     Color textColor;
 
     if (included) {
-      iconColor = isHighlighted ? Colors.orange : (isFree ? Colors.green : Colors.white);
+      iconColor = isHighlighted
+          ? Colors.orange
+          : (isFree ? Colors.green : Colors.white);
       textColor = isFree ? Colors.black87 : Colors.white;
     } else {
       iconColor = isFree ? Colors.grey : Colors.white70;
@@ -243,7 +259,8 @@ class PremiumScreen extends StatelessWidget {
             style: TextStyle(
               color: textColor,
               fontSize: 15,
-              decoration: included ? TextDecoration.none : TextDecoration.lineThrough,
+              decoration:
+                  included ? TextDecoration.none : TextDecoration.lineThrough,
             ),
           ),
         ],
@@ -254,7 +271,8 @@ class PremiumScreen extends StatelessWidget {
   // ------------------------------------------------------
   // WHY PREMIUM ROW
   // ------------------------------------------------------
-  Widget _buildWhyPremiumRow(BuildContext context, IconData icon, String title, String subtitle) {
+  Widget _buildWhyPremiumRow(
+      BuildContext context, IconData icon, String title, String subtitle) {
     final cs = Theme.of(context).colorScheme;
 
     return Row(
@@ -272,7 +290,11 @@ class PremiumScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: cs.onSurface)),
+              Text(title,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: cs.onSurface)),
               Text(subtitle, style: TextStyle(color: cs.onSurfaceVariant)),
             ],
           ),

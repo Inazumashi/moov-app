@@ -7,7 +7,7 @@ import 'package:moovapp/features/reservations/widgets/reservation_list.dart';
 import 'package:moovapp/features/reservations/widgets/reservation_filter.dart';
 
 class ReservationsScreen extends StatefulWidget {
-  const ReservationsScreen({Key? key}) : super(key: key);
+  const ReservationsScreen({super.key});
 
   @override
   _ReservationsScreenState createState() => _ReservationsScreenState();
@@ -18,7 +18,8 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<ReservationProvider>(context, listen: false).loadReservations();
+      Provider.of<ReservationProvider>(context, listen: false)
+          .loadReservations();
     });
   }
 
@@ -26,14 +27,15 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Mes Réservations'),
-        backgroundColor: Color(0xFF1E3A8A),
+        title: const Text('Mes Réservations'),
+        backgroundColor: const Color(0xFF1E3A8A),
         foregroundColor: Colors.white,
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh),
             onPressed: () {
-              Provider.of<ReservationProvider>(context, listen: false).loadReservations();
+              Provider.of<ReservationProvider>(context, listen: false)
+                  .loadReservations();
             },
           ),
         ],
@@ -48,7 +50,7 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
 
   Widget _buildBody(ReservationProvider provider) {
     if (provider.isLoading && provider.reservations.isEmpty) {
-      return Center(
+      return const Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -65,25 +67,25 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.error_outline, size: 64, color: Colors.red),
-            SizedBox(height: 16),
-            Text(
+            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+            const SizedBox(height: 16),
+            const Text(
               'Erreur de chargement',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32),
+              padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
                 provider.error,
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.grey[600]),
               ),
             ),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () => provider.loadReservations(),
-              child: Text('Réessayer'),
+              child: const Text('Réessayer'),
             ),
           ],
         ),
@@ -96,12 +98,12 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.event_note, size: 80, color: Colors.grey[400]),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               'Aucune réservation',
               style: TextStyle(fontSize: 20, color: Colors.grey[600]),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               'Réservez votre premier trajet !',
               style: TextStyle(color: Colors.grey[500]),
@@ -143,25 +145,27 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
     );
   }
 
-  void _showCancelDialog(BuildContext context, int reservationId, ReservationProvider provider) {
+  void _showCancelDialog(
+      BuildContext context, int reservationId, ReservationProvider provider) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Annuler la réservation'),
-        content: Text('Êtes-vous sûr de vouloir annuler cette réservation ?'),
+        title: const Text('Annuler la réservation'),
+        content:
+            const Text('Êtes-vous sûr de vouloir annuler cette réservation ?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Non'),
+            child: const Text('Non'),
           ),
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
               final success = await provider.cancelReservation(reservationId);
-              
+
               if (success) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
+                  const SnackBar(
                     content: Text('Réservation annulée avec succès'),
                     backgroundColor: Colors.green,
                   ),
@@ -175,7 +179,7 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
                 );
               }
             },
-            child: Text('Oui, annuler'),
+            child: const Text('Oui, annuler'),
           ),
         ],
       ),
@@ -186,22 +190,23 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Détails de la réservation'),
+        title: const Text('Détails de la réservation'),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Trajet: ${reservation.ride?.startPoint} → ${reservation.ride?.endPoint}'),
-              SizedBox(height: 8),
+              Text(
+                  'Trajet: ${reservation.ride?.startPoint} → ${reservation.ride?.endPoint}'),
+              const SizedBox(height: 8),
               Text('Date: ${reservation.formattedDate}'),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text('Heure: ${reservation.formattedTime}'),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text('Places: ${reservation.seatsReserved}'),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text('Prix total: ${reservation.totalPrice} DH'),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text('Statut: ${reservation.status}'),
             ],
           ),
@@ -209,7 +214,7 @@ class _ReservationsScreenState extends State<ReservationsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Fermer'),
+            child: const Text('Fermer'),
           ),
         ],
       ),

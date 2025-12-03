@@ -6,7 +6,7 @@ import 'package:moovapp/core/providers/auth_provider.dart';
 import 'package:moovapp/core/models/ride_model.dart';
 
 class PublishRideScreen extends StatefulWidget {
-  const PublishRideScreen({Key? key}) : super(key: key);
+  const PublishRideScreen({super.key});
 
   @override
   _PublishRideScreenState createState() => _PublishRideScreenState();
@@ -14,7 +14,7 @@ class PublishRideScreen extends StatefulWidget {
 
 class _PublishRideScreenState extends State<PublishRideScreen> {
   final _formKey = GlobalKey<FormState>();
-  
+
   String _startPoint = '';
   String _endPoint = '';
   DateTime _departureTime = DateTime.now();
@@ -30,7 +30,7 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
       context: context,
       initialDate: _departureTime,
       firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(Duration(days: 365)),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
     );
     if (picked != null && picked != _departureTime) {
       setState(() {
@@ -67,13 +67,13 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
   void _publishRide(BuildContext context) async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      
+
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final currentUser = authProvider.user;
-      
+
       if (currentUser == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Vous devez être connecté pour publier un trajet'),
             backgroundColor: Colors.red,
           ),
@@ -102,7 +102,7 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
 
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('🎉 Trajet publié avec succès !'),
             backgroundColor: Colors.green,
             duration: Duration(seconds: 3),
@@ -126,26 +126,26 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Publier un trajet'),
-        backgroundColor: Color(0xFF1E3A8A),
+        title: const Text('Publier un trajet'),
+        backgroundColor: const Color(0xFF1E3A8A),
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'Nouveau trajet',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
               // Point de départ
               TextFormField(
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Point de départ',
                   prefixIcon: Icon(Icons.location_on, color: Colors.red),
                   border: OutlineInputBorder(),
@@ -159,11 +159,11 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
                 },
                 onSaved: (value) => _startPoint = value!,
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
               // Point d'arrivée
               TextFormField(
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Point d\'arrivée',
                   prefixIcon: Icon(Icons.place, color: Colors.green),
                   border: OutlineInputBorder(),
@@ -177,29 +177,30 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
                 },
                 onSaved: (value) => _endPoint = value!,
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
               // Date et heure de départ
               Row(
                 children: [
                   Expanded(
                     child: TextFormField(
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Date de départ',
                         prefixIcon: Icon(Icons.calendar_today),
                         border: OutlineInputBorder(),
                       ),
                       readOnly: true,
                       controller: TextEditingController(
-                        text: '${_departureTime.day}/${_departureTime.month}/${_departureTime.year}',
+                        text:
+                            '${_departureTime.day}/${_departureTime.month}/${_departureTime.year}',
                       ),
                       onTap: () => _selectDate(context),
                     ),
                   ),
-                  SizedBox(width: 16),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: TextFormField(
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         labelText: 'Heure de départ',
                         prefixIcon: Icon(Icons.access_time),
                         border: OutlineInputBorder(),
@@ -213,11 +214,11 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
                   ),
                 ],
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
               // Nombre de places
               TextFormField(
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Nombre de places disponibles',
                   prefixIcon: Icon(Icons.people),
                   border: OutlineInputBorder(),
@@ -237,17 +238,18 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
                 },
                 onSaved: (value) => _availableSeats = int.parse(value!),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
               // Prix par place
               TextFormField(
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Prix par place (DH)',
                   prefixIcon: Icon(Icons.attach_money),
                   border: OutlineInputBorder(),
                   hintText: 'Ex: 45',
                 ),
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                keyboardType:
+                    const TextInputType.numberWithOptions(decimal: true),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Veuillez saisir un prix';
@@ -260,11 +262,11 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
                 },
                 onSaved: (value) => _pricePerSeat = double.parse(value!),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
               // Véhicule
               TextFormField(
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Véhicule (optionnel)',
                   prefixIcon: Icon(Icons.directions_car),
                   border: OutlineInputBorder(),
@@ -272,11 +274,11 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
                 ),
                 onSaved: (value) => _vehicleInfo = value,
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
               // Notes
               TextFormField(
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                   labelText: 'Notes (optionnel)',
                   prefixIcon: Icon(Icons.note),
                   border: OutlineInputBorder(),
@@ -285,12 +287,12 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
                 maxLines: 3,
                 onSaved: (value) => _notes = value,
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
               // Trajet régulier
               SwitchListTile(
-                title: Text('Trajet régulier'),
-                subtitle: Text('Ce trajet est effectué régulièrement'),
+                title: const Text('Trajet régulier'),
+                subtitle: const Text('Ce trajet est effectué régulièrement'),
                 value: _isRegularRide,
                 onChanged: (value) {
                   setState(() {
@@ -298,23 +300,25 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
                   });
                 },
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
 
               // Bouton de publication
               SizedBox(
                 width: double.infinity,
                 height: 56,
                 child: ElevatedButton(
-                  onPressed: rideProvider.isLoading ? null : () => _publishRide(context),
+                  onPressed: rideProvider.isLoading
+                      ? null
+                      : () => _publishRide(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF1E3A8A),
+                    backgroundColor: const Color(0xFF1E3A8A),
                     foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                   child: rideProvider.isLoading
-                      ? Row(
+                      ? const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             SizedBox(
@@ -329,7 +333,7 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
                             Text('Publication en cours...'),
                           ],
                         )
-                      : Row(
+                      : const Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Icon(Icons.publish),

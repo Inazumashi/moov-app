@@ -28,7 +28,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-
       appBar: AppBar(
         title: Text(
           'Modifier le profil',
@@ -40,17 +39,14 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         backgroundColor: colors.primary,
         iconTheme: IconThemeData(color: colors.onPrimary),
       ),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-
         child: Container(
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
             color: theme.cardColor,
             borderRadius: BorderRadius.circular(16),
           ),
-
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -60,7 +56,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
-                  color: colors.onBackground,
+                  color: colors.onSurface,
                 ),
               ),
               const SizedBox(height: 8),
@@ -79,7 +75,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
-                  color: colors.onBackground,
+                  color: colors.onSurface,
                 ),
               ),
               const SizedBox(height: 8),
@@ -100,7 +96,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
-                  color: colors.onBackground,
+                  color: colors.onSurface,
                 ),
               ),
               const SizedBox(height: 8),

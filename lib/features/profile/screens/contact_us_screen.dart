@@ -25,7 +25,6 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-
       appBar: AppBar(
         title: Text(
           'Contactez-nous',
@@ -37,17 +36,14 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
         backgroundColor: colors.primary,
         iconTheme: IconThemeData(color: colors.onPrimary),
       ),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
-
         child: Container(
           padding: const EdgeInsets.all(16.0),
           decoration: BoxDecoration(
             color: theme.cardColor,
             borderRadius: BorderRadius.circular(16),
           ),
-
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -56,25 +52,25 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
-                  color: colors.onBackground,
+                  color: colors.onSurface,
                 ),
               ),
-
               const SizedBox(height: 8),
-
               TextField(
                 controller: _subjectController,
-                style: TextStyle(color: colors.onBackground),
+                style: TextStyle(color: colors.onSurface),
                 decoration: InputDecoration(
                   hintText: 'Ex: Problème de réservation',
-                  hintStyle: TextStyle(color: colors.onBackground.withOpacity(0.6)),
-                  prefixIcon: Icon(Icons.subject_outlined, color: colors.onBackground),
+                  hintStyle:
+                      TextStyle(color: colors.onSurface.withOpacity(0.6)),
+                  prefixIcon:
+                      Icon(Icons.subject_outlined, color: colors.onSurface),
                   filled: true,
                   fillColor: theme.cardColor,
-
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: colors.outline.withOpacity(0.4)),
+                    borderSide:
+                        BorderSide(color: colors.outline.withOpacity(0.4)),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -82,32 +78,29 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                   ),
                 ),
               ),
-
               const SizedBox(height: 24),
-
               Text(
                 'Message',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
-                  color: colors.onBackground,
+                  color: colors.onSurface,
                 ),
               ),
-
               const SizedBox(height: 8),
-
               TextField(
                 controller: _messageController,
-                style: TextStyle(color: colors.onBackground),
+                style: TextStyle(color: colors.onSurface),
                 decoration: InputDecoration(
                   hintText: 'Bonjour, j\'ai un problème avec...',
-                  hintStyle: TextStyle(color: colors.onBackground.withOpacity(0.6)),
+                  hintStyle:
+                      TextStyle(color: colors.onSurface.withOpacity(0.6)),
                   filled: true,
                   fillColor: theme.cardColor,
-
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: colors.outline.withOpacity(0.4)),
+                    borderSide:
+                        BorderSide(color: colors.outline.withOpacity(0.4)),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -116,9 +109,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                 ),
                 maxLines: 6,
               ),
-
               const SizedBox(height: 32),
-
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(

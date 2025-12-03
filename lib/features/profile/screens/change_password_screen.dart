@@ -27,7 +27,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-
       appBar: AppBar(
         backgroundColor: colorScheme.primary,
         iconTheme: IconThemeData(color: colorScheme.onPrimary),
@@ -39,7 +38,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           ),
         ),
       ),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Container(
@@ -48,7 +46,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             color: Theme.of(context).cardColor,
             borderRadius: BorderRadius.circular(16),
           ),
-
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -57,48 +54,40 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
-                  color: colorScheme.onBackground,
+                  color: colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 8),
-
               AuthTextField(
                 controller: _currentPasswordController,
                 hintText: '••••••••',
                 icon: Icons.lock_outline,
                 isPassword: true,
               ),
-
               const SizedBox(height: 24),
-
               Text(
                 'Nouveau mot de passe',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
-                  color: colorScheme.onBackground,
+                  color: colorScheme.onSurface,
                 ),
               ),
               const SizedBox(height: 8),
-
               AuthTextField(
                 controller: _newPasswordController,
                 hintText: 'Nouveau mot de passe',
                 icon: Icons.lock_outline,
                 isPassword: true,
               ),
-
               const SizedBox(height: 16),
-
               AuthTextField(
                 controller: _confirmPasswordController,
                 hintText: 'Confirmer le nouveau mot de passe',
                 icon: Icons.lock_outline,
                 isPassword: true,
               ),
-
               const SizedBox(height: 32),
-
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(

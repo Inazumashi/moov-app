@@ -10,7 +10,6 @@ class PrivacyPolicyScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-
       appBar: AppBar(
         title: Text(
           'Politique de confidentialité',
@@ -22,7 +21,6 @@ class PrivacyPolicyScreen extends StatelessWidget {
         backgroundColor: colors.primary,
         iconTheme: IconThemeData(color: colors.onPrimary),
       ),
-
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Container(
@@ -37,44 +35,38 @@ class PrivacyPolicyScreen extends StatelessWidget {
               Text(
                 'Dernière mise à jour : 17 Novembre 2025',
                 style: TextStyle(
-                  color: colors.onBackground.withOpacity(0.6),
+                  color: colors.onSurface.withOpacity(0.6),
                   fontStyle: FontStyle.italic,
                 ),
               ),
-
               const SizedBox(height: 16),
-
               Text(
                 '1. Introduction',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
-                  color: colors.onBackground,
+                  color: colors.onSurface,
                 ),
               ),
               const SizedBox(height: 8),
-
               Text(
                 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
                 style: TextStyle(
                   height: 1.5,
                   fontSize: 15,
-                  color: colors.onBackground.withOpacity(0.9),
+                  color: colors.onSurface.withOpacity(0.9),
                 ),
               ),
-
               const SizedBox(height: 24),
-
               Text(
                 '2. Données collectées',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
-                  color: colors.onBackground,
+                  color: colors.onSurface,
                 ),
               ),
               const SizedBox(height: 8),
-
               Text(
                 'Nous collectons les informations suivantes :\n'
                 '- Informations de profil (Nom, email universitaire, type de profil)\n'
@@ -84,28 +76,25 @@ class PrivacyPolicyScreen extends StatelessWidget {
                 style: TextStyle(
                   height: 1.5,
                   fontSize: 15,
-                  color: colors.onBackground.withOpacity(0.9),
+                  color: colors.onSurface.withOpacity(0.9),
                 ),
               ),
-
               const SizedBox(height: 24),
-
               Text(
                 '3. Utilisation de vos données',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
-                  color: colors.onBackground,
+                  color: colors.onSurface,
                 ),
               ),
               const SizedBox(height: 8),
-
               Text(
                 'Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
                 style: TextStyle(
                   height: 1.5,
                   fontSize: 15,
-                  color: colors.onBackground.withOpacity(0.9),
+                  color: colors.onSurface.withOpacity(0.9),
                 ),
               ),
             ],

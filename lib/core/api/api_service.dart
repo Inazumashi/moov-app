@@ -58,14 +58,14 @@ class ApiService {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       // On décode le JSON reçu du serveur
       return json.decode(response.body);
-    } 
-    
+    }
+
     // Code 401 (Non autorisé) : Le token est invalide ou expiré
     else if (response.statusCode == 401) {
       deleteToken(); // On supprime le token localement
       throw Exception('Session expirée. Veuillez vous reconnecter.');
-    } 
-    
+    }
+
     // Autres erreurs (400, 404, 500...)
     else {
       // On essaie de lire le message d'erreur envoyé par le serveur
@@ -83,11 +83,11 @@ class ApiService {
   // Fonction GET (pour récupérer des données, ex: liste de trajets)
   Future<dynamic> get(String endpoint, {bool isProtected = true}) async {
     final Uri url = Uri.parse('$_baseUrl/$endpoint');
-    
+
     try {
       final headers = await _getHeaders(isProtected: isProtected);
       final response = await http.get(url, headers: headers);
-      
+
       return _handleResponse(response);
     } catch (e) {
       throw Exception('Erreur de connexion : $e');
@@ -95,9 +95,10 @@ class ApiService {
   }
 
   // Fonction POST (pour envoyer des données, ex: connexion, publication)
-  Future<dynamic> post(String endpoint, Map<String, dynamic> data, {bool isProtected = false}) async {
+  Future<dynamic> post(String endpoint, Map<String, dynamic> data,
+      {bool isProtected = false}) async {
     final Uri url = Uri.parse('$_baseUrl/$endpoint');
-    
+
     try {
       final headers = await _getHeaders(isProtected: isProtected);
       final response = await http.post(
@@ -111,6 +112,6 @@ class ApiService {
       throw Exception('Erreur de connexion : $e');
     }
   }
-  
+
   // Vous pourrez ajouter PUT et DELETE plus tard si nécessaire
 }

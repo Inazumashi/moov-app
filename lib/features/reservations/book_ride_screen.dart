@@ -9,10 +9,10 @@ class BookRideScreen extends StatefulWidget {
   final VoidCallback? onReservationSuccess;
 
   const BookRideScreen({
-    Key? key,
+    super.key,
     required this.ride,
     this.onReservationSuccess,
-  }) : super(key: key);
+  });
 
   @override
   _BookRideScreenState createState() => _BookRideScreenState();
@@ -24,7 +24,7 @@ class _BookRideScreenState extends State<BookRideScreen> {
   void _bookRide(BuildContext context) async {
     if (_selectedSeats > widget.ride.availableSeats) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Nombre de places non disponible'),
           backgroundColor: Colors.red,
         ),
@@ -32,8 +32,9 @@ class _BookRideScreenState extends State<BookRideScreen> {
       return;
     }
 
-    final reservationProvider = Provider.of<ReservationProvider>(context, listen: false);
-    
+    final reservationProvider =
+        Provider.of<ReservationProvider>(context, listen: false);
+
     final success = await reservationProvider.createReservation(
       rideId: int.tryParse(widget.ride.rideId) ?? 0,
       seats: _selectedSeats,
@@ -41,24 +42,24 @@ class _BookRideScreenState extends State<BookRideScreen> {
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('🎉 Réservation confirmée !'),
           backgroundColor: Colors.green,
           duration: Duration(seconds: 3),
         ),
       );
-      
+
       if (widget.onReservationSuccess != null) {
         widget.onReservationSuccess!();
       }
-      
+
       Navigator.pop(context, true);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('❌ ${reservationProvider.error}'),
           backgroundColor: Colors.red,
-          duration: Duration(seconds: 4),
+          duration: const Duration(seconds: 4),
         ),
       );
     }
@@ -71,12 +72,12 @@ class _BookRideScreenState extends State<BookRideScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Réserver un trajet'),
-        backgroundColor: Color(0xFF1E3A8A),
+        title: const Text('Réserver un trajet'),
+        backgroundColor: const Color(0xFF1E3A8A),
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -84,70 +85,74 @@ class _BookRideScreenState extends State<BookRideScreen> {
             Card(
               elevation: 3,
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        Icon(Icons.location_on, color: Colors.red, size: 20),
-                        SizedBox(width: 8),
+                        const Icon(Icons.location_on,
+                            color: Colors.red, size: 20),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             widget.ride.startPoint,
-                            style: TextStyle(fontWeight: FontWeight.w500),
+                            style: const TextStyle(fontWeight: FontWeight.w500),
                           ),
                         ),
                       ],
                     ),
-                    Padding(
+                    const Padding(
                       padding: EdgeInsets.symmetric(horizontal: 12),
                       child: Divider(height: 20),
                     ),
                     Row(
                       children: [
-                        Icon(Icons.place, color: Colors.green, size: 20),
-                        SizedBox(width: 8),
+                        const Icon(Icons.place, color: Colors.green, size: 20),
+                        const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             widget.ride.endPoint,
-                            style: TextStyle(fontWeight: FontWeight.w500),
+                            style: const TextStyle(fontWeight: FontWeight.w500),
                           ),
                         ),
                       ],
                     ),
-                    SizedBox(height: 12),
-                    Divider(),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 12),
+                    const Divider(),
+                    const SizedBox(height: 8),
                     Row(
                       children: [
-                        Icon(Icons.person, color: Colors.blue, size: 18),
-                        SizedBox(width: 8),
-                        Text('${widget.ride.driverName}'),
+                        const Icon(Icons.person, color: Colors.blue, size: 18),
+                        const SizedBox(width: 8),
+                        Text(widget.ride.driverName),
                       ],
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(Icons.event, color: Colors.orange, size: 18),
-                        SizedBox(width: 8),
-                        Text('${_formatDate(widget.ride.departureTime)} à ${_formatTime(widget.ride.departureTime)}'),
+                        const Icon(Icons.event, color: Colors.orange, size: 18),
+                        const SizedBox(width: 8),
+                        Text(
+                            '${_formatDate(widget.ride.departureTime)} à ${_formatTime(widget.ride.departureTime)}'),
                       ],
                     ),
-                    SizedBox(height: 4),
+                    const SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(Icons.attach_money, color: Colors.green, size: 18),
-                        SizedBox(width: 8),
+                        const Icon(Icons.attach_money,
+                            color: Colors.green, size: 18),
+                        const SizedBox(width: 8),
                         Text('${widget.ride.pricePerSeat} DH par place'),
                       ],
                     ),
                     if (widget.ride.vehicleInfo != null) ...[
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Row(
                         children: [
-                          Icon(Icons.directions_car, color: Colors.purple, size: 18),
-                          SizedBox(width: 8),
+                          const Icon(Icons.directions_car,
+                              color: Colors.purple, size: 18),
+                          const SizedBox(width: 8),
                           Text('${widget.ride.vehicleInfo}'),
                         ],
                       ),
@@ -157,15 +162,15 @@ class _BookRideScreenState extends State<BookRideScreen> {
               ),
             ),
 
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
             // Sélection du nombre de places
-            Text(
+            const Text(
               'Nombre de places à réserver:',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            SizedBox(height: 16),
-            
+            const SizedBox(height: 16),
+
             Row(
               children: [
                 Expanded(
@@ -183,7 +188,8 @@ class _BookRideScreenState extends State<BookRideScreen> {
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: Colors.blue[50],
                     borderRadius: BorderRadius.circular(8),
@@ -199,26 +205,26 @@ class _BookRideScreenState extends State<BookRideScreen> {
                 ),
               ],
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               'Places disponibles: ${widget.ride.availableSeats}',
               style: TextStyle(color: Colors.grey[600]),
             ),
 
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
 
             // Résumé du prix
             Card(
               color: Colors.blue[50],
               child: Padding(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        const Text(
                           'Total à payer:',
                           style: TextStyle(
                             fontSize: 16,
@@ -247,23 +253,25 @@ class _BookRideScreenState extends State<BookRideScreen> {
               ),
             ),
 
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
 
             // Bouton de confirmation
             SizedBox(
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
-                onPressed: reservationProvider.isLoading ? null : () => _bookRide(context),
+                onPressed: reservationProvider.isLoading
+                    ? null
+                    : () => _bookRide(context),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF1E3A8A),
+                  backgroundColor: const Color(0xFF1E3A8A),
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
                 child: reservationProvider.isLoading
-                    ? Row(
+                    ? const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           SizedBox(
@@ -278,7 +286,7 @@ class _BookRideScreenState extends State<BookRideScreen> {
                           Text('Réservation en cours...'),
                         ],
                       )
-                    : Row(
+                    : const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.check_circle_outline),

@@ -10,7 +10,6 @@ class PaymentMethodsScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: theme.scaffoldBackgroundColor,
-
       appBar: AppBar(
         title: Text(
           'Moyens de paiement',
@@ -22,21 +21,17 @@ class PaymentMethodsScreen extends StatelessWidget {
         backgroundColor: colors.primary,
         iconTheme: IconThemeData(color: colors.onPrimary),
       ),
-
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
           _buildSectionTitle(context, 'Cartes enregistrées'),
-
           _buildPaymentCard(
             context,
             'Carte Bancaire **** 4242',
             'Visa',
             Colors.blue,
           ),
-
           const SizedBox(height: 16),
-
           OutlinedButton.icon(
             onPressed: () {},
             icon: Icon(Icons.add_circle_outline, color: colors.primary),
@@ -55,9 +50,7 @@ class PaymentMethodsScreen extends StatelessWidget {
               side: BorderSide(color: colors.primary),
             ),
           ),
-
           const SizedBox(height: 32),
-
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
@@ -67,7 +60,7 @@ class PaymentMethodsScreen extends StatelessWidget {
             child: Text(
               'Vos informations de paiement sont sécurisées et cryptées selon les normes PCI DSS.',
               style: TextStyle(
-                color: colors.onBackground.withOpacity(0.7),
+                color: colors.onSurface.withOpacity(0.7),
               ),
             ),
           ),
@@ -86,7 +79,7 @@ class PaymentMethodsScreen extends StatelessWidget {
       child: Text(
         title.toUpperCase(),
         style: TextStyle(
-          color: colors.onBackground.withOpacity(0.7),
+          color: colors.onSurface.withOpacity(0.7),
           fontWeight: FontWeight.bold,
           fontSize: 12,
         ),
@@ -113,14 +106,14 @@ class PaymentMethodsScreen extends StatelessWidget {
           title,
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: colors.onBackground,
+            color: colors.onSurface,
           ),
         ),
         subtitle: Text(
           type,
-          style: TextStyle(color: colors.onBackground.withOpacity(0.7)),
+          style: TextStyle(color: colors.onSurface.withOpacity(0.7)),
         ),
-        trailing: Icon(Icons.more_vert, color: colors.onBackground),
+        trailing: Icon(Icons.more_vert, color: colors.onSurface),
         onTap: () {},
       ),
     );

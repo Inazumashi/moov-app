@@ -10,7 +10,6 @@ class CommunitiesScreen extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-
       appBar: AppBar(
         title: Text(
           'Mes communautés',
@@ -22,7 +21,6 @@ class CommunitiesScreen extends StatelessWidget {
         backgroundColor: colorScheme.primary,
         iconTheme: IconThemeData(color: colorScheme.onPrimary),
       ),
-
       body: ListView(
         padding: const EdgeInsets.all(16.0),
         children: [
@@ -39,38 +37,36 @@ class CommunitiesScreen extends StatelessWidget {
                 children: [
                   ListTile(
                     leading: CircleAvatar(
-                      backgroundColor:
-                          colorScheme.primary.withOpacity(0.12),
+                      backgroundColor: colorScheme.primary.withOpacity(0.12),
                       child: Icon(Icons.school, color: colorScheme.primary),
                     ),
                     title: Text(
                       'UM6P - Étudiants',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: colorScheme.onBackground,
+                        color: colorScheme.onSurface,
                       ),
                     ),
                     subtitle: Text(
                       'Communauté principale',
-                      style: TextStyle(color: colorScheme.onBackground.withOpacity(0.7)),
+                      style: TextStyle(
+                          color: colorScheme.onSurface.withOpacity(0.7)),
                     ),
                   ),
-
                   Divider(
                     height: 24,
                     color: colorScheme.outline.withOpacity(0.3),
                   ),
-
                   Row(
                     children: [
                       Icon(Icons.people,
-                          color: colorScheme.onBackground.withOpacity(0.7),
+                          color: colorScheme.onSurface.withOpacity(0.7),
                           size: 20),
                       const SizedBox(width: 8),
                       Text(
                         '3,200+ membres',
                         style: TextStyle(
-                          color: colorScheme.onBackground.withOpacity(0.8),
+                          color: colorScheme.onSurface.withOpacity(0.8),
                         ),
                       ),
                     ],
@@ -93,11 +89,11 @@ class CommunitiesScreen extends StatelessWidget {
             },
             icon: Icon(
               Icons.add,
-              color: colorScheme.onBackground,
+              color: colorScheme.onSurface,
             ),
             label: Text(
               'Rejoindre une autre communauté',
-              style: TextStyle(color: colorScheme.onBackground),
+              style: TextStyle(color: colorScheme.onSurface),
             ),
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 12),

@@ -7,10 +7,11 @@ import 'package:moovapp/features/reservations/widgets/reservation_list.dart';
 import 'package:moovapp/features/reservations/widgets/reservation_filter.dart';
 
 class ReservationHistoryScreen extends StatefulWidget {
-  const ReservationHistoryScreen({Key? key}) : super(key: key);
+  const ReservationHistoryScreen({super.key});
 
   @override
-  _ReservationHistoryScreenState createState() => _ReservationHistoryScreenState();
+  _ReservationHistoryScreenState createState() =>
+      _ReservationHistoryScreenState();
 }
 
 class _ReservationHistoryScreenState extends State<ReservationHistoryScreen> {
@@ -18,7 +19,8 @@ class _ReservationHistoryScreenState extends State<ReservationHistoryScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<ReservationProvider>(context, listen: false).loadReservations();
+      Provider.of<ReservationProvider>(context, listen: false)
+          .loadReservations();
     });
   }
 
@@ -26,22 +28,24 @@ class _ReservationHistoryScreenState extends State<ReservationHistoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Historique des Réservations'),
-        backgroundColor: Color(0xFF1E3A8A),
+        title: const Text('Historique des Réservations'),
+        backgroundColor: const Color(0xFF1E3A8A),
         foregroundColor: Colors.white,
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh),
             onPressed: () {
-              Provider.of<ReservationProvider>(context, listen: false).loadReservations();
+              Provider.of<ReservationProvider>(context, listen: false)
+                  .loadReservations();
             },
           ),
         ],
       ),
       body: Consumer<ReservationProvider>(
         builder: (context, reservationProvider, child) {
-          if (reservationProvider.isLoading && reservationProvider.reservations.isEmpty) {
-            return Center(child: CircularProgressIndicator());
+          if (reservationProvider.isLoading &&
+              reservationProvider.reservations.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
           }
 
           if (reservationProvider.error.isNotEmpty) {
@@ -49,17 +53,17 @@ class _ReservationHistoryScreenState extends State<ReservationHistoryScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline, size: 64, color: Colors.red),
-                  SizedBox(height: 16),
-                  Text('Erreur de chargement'),
-                  SizedBox(height: 8),
+                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                  const SizedBox(height: 16),
+                  const Text('Erreur de chargement'),
+                  const SizedBox(height: 8),
                   Text(reservationProvider.error),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
                       reservationProvider.loadReservations();
                     },
-                    child: Text('Réessayer'),
+                    child: const Text('Réessayer'),
                   ),
                 ],
               ),
@@ -82,7 +86,8 @@ class _ReservationHistoryScreenState extends State<ReservationHistoryScreen> {
                 child: ReservationList(
                   reservations: reservationProvider.filteredReservations,
                   onCancelReservation: (reservationId) {
-                    _showCancelDialog(context, reservationId, reservationProvider);
+                    _showCancelDialog(
+                        context, reservationId, reservationProvider);
                   },
                   onTapReservation: (reservation) {
                     _showReservationDetails(context, reservation);
@@ -96,25 +101,27 @@ class _ReservationHistoryScreenState extends State<ReservationHistoryScreen> {
     );
   }
 
-  void _showCancelDialog(BuildContext context, int reservationId, ReservationProvider provider) {
+  void _showCancelDialog(
+      BuildContext context, int reservationId, ReservationProvider provider) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Annuler la réservation'),
-        content: Text('Êtes-vous sûr de vouloir annuler cette réservation ? Cette action est irréversible.'),
+        title: const Text('Annuler la réservation'),
+        content: const Text(
+            'Êtes-vous sûr de vouloir annuler cette réservation ? Cette action est irréversible.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Non', style: TextStyle(color: Colors.grey)),
+            child: const Text('Non', style: TextStyle(color: Colors.grey)),
           ),
           TextButton(
             onPressed: () async {
               Navigator.pop(context);
               final success = await provider.cancelReservation(reservationId);
-              
+
               if (success) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
+                  const SnackBar(
                     content: Text('Réservation annulée avec succès'),
                     backgroundColor: Colors.green,
                   ),
@@ -122,13 +129,15 @@ class _ReservationHistoryScreenState extends State<ReservationHistoryScreen> {
               } else {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Erreur lors de l\'annulation: ${provider.error}'),
+                    content:
+                        Text('Erreur lors de l\'annulation: ${provider.error}'),
                     backgroundColor: Colors.red,
                   ),
                 );
               }
             },
-            child: Text('Oui, annuler', style: TextStyle(color: Colors.red)),
+            child:
+                const Text('Oui, annuler', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -139,22 +148,23 @@ class _ReservationHistoryScreenState extends State<ReservationHistoryScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Détails de la réservation'),
+        title: const Text('Détails de la réservation'),
         content: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Trajet: ${reservation.ride?.startPoint} → ${reservation.ride?.endPoint}'),
-              SizedBox(height: 8),
+              Text(
+                  'Trajet: ${reservation.ride?.startPoint} → ${reservation.ride?.endPoint}'),
+              const SizedBox(height: 8),
               Text('Date: ${reservation.formattedDate}'),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text('Heure: ${reservation.formattedTime}'),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text('Places: ${reservation.seatsReserved}'),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text('Prix total: ${reservation.totalPrice} DH'),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text('Statut: ${reservation.status}'),
             ],
           ),
@@ -162,7 +172,7 @@ class _ReservationHistoryScreenState extends State<ReservationHistoryScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Fermer'),
+            child: const Text('Fermer'),
           ),
         ],
       ),

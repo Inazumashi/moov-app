@@ -7,17 +7,17 @@ class ReservationCard extends StatelessWidget {
   final VoidCallback? onCancel;
 
   const ReservationCard({
-    Key? key,
+    super.key,
     required this.reservation,
     this.onCancel,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -26,17 +26,19 @@ class ReservationCard extends StatelessWidget {
               children: [
                 Text(
                   'Réservation #${reservation.id}',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                   decoration: BoxDecoration(
                     color: _getStatusColor(reservation.status),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     reservation.status.toUpperCase(),
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -45,23 +47,24 @@ class ReservationCard extends StatelessWidget {
                 ),
               ],
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             if (reservation.ride != null) ..._buildRideInfo(reservation.ride!),
-            SizedBox(height: 8),
-            Text('${reservation.seatsReserved} place(s) - ${reservation.totalPrice} DH'),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
+            Text(
+                '${reservation.seatsReserved} place(s) - ${reservation.totalPrice} DH'),
+            const SizedBox(height: 8),
             Text(
               'Réservé le ${reservation.formattedDate}',
-              style: TextStyle(color: Colors.grey, fontSize: 12),
+              style: const TextStyle(color: Colors.grey, fontSize: 12),
             ),
             if (reservation.status == 'confirmed' && onCancel != null) ...[
-              SizedBox(height: 12),
+              const SizedBox(height: 12),
               SizedBox(
                 width: double.infinity,
                 child: OutlinedButton(
                   onPressed: onCancel,
                   style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
-                  child: Text('Annuler la réservation'),
+                  child: const Text('Annuler la réservation'),
                 ),
               ),
             ],
@@ -74,8 +77,9 @@ class ReservationCard extends StatelessWidget {
   List<Widget> _buildRideInfo(RideModel ride) {
     return [
       Text('${ride.startPoint} → ${ride.endPoint}'),
-      SizedBox(height: 4),
-      Text('${_formatDate(ride.departureTime)} à ${_formatTime(ride.departureTime)}'),
+      const SizedBox(height: 4),
+      Text(
+          '${_formatDate(ride.departureTime)} à ${_formatTime(ride.departureTime)}'),
     ];
   }
 

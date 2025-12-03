@@ -16,7 +16,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
     final colors = Theme.of(context).colorScheme;
 
     return Scaffold(
-      backgroundColor: colors.background,
+      backgroundColor: colors.surface,
       appBar: AppBar(
         title: Text(
           'Sécurité',
@@ -28,7 +28,6 @@ class _SecurityScreenState extends State<SecurityScreen> {
         backgroundColor: colors.primary,
         iconTheme: IconThemeData(color: colors.onPrimary),
       ),
-
       body: ListView(
         children: [
           _buildSectionTitle('Gestion du mot de passe'),
@@ -55,7 +54,6 @@ class _SecurityScreenState extends State<SecurityScreen> {
               ],
             ),
           ),
-
           _buildSectionTitle('Authentification à deux facteurs'),
           Container(
             color: colors.surface,
@@ -78,7 +76,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
                       _twoFactorAuth = value;
                     });
                   },
-                  activeColor: colors.primary,
+                  activeThumbColor: colors.primary,
                   activeTrackColor: colors.primary.withOpacity(0.5),
                 ),
               ],
