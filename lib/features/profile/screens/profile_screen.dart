@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart'; 
-import 'package:moovapp/core/service/auth_service.dart'; 
-
 import 'package:moovapp/features/premium/screens/premium_screen.dart';
-import 'package:moovapp/features/auth/screens/welcome_screen.dart';
 import '../widgets/profile_activity_item.dart';
 import '../widgets/profile_menu_item.dart';
 import '../widgets/profile_header.dart';
@@ -14,55 +10,8 @@ import 'security_screen.dart';
 import 'settings_screen.dart';
 import 'support_screen.dart';
 
-// 1. On passe en StatefulWidget
-class ProfileScreen extends StatefulWidget {
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
-
-  @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
-
-class _ProfileScreenState extends State<ProfileScreen> {
-  // 2. Variables d'état
-  String fullName = "";
-  String email = "";
-  String university = "";
-  String profileType = "";
-  String initials = "";
-  String phone = "";
-
-  @override
-  void initState() {
-    super.initState();
-    _loadUserData();
-  }
-
-  // 3. Fonction de chargement des données
-  Future<void> _loadUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      String fName = prefs.getString('first_name') ?? "";
-      String lName = prefs.getString('last_name') ?? "";
-      
-      // Construction du nom complet
-      fullName = "$fName $lName".trim();
-      if (fullName.isEmpty) fullName = "Utilisateur";
-
-      email = prefs.getString('email') ?? "email@um6p.ma"; 
-      university = prefs.getString('university_id') ?? "Université";
-      profileType = prefs.getString('profile_type') ?? "Profil";
-      phone = prefs.getString('phone') ?? "";
-
-      // Calcul des initiales (ex: Ahmed Benali -> AB)
-      if (fName.isNotEmpty && lName.isNotEmpty) {
-        initials = "${fName[0]}${lName[0]}".toUpperCase();
-      } else if (fName.isNotEmpty) {
-        initials = fName[0].toUpperCase();
-      } else {
-        initials = "U";
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,12 +45,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 },
               ),
             ],
-            flexibleSpace: FlexibleSpaceBar(
+            flexibleSpace: const FlexibleSpaceBar(
               background: ProfileHeader(
-                name: fullName,
-                email: email,
-                avatarInitials: initials,
-                universityInfo: '$university - $profileType',
+                name: 'Ahmed Benali',
+                email: 'ahmed.benali@um6p.ma',
+                avatarInitials: 'AB',
+                universityInfo: 'UM6P - Étudiant',
               ),
               collapseMode: CollapseMode.pin,
             ),
@@ -242,7 +191,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      email,
+                      'ahmed.benali@um6p.ma',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -270,18 +219,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      phone.isNotEmpty ? phone : 'Non renseigné',
+                      'Non renseigné',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-                        color: colors.onSurface.withOpacity(phone.isNotEmpty ? 1.0 : 0.5),
+                        color: colors.onSurface.withOpacity(0.5),
                       ),
                     ),
                     Text(
-                      'Numéro de téléphone',
+                      'Numéro de téléphone (optionnel)',
                       style: TextStyle(
                         color: colors.onSurface.withOpacity(0.5),
-                        fontSize: 12,
                       ),
                     ),
                   ],
@@ -289,35 +237,34 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
             const SizedBox(height: 16),
-
-            if (phone.isEmpty)
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text('L\'ajout de téléphone est optionnel'),
-                        backgroundColor: colors.primary,
-                      ),
-                    );
-                  },
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    side: BorderSide(color: colors.onSurface.withOpacity(0.2)),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content:
+                          const Text('L\'ajout de téléphone est optionnel'),
+                      backgroundColor: colors.primary,
                     ),
+                  );
+                },
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  side: BorderSide(color: colors.onSurface.withOpacity(0.2)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Text(
-                    'Ajouter un numéro (optionnel)',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: colors.onSurface,
-                    ),
+                ),
+                child: Text(
+                  'Ajouter un numéro (optionnel)',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: colors.onSurface,
                   ),
                 ),
               ),
+            ),
           ],
         ),
       ),
@@ -500,25 +447,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: TextButton(
-        onPressed: () async {
-          // 5. Déconnexion PROPRE
-          final authService = AuthService();
-          await authService.signOut(); // Nettoie le token et les infos
-
-          if (context.mounted) {
-            Navigator.of(context).pushAndRemoveUntil(
-              MaterialPageRoute(
-                builder: (context) => const WelcomeScreen(),
-              ),
-              (route) => false,
-            );
-          }
-        },
-        child: Row(
+        onPressed: () {},
+        child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.logout, color: Colors.redAccent),
-            const SizedBox(width: 8),
+            SizedBox(width: 8),
             Text(
               'Se déconnecter',
               style: TextStyle(

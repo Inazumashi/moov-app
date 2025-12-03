@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:moovapp/core/providers/theme_provider.dart';
-
-// Import des écrans vers lesquels on navigue
 import 'package:moovapp/features/profile/screens/edit_profile_screen.dart';
 import 'package:moovapp/features/profile/screens/payment_methods_screen.dart';
 import 'package:moovapp/features/profile/screens/language_selection_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:moovapp/core/providers/theme_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -44,22 +42,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               children: [
                 ListTile(
-                  leading: Icon(Icons.person_outline, color: colorScheme.onSurface),
-                  title: Text('Modifier le profil', style: TextStyle(color: colorScheme.onSurface)),
-                  trailing: Icon(Icons.arrow_forward_ios, size: 16, color: colorScheme.onSurface),
-                  // 👇 MODIFICATION ICI : On utilise async/await
-                  onTap: () async {
-                    // 1. On attend que l'utilisateur ait fini d'éditer son profil
-                    await Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const EditProfileScreen(),
-                      ),
-                    );
-
-                    // 2. Une fois revenu ici, si SettingsScreen affichait le nom, 
-                    // on appellerait _loadUserData(). Comme ce n'est pas le cas, 
-                    // on fait juste un setState pour rafraîchir l'interface si besoin.
-                    setState(() {}); 
+                  leading:
+                      Icon(Icons.person_outline, color: colorScheme.onSurface),
+                  title: Text('Modifier le profil',
+                      style: TextStyle(color: colorScheme.onSurface)),
+                  trailing: Icon(Icons.arrow_forward_ios,
+                      size: 16, color: colorScheme.onSurface),
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const EditProfileScreen(),
+                    ));
                   },
                 ),
                 ListTile(
@@ -138,7 +130,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   onTap: () {
                     Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => const LanguageSelectionScreen(),
+                      builder: (context) => LanguageSelectionScreen(),
                     ));
                   },
                 ),

@@ -1,50 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart'; // ✅ Import nécessaire
+
 import 'package:moovapp/features/home/widgets/my_reservations_widget.dart';
 import 'package:moovapp/features/home/widgets/ride_to_rate_card.dart';
 import 'package:moovapp/features/premium/screens/premium_screen.dart';
 
-// 1. Changement en StatefulWidget pour pouvoir charger les données
-class HomeScreen extends StatefulWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  // 2. Variables pour stocker les infos dynamiques (valeurs par défaut vides)
-  String firstName = "";
-  String university = "";
-  String profileType = "";
-
-  @override
-  void initState() {
-    super.initState();
-    _loadUserData(); // 3. On charge les données au lancement
-  }
-
-  // Fonction pour récupérer les infos sauvegardées lors de la connexion
-  Future<void> _loadUserData() async {
-    final prefs = await SharedPreferences.getInstance();
-    setState(() {
-      // On récupère les clés sauvegardées (il faudra s'assurer de les sauver au Login !)
-      firstName = prefs.getString('first_name') ?? "Utilisateur";
-      university = prefs.getString('university_id') ?? "Université"; 
-      profileType = prefs.getString('profile_type') ?? "Profil";
-      
-      // Petit nettoyage si l'université est trop longue pour l'affichage
-      if (university.length > 20) {
-        university = "${university.substring(0, 15)}...";
-      }
-    });
-  }
-
   // ------------------------------------------------------------
-  // POP-UP NOTATION (INCHANGÉ)
+  // POP-UP NOTATION
   // ------------------------------------------------------------
   void _showRatingDialog(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -164,17 +132,19 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: cs.surface,
       appBar: AppBar(
         backgroundColor: cs.primary,
-        // 4. MODIFICATION ICI : Utilisation des variables dynamiques
-        title: Column(
+        title: const Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Bonjour $firstName 👋', // ✅ Affiche le prénom chargé
-              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22),
+              'Bonjour 👋',
+              style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 22),
             ),
             Text(
-              '$university - $profileType', // ✅ Affiche Univ et Profil
-              style: const TextStyle(color: Colors.white70, fontSize: 14),
+              'uir - Étudiant',
+              style: TextStyle(color: Colors.white70, fontSize: 14),
             ),
           ],
         ),
@@ -200,13 +170,16 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
 
       // ------------------------------------------------------------
-      // BODY 
+      // BODY
       // ------------------------------------------------------------
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // --------------------------------------------------------
+            // CARTE DES TRAJETS DISPONIBLES
+            // --------------------------------------------------------
             Card(
               elevation: 0.5,
               color: cs.primary.withOpacity(0.1),
@@ -234,6 +207,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 24),
 
+            // --------------------------------------------------------
+            // TRAJETS À NOTER
+            // --------------------------------------------------------
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -265,6 +241,9 @@ class _HomeScreenState extends State<HomeScreen> {
             RideToRateCard(onRatePressed: () => _showRatingDialog(context)),
             const SizedBox(height: 24),
 
+            // --------------------------------------------------------
+            // STATISTIQUES
+            // --------------------------------------------------------
             Row(
               children: [
                 _buildStatCard('12', 'Trajets', cs.primary),
@@ -276,6 +255,9 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             const SizedBox(height: 24),
 
+            // --------------------------------------------------------
+            // MES RÉSERVATIONS
+            // --------------------------------------------------------
             Text(
               'Mes réservations',
               style: TextStyle(
