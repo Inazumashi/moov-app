@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:moovapp/features/inscription/screens/university_select_screen.dart';
 
+
 class CommunitiesScreen extends StatelessWidget {
   const CommunitiesScreen({super.key});
 
@@ -83,7 +84,10 @@ class CommunitiesScreen extends StatelessWidget {
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => const UniversitySelectScreen(),
+                  builder: (context) => UniversitySelectScreen(
+                    routes: const [],
+                  ),
+                     
                 ),
               );
             },

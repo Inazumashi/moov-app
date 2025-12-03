@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart'; // ✅ Import
+import 'package:moovapp/core/service/auth_service.dart';   // ✅ Import
 import 'package:moovapp/features/auth/widgets/auth_textfield.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -9,9 +11,32 @@ class EditProfileScreen extends StatefulWidget {
 }
 
 class _EditProfileScreenState extends State<EditProfileScreen> {
-  final _fullNameController = TextEditingController(text: 'Ahmed Benali');
-  final _emailController = TextEditingController(text: 'ahmed.benali@um6p.ma');
-  final _phoneController = TextEditingController(text: '+212 6XX XXX XXX');
+  // On initialise vide, on remplira dans initState
+  final _fullNameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _phoneController = TextEditingController();
+
+  final AuthService _authService = AuthService(); // Instance du service
+  bool _isLoading = false; // Pour le bouton de chargement
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData(); // Chargement des données au lancement
+  }
+
+  // 1. Charger les données actuelles
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      String fName = prefs.getString('first_name') ?? "";
+      String lName = prefs.getString('last_name') ?? "";
+      _fullNameController.text = "$fName $lName".trim();
+      
+      _emailController.text = prefs.getString('email') ?? "";
+      _phoneController.text = prefs.getString('phone') ?? "";
+    });
+  }
 
   @override
   void dispose() {
@@ -19,6 +44,39 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _emailController.dispose();
     _phoneController.dispose();
     super.dispose();
+  }
+
+  // 2. Fonction pour sauvegarder
+  void _saveChanges() async {
+    setState(() => _isLoading = true);
+
+    try {
+      await _authService.updateProfile(
+        fullName: _fullNameController.text,
+        phone: _phoneController.text,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Profil mis à jour avec succès !'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        Navigator.pop(context, true); // On revient en arrière (true indique un changement)
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur : Impossible de mettre à jour le profil.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -63,7 +121,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               AuthTextField(
                 controller: _fullNameController,
-                hintText: 'Ahmed Benali',
+                hintText: 'Nom Prénom',
                 icon: Icons.person_outline,
               ),
 
@@ -85,7 +143,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 hintText: 'email@universite.ma',
                 icon: Icons.email_outlined,
                 keyboardType: TextInputType.emailAddress,
-                isReadOnly: true,
+                isReadOnly: true, // Bloqué car identifiant unique souvent
               ),
 
               const SizedBox(height: 24),
@@ -114,18 +172,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // TODO: updateProfile
-                  },
+                  onPressed: _isLoading ? null : _saveChanges, // Désactivé si chargement
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     backgroundColor: colors.primary,
                     foregroundColor: colors.onPrimary,
                   ),
-                  child: const Text(
-                    'Enregistrer les modifications',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
+                      : const Text(
+                          'Enregistrer les modifications',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                 ),
               ),
             ],

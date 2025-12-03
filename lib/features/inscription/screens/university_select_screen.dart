@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
-// CORRECTION 1: Ajout de l'import manquant
 import 'package:moovapp/features/inscription/screens/profile_type_screen.dart';
+import 'package:moovapp/features/inscription/screens/routes_config_screen.dart'; // pour RouteInfo
 
-// Pour cet écran, une liste statique est suffisante
-// Un StatelessWidget est parfait
 class UniversitySelectScreen extends StatelessWidget {
-  const UniversitySelectScreen({super.key});
+  final List<RouteInfo> routes; // liste des trajets provenant du screen précédent
 
-  // On crée une classe simple pour modéliser nos données
-  // (Dans une vraie app, cela viendrait d'une base de données)
+  const UniversitySelectScreen({super.key, required this.routes});
+
   static const List<Map<String, String>> universities = [
     {
       'name': 'Université Mohammed VI Polytechnique',
@@ -62,7 +60,6 @@ class UniversitySelectScreen extends StatelessWidget {
       ),
       body: Column(
         children: [
-          // La liste va prendre tout l'espace disponible
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(16.0),
@@ -76,10 +73,11 @@ class UniversitySelectScreen extends StatelessWidget {
                   subtitle: uni['count']!,
                   primaryColor: primaryColor,
                   onTap: () {
-                    // CORRECTION 2: On passe le nom de l'université
+                    // On passe la liste des trajets et l'université sélectionnée
                     Navigator.of(context).push(MaterialPageRoute(
                       builder: (context) => ProfileTypeScreen(
                         universityName: uni['name']!,
+                        routes: routes, // ✅
                       ),
                     ));
                   },
@@ -87,8 +85,6 @@ class UniversitySelectScreen extends StatelessWidget {
               },
             ),
           ),
-
-          // La boîte d'information en bas
           Container(
             padding: const EdgeInsets.all(16.0),
             margin: const EdgeInsets.all(16.0),
@@ -115,7 +111,6 @@ class UniversitySelectScreen extends StatelessWidget {
     );
   }
 
-  // Widget pour chaque carte d'université
   Widget _buildUniversityCard({
     required BuildContext context,
     required IconData icon,
@@ -145,10 +140,8 @@ class UniversitySelectScreen extends StatelessWidget {
         ),
         title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
         subtitle: Text(subtitle, style: const TextStyle(color: Colors.grey)),
-        trailing:
-            const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
       ),
     );
   }
 }
-

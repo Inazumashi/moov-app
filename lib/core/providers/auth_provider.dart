@@ -2,9 +2,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:moovapp/core/models/user_model.dart';
-import 'package:moovapp/core/service/auth_service.dart';
+// 👇 1. Importez le service ET le modèle RouteInfo
+import 'package:moovapp/core/service/auth_service.dart'; 
+import 'package:moovapp/features/inscription/screens/routes_config_screen.dart'; 
 
 class AuthProvider with ChangeNotifier {
+<<<<<<< HEAD
   final AuthService _authService = AuthService();
   UserModel? _user;
   bool _isLoading = false;
@@ -35,30 +38,22 @@ class AuthProvider with ChangeNotifier {
 
   Future<bool> signUp({
   // On utilise notre service qui parle au backend
+=======
+>>>>>>> 38397c1094c7156cf54cdb86b901a3d5d3bc6b55
   final AuthService _authService = AuthService();
 
-  // L'état de l'utilisateur actuel
   UserModel? _currentUser;
   
-  // Getter pour savoir si on est connecté
   bool get isAuthenticated => _currentUser != null;
-  
-  // Getter pour récupérer les infos de l'utilisateur (pour le Profil)
   UserModel? get currentUser => _currentUser;
 
-  // --- CONNEXION ---
+  // --- CONNEXION (Inchangé) ---
   Future<void> login(String email, String password) async {
     try {
-      // 1. On appelle le service pour se connecter
       final user = await _authService.signIn(email, password);
-      
-      // 2. Si ça marche, on stocke l'utilisateur dans le Provider
       _currentUser = user;
-      
-      // 3. On prévient toute l'app que l'utilisateur a changé (pour mettre à jour l'UI)
       notifyListeners();
     } catch (e) {
-      // Si erreur, on la transmet à l'écran (pour afficher "Mot de passe incorrect")
       rethrow;
     }
   }
@@ -71,6 +66,8 @@ class AuthProvider with ChangeNotifier {
     required String universityId,
     required String profileType,
     required String phoneNumber,
+    
+    required List<RouteInfo> routes, 
   }) async {
     _isLoading = true;
     _error = '';
@@ -79,6 +76,7 @@ class AuthProvider with ChangeNotifier {
     try {
       _user = await _authService.signUp(
     try {
+      // 👇 3. TRANSMISSION : On passe les routes au service
       final user = await _authService.signUp(
         email: email,
         password: password,
@@ -86,6 +84,7 @@ class AuthProvider with ChangeNotifier {
         universityId: universityId,
         profileType: profileType,
         phoneNumber: phoneNumber,
+        routes: routes, // ✅ C'est ce qui manquait !
       );
       _isLoading = false;
       notifyListeners();
@@ -126,10 +125,10 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // --- DÉCONNEXION ---
+  // --- DÉCONNEXION (Inchangé) ---
   Future<void> logout() async {
     await _authService.signOut();
-    _currentUser = null; // On vide l'utilisateur
-    notifyListeners(); // On prévient l'app (retour à l'écran Login)
+    _currentUser = null;
+    notifyListeners();
   }
 }

@@ -1,8 +1,23 @@
 import 'package:flutter/material.dart';
-// MISE À JOUR: Import de l'écran suivant
+// Import de l'écran suivant
 import 'package:moovapp/features/inscription/screens/university_select_screen.dart';
 
-// 1. On crée un StatefulWidget pour mémoriser les sélections
+// --- Modèle pour stocker les informations des trajets ---
+class RouteInfo {
+  String depart;
+  String arrivee;
+  Set<String> jours;
+  String? plageHoraire;
+
+  RouteInfo({
+    required this.depart,
+    required this.arrivee,
+    required this.jours,
+    this.plageHoraire,
+  });
+}
+
+// --- Screen principal ---
 class RoutesConfigScreen extends StatefulWidget {
   const RoutesConfigScreen({super.key});
 
@@ -11,14 +26,14 @@ class RoutesConfigScreen extends StatefulWidget {
 }
 
 class _RoutesConfigScreenState extends State<RoutesConfigScreen> {
-  // 2. On crée des variables d'état pour stocker les choix de l'utilisateur
+  // Variables pour le premier trajet
   final _departController = TextEditingController();
   final _arriveeController = TextEditingController();
-
-  // Un Set est parfait pour stocker les jours (pas de doublons)
   final Set<String> _selectedDays = {};
-  // Une simple String pour la plage horaire (un seul choix possible)
   String? _selectedTimeSlot;
+
+  // Liste pour stocker tous les trajets (en cas d'ajout)
+  final List<RouteInfo> _routes = [];
 
   @override
   void dispose() {
@@ -27,16 +42,7 @@ class _RoutesConfigScreenState extends State<RoutesConfigScreen> {
     super.dispose();
   }
 
-  // Liste des jours et plages
-  final List<String> _daysOfWeek = [
-    'Lun',
-    'Mar',
-    'Mer',
-    'Jeu',
-    'Ven',
-    'Sam',
-    'Dim'
-  ];
+  final List<String> _daysOfWeek = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
   final List<String> _timeSlots = [
     'Matin (6h-12h)',
     'Midi (12h-18h)',
@@ -48,7 +54,7 @@ class _RoutesConfigScreenState extends State<RoutesConfigScreen> {
     final Color primaryColor = Theme.of(context).colorScheme.primary;
 
     return Scaffold(
-      backgroundColor: Colors.grey[50], // Fond légèrement gris
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         backgroundColor: primaryColor,
         leading: IconButton(
@@ -76,40 +82,67 @@ class _RoutesConfigScreenState extends State<RoutesConfigScreen> {
           padding: const EdgeInsets.all(20.0),
           child: Column(
             children: [
-              // La carte "Trajet 1"
               _buildRouteCard(primaryColor),
               const SizedBox(height: 20),
-
-              // Bouton "Ajouter un autre trajet"
               OutlinedButton.icon(
                 onPressed: () {
-                  // TODO: Logique pour ajouter un nouveau trajet
+                  // Ajouter le trajet actuel dans la liste si complet
+                  if (_departController.text.isNotEmpty &&
+                      _arriveeController.text.isNotEmpty &&
+                      _selectedDays.isNotEmpty &&
+                      _selectedTimeSlot != null) {
+                    _routes.add(RouteInfo(
+                      depart: _departController.text,
+                      arrivee: _arriveeController.text,
+                      jours: Set.from(_selectedDays),
+                      plageHoraire: _selectedTimeSlot,
+                    ));
+                    // Réinitialiser les champs pour un nouveau trajet
+                    _departController.clear();
+                    _arriveeController.clear();
+                    _selectedDays.clear();
+                    _selectedTimeSlot = null;
+                    setState(() {});
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Veuillez compléter le trajet avant d’ajouter un autre.')),
+                    );
+                  }
                 },
                 icon: Icon(Icons.add, color: primaryColor),
                 label: Text(
                   'Ajouter un autre trajet',
-                  style: TextStyle(
-                      color: primaryColor, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold),
                 ),
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(color: primaryColor),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                 ),
               ),
               const SizedBox(height: 32),
-
-              // Bouton "Continuer"
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    // MISE À JOUR: Naviguer vers l'écran 2 (UniversitySelectScreen)
+                    // Ajouter le trajet en cours si non vide
+                    if (_departController.text.isNotEmpty &&
+                        _arriveeController.text.isNotEmpty &&
+                        _selectedDays.isNotEmpty &&
+                        _selectedTimeSlot != null) {
+                      _routes.add(RouteInfo(
+                        depart: _departController.text,
+                        arrivee: _arriveeController.text,
+                        jours: Set.from(_selectedDays),
+                        plageHoraire: _selectedTimeSlot,
+                      ));
+                    }
+
+                    // Naviguer vers UniversitySelectScreen en passant la liste des trajets
                     Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => const UniversitySelectScreen(),
+                      builder: (context) => UniversitySelectScreen(routes: _routes),
                     ));
                   },
                   style: ElevatedButton.styleFrom(
@@ -127,8 +160,6 @@ class _RoutesConfigScreenState extends State<RoutesConfigScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-
-              // Indicateurs de page
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -145,7 +176,6 @@ class _RoutesConfigScreenState extends State<RoutesConfigScreen> {
     );
   }
 
-  // Widget pour la carte principale
   Widget _buildRouteCard(Color primaryColor) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -163,30 +193,23 @@ class _RoutesConfigScreenState extends State<RoutesConfigScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('Trajet 1',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          const Text('Trajet 1', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
           const SizedBox(height: 16),
-          _buildTextField('Départ', 'Ex: Casablanca Centre', _departController,
-              Icons.location_on_outlined),
+          _buildTextField('Départ', 'Ex: Casablanca Centre', _departController, Icons.location_on_outlined),
           const SizedBox(height: 16),
-          _buildTextField('Arrivée', 'Ex: UM6P Campus', _arriveeController,
-              Icons.flag_outlined),
+          _buildTextField('Arrivée', 'Ex: UM6P Campus', _arriveeController, Icons.flag_outlined),
           const SizedBox(height: 16),
-
-          const Text('Jours de la semaine',
-              style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text('Jours de la semaine', style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
-          // Wrap permet aux boutons de passer à la ligne s'il n'y a pas de place
           Wrap(
-            spacing: 8.0, // Espace horizontal
-            runSpacing: 4.0, // Espace vertical
+            spacing: 8.0,
+            runSpacing: 4.0,
             children: _daysOfWeek.map((day) {
               final isSelected = _selectedDays.contains(day);
               return FilterChip(
                 label: Text(day),
                 selected: isSelected,
                 onSelected: (bool selected) {
-                  // 3. On met à jour l'état quand l'utilisateur clique
                   setState(() {
                     if (selected) {
                       _selectedDays.add(day);
@@ -212,9 +235,7 @@ class _RoutesConfigScreenState extends State<RoutesConfigScreen> {
             }).toList(),
           ),
           const SizedBox(height: 16),
-
-          const Text('Plage horaire',
-              style: TextStyle(fontWeight: FontWeight.bold)),
+          const Text('Plage horaire', style: TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 8),
           Column(
             children: _timeSlots.map((slot) {
@@ -227,7 +248,6 @@ class _RoutesConfigScreenState extends State<RoutesConfigScreen> {
                     label: Text(slot),
                     selected: isSelected,
                     onSelected: (bool selected) {
-                      // 4. On met à jour la plage horaire
                       setState(() {
                         if (selected) {
                           _selectedTimeSlot = slot;
@@ -237,20 +257,15 @@ class _RoutesConfigScreenState extends State<RoutesConfigScreen> {
                     selectedColor: primaryColor.withOpacity(0.2),
                     labelStyle: TextStyle(
                       color: isSelected ? primaryColor : Colors.black87,
-                      fontWeight:
-                          isSelected ? FontWeight.bold : FontWeight.normal,
+                      fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                     ),
                     backgroundColor: Colors.grey[100],
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
-                      side: BorderSide(
-                        color:
-                            isSelected ? primaryColor : Colors.grey.shade300,
-                      ),
+                      side: BorderSide(color: isSelected ? primaryColor : Colors.grey.shade300),
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    labelPadding:
-                        const EdgeInsets.symmetric(horizontal: 16),
+                    labelPadding: const EdgeInsets.symmetric(horizontal: 16),
                   ),
                 ),
               );
@@ -261,13 +276,11 @@ class _RoutesConfigScreenState extends State<RoutesConfigScreen> {
     );
   }
 
-  // Widget pour les champs de texte Départ/Arrivée
   Widget _buildTextField(String label, String hint,
       TextEditingController controller, IconData icon) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // CORRECTION ICI: Ajout du paramètre 'style:'
         Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
         const SizedBox(height: 8),
         TextField(
@@ -287,7 +300,6 @@ class _RoutesConfigScreenState extends State<RoutesConfigScreen> {
     );
   }
 
-  // Widget pour les indicateurs de page en bas
   Widget _buildPageIndicator({required bool isActive, required Color color}) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 4.0),

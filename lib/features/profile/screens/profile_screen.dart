@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart'; 
+import 'package:moovapp/core/service/auth_service.dart'; 
+
 import 'package:moovapp/features/premium/screens/premium_screen.dart';
+import 'package:moovapp/features/auth/screens/welcome_screen.dart';
 import '../widgets/profile_activity_item.dart';
 import '../widgets/profile_menu_item.dart';
 import '../widgets/profile_header.dart';
@@ -10,8 +14,59 @@ import 'security_screen.dart';
 import 'settings_screen.dart';
 import 'support_screen.dart';
 
-class ProfileScreen extends StatelessWidget {
+// 1. On passe en StatefulWidget
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  // 2. Variables d'état
+  String fullName = "";
+  String email = "";
+  String university = "";
+  String profileType = "";
+  String initials = "";
+  String phone = "";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  // 3. Fonction de chargement des données
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      String fName = prefs.getString('first_name') ?? "";
+      String lName = prefs.getString('last_name') ?? "";
+      
+      // Construction du nom complet
+      fullName = "$fName $lName".trim();
+      if (fullName.isEmpty) fullName = "Utilisateur";
+
+      // Email (il faut s'assurer de l'avoir sauvegardé à la connexion, sinon vide)
+      // Astuce : Si vous ne l'avez pas sauvegardé dans AuthService, ajoutez-le !
+      // Pour l'instant, on suppose qu'il est là ou on met une valeur par défaut
+      email = prefs.getString('email') ?? "email@um6p.ma"; 
+
+      university = prefs.getString('university_id') ?? "Université";
+      profileType = prefs.getString('profile_type') ?? "Profil";
+      phone = prefs.getString('phone') ?? "";
+
+      // Calcul des initiales (ex: Ahmed Benali -> AB)
+      if (fName.isNotEmpty && lName.isNotEmpty) {
+        initials = "${fName[0]}${lName[0]}".toUpperCase();
+      } else if (fName.isNotEmpty) {
+        initials = fName[0].toUpperCase();
+      } else {
+        initials = "U";
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,12 +100,17 @@ class ProfileScreen extends StatelessWidget {
                 },
               ),
             ],
+<<<<<<< HEAD
             flexibleSpace: const FlexibleSpaceBar(
+=======
+            flexibleSpace: FlexibleSpaceBar(
+              // 4. Utilisation des données dynamiques dans le Header
+>>>>>>> 38397c1094c7156cf54cdb86b901a3d5d3bc6b55
               background: ProfileHeader(
-                name: 'Ahmed Benali',
-                email: 'ahmed.benali@um6p.ma',
-                avatarInitials: 'AB',
-                universityInfo: 'UM6P - Étudiant',
+                name: fullName,       // ✅ Dynamique
+                email: email,         // ✅ Dynamique
+                avatarInitials: initials, // ✅ Dynamique
+                universityInfo: '$university - $profileType', // ✅ Dynamique
               ),
               collapseMode: CollapseMode.pin,
             ),
@@ -191,7 +251,7 @@ class ProfileScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'ahmed.benali@um6p.ma',
+                      email, // ✅ Utilisation de la variable dynamique
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -219,15 +279,20 @@ class ProfileScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Non renseigné',
+                      // ✅ Affichage conditionnel du téléphone
+                      phone.isNotEmpty ? phone : 'Non renseigné',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
+<<<<<<< HEAD
                         color: colors.onSurface.withOpacity(0.5),
+=======
+                        color: colors.onBackground.withOpacity(phone.isNotEmpty ? 1.0 : 0.5),
+>>>>>>> 38397c1094c7156cf54cdb86b901a3d5d3bc6b55
                       ),
                     ),
                     Text(
-                      'Numéro de téléphone (optionnel)',
+                      'Numéro de téléphone',
                       style: TextStyle(
                         color: colors.onSurface.withOpacity(0.5),
                       ),
@@ -237,6 +302,7 @@ class ProfileScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 16),
+<<<<<<< HEAD
             SizedBox(
               width: double.infinity,
               child: OutlinedButton(
@@ -261,10 +327,38 @@ class ProfileScreen extends StatelessWidget {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: colors.onSurface,
+=======
+
+            // On masque le bouton d'ajout si le téléphone existe déjà (optionnel)
+            if (phone.isEmpty)
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton(
+                  onPressed: () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: const Text('L\'ajout de téléphone est optionnel'),
+                        backgroundColor: colors.primary,
+                      ),
+                    );
+                  },
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                    side: BorderSide(color: colors.onBackground.withOpacity(0.2)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    'Ajouter un numéro (optionnel)',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: colors.onBackground,
+                    ),
+>>>>>>> 38397c1094c7156cf54cdb86b901a3d5d3bc6b55
                   ),
                 ),
               ),
-            ),
           ],
         ),
       ),
@@ -447,8 +541,26 @@ class ProfileScreen extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: TextButton(
+<<<<<<< HEAD
         onPressed: () {},
         child: const Row(
+=======
+        onPressed: () async {
+          // 5. Déconnexion PROPRE
+          final authService = AuthService();
+          await authService.signOut(); // Nettoie le token et les infos
+
+          if (context.mounted) {
+            Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(
+                builder: (context) => const WelcomeScreen(),
+              ),
+              (route) => false,
+            );
+          }
+        },
+        child: Row(
+>>>>>>> 38397c1094c7156cf54cdb86b901a3d5d3bc6b55
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.logout, color: Colors.redAccent),
