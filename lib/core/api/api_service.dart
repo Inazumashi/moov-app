@@ -1,48 +1,45 @@
-import 'dart:convert'; // Pour convertir les données en JSON
-import 'package:http/http.dart' as http; // Pour faire les appels réseau
-import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // Pour stocker le token
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class ApiService {
-  // 1. DÉFINIR L'URL DE VOTRE API NODE.JS
-  // IMPORTANT:
-  // - Émulateur Android : utilisez 'http://10.0.2.2:5000/api/v1' (ou 3000 selon votre port)
-  // - Émulateur iOS : utilisez 'http://localhost:5000/api/v1'
-  final String _baseUrl = "http://10.0.2.2:5000/api/v1";
-
-  // 2. INITIALISER LE STOCKAGE SÉCURISÉ
-  final _storage = const FlutterSecureStorage();
-  final String _tokenKey = 'jwt_token'; // La clé pour retrouver notre token
+  // 1. URL DE BASE - MODIFIEZ SELON VOTRE CONFIGURATION
+  // Pour émulateur Android : 'http://10.0.2.2:5001/api'
+  // Pour émulateur iOS : 'http://localhost:5001/api'
+  // Pour vrai appareil : 'http://VOTRE_IP:5001/api'
+  final String _baseUrl = "http://10.0.2.2:5001/api";
+  
+  // 2. STOCKAGE SÉCURISÉ
+  final FlutterSecureStorage _storage = const FlutterSecureStorage();
+  final String _tokenKey = 'jwt_token';
 
   // --- GESTION DU TOKEN ---
-
-  // Sauvegarder le token (après connexion/inscription)
+  
+  // Sauvegarder le token
   Future<void> storeToken(String token) async {
     await _storage.write(key: _tokenKey, value: token);
   }
 
-  // Lire le token (pour les requêtes)
-  Future<String?> _getToken() async {
+  // Récupérer le token (RENDOMMÉE PUBLIQUE)
+  Future<String?> getToken() async {
     return await _storage.read(key: _tokenKey);
   }
 
-  // Supprimer le token (pour la déconnexion)
+  // Supprimer le token
   Future<void> deleteToken() async {
     await _storage.delete(key: _tokenKey);
   }
 
-  // --- PRÉPARATION DES REQUÊTES ---
-
-  // Cette fonction prépare les en-têtes (headers) de la requête
-  // Si 'isProtected' est vrai, elle ajoute le token JWT.
+  // --- PRÉPARATION DES HEADERS ---
+  
   Future<Map<String, String>> _getHeaders({bool isProtected = false}) async {
     final headers = <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     };
 
     if (isProtected) {
-      final String? token = await _getToken();
+      final String? token = await getToken();
       if (token != null) {
-        // C'est ici qu'on ajoute le "pass" pour le serveur
         headers['Authorization'] = 'Bearer $token';
       }
     }
@@ -50,90 +47,96 @@ class ApiService {
   }
 
   // --- GESTION DES RÉPONSES ---
-
-  // Cette fonction vérifie si le serveur a répondu avec succès ou erreur
+  
   dynamic _handleResponse(http.Response response) {
-    // Codes 200 (OK) et 201 (Créé) sont des succès
+    print('API Response: ${response.statusCode} - ${response.body}');
+    
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      // On décode le JSON reçu du serveur
+      if (response.body.isEmpty) return {'success': true};
       return json.decode(response.body);
-    }
-
-    // Code 401 (Non autorisé) : Le token est invalide ou expiré
-    else if (response.statusCode == 401) {
-      deleteToken(); // On supprime le token localement
+    } else if (response.statusCode == 401) {
+      deleteToken();
       throw Exception('Session expirée. Veuillez vous reconnecter.');
-    }
-
-    // Autres erreurs (400, 404, 500...)
-    else {
-      // On essaie de lire le message d'erreur envoyé par le serveur
+    } else {
       try {
         final errorData = json.decode(response.body);
-        throw Exception(errorData['message'] ?? 'Erreur inconnue');
+        throw Exception(errorData['message'] ?? 'Erreur serveur');
       } catch (e) {
         throw Exception('Erreur serveur (${response.statusCode})');
       }
     }
   }
 
-  // --- MÉTHODES PUBLIQUES (GET, POST, PUT) ---
-
-  // Fonction GET (pour récupérer des données, ex: liste de trajets)
+  // --- MÉTHODES HTTP ---
+  
+  // GET
   Future<dynamic> get(String endpoint, {bool isProtected = true}) async {
     final Uri url = Uri.parse('$_baseUrl/$endpoint');
-
+    
     try {
       final headers = await _getHeaders(isProtected: isProtected);
       final response = await http.get(url, headers: headers);
-
       return _handleResponse(response);
     } catch (e) {
-      throw Exception('Erreur de connexion : $e');
+      throw Exception('Erreur GET: $e');
     }
   }
 
-  // Fonction POST (pour envoyer des données, ex: connexion, publication)
+  // POST
   Future<dynamic> post(String endpoint, Map<String, dynamic> data,
       {bool isProtected = false}) async {
     final Uri url = Uri.parse('$_baseUrl/$endpoint');
-
+    
     try {
       final headers = await _getHeaders(isProtected: isProtected);
       final response = await http.post(
         url,
         headers: headers,
-        body: json.encode(data), // On convertit les données en JSON
+        body: json.encode(data),
       );
-
       return _handleResponse(response);
     } catch (e) {
-      throw Exception('Erreur de connexion : $e');
+      throw Exception('Erreur POST: $e');
     }
   }
 
-<<<<<<< HEAD
-  // Vous pourrez ajouter PUT et DELETE plus tard si nécessaire
-}
-=======
-  // 👇 VOICI LA MÉTHODE PUT AJOUTÉE
-  // Fonction PUT (pour modifier des données, ex: modifier profil)
-  Future<dynamic> put(String endpoint, Map<String, dynamic> data, {bool isProtected = true}) async {
+  // PUT
+  Future<dynamic> put(String endpoint, Map<String, dynamic> data,
+      {bool isProtected = true}) async {
     final Uri url = Uri.parse('$_baseUrl/$endpoint');
-
+    
     try {
-      // Pour une modification, c'est généralement protégé (besoin du token)
       final headers = await _getHeaders(isProtected: isProtected);
       final response = await http.put(
         url,
         headers: headers,
         body: json.encode(data),
       );
-
       return _handleResponse(response);
     } catch (e) {
-      throw Exception('Erreur de connexion : $e');
+      throw Exception('Erreur PUT: $e');
+    }
+  }
+
+  // DELETE
+  Future<dynamic> delete(String endpoint, {Map<String, dynamic>? data, bool isProtected = true}) async {
+    final Uri url = Uri.parse('$_baseUrl/$endpoint');
+    
+    try {
+      final headers = await _getHeaders(isProtected: isProtected);
+      
+      final request = http.Request('DELETE', url);
+      request.headers.addAll(headers);
+      
+      if (data != null) {
+        request.body = json.encode(data);
+      }
+      
+      final streamedResponse = await request.send();
+      final response = await http.Response.fromStream(streamedResponse);
+      return _handleResponse(response);
+    } catch (e) {
+      throw Exception('Erreur DELETE: $e');
     }
   }
 }
->>>>>>> 38397c1094c7156cf54cdb86b901a3d5d3bc6b55

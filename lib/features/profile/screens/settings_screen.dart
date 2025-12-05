@@ -44,21 +44,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               children: [
                 ListTile(
-<<<<<<< HEAD
-                  leading:
-                      Icon(Icons.person_outline, color: colorScheme.onSurface),
-                  title: Text('Modifier le profil',
-                      style: TextStyle(color: colorScheme.onSurface)),
-                  trailing: Icon(Icons.arrow_forward_ios,
-                      size: 16, color: colorScheme.onSurface),
-                  onTap: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => const EditProfileScreen(),
-                    ));
-=======
-                  leading: Icon(Icons.person_outline, color: colorScheme.onBackground),
-                  title: Text('Modifier le profil', style: TextStyle(color: colorScheme.onBackground)),
-                  trailing: Icon(Icons.arrow_forward_ios, size: 16, color: colorScheme.onBackground),
+                  leading: Icon(Icons.person_outline, color: colorScheme.onSurface),
+                  title: Text('Modifier le profil', style: TextStyle(color: colorScheme.onSurface)),
+                  trailing: Icon(Icons.arrow_forward_ios, size: 16, color: colorScheme.onSurface),
                   // 👇 MODIFICATION ICI : On utilise async/await
                   onTap: () async {
                     // 1. On attend que l'utilisateur ait fini d'éditer son profil
@@ -72,7 +60,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     // on appellerait _loadUserData(). Comme ce n'est pas le cas, 
                     // on fait juste un setState pour rafraîchir l'interface si besoin.
                     setState(() {}); 
->>>>>>> 38397c1094c7156cf54cdb86b901a3d5d3bc6b55
                   },
                 ),
                 ListTile(
@@ -151,7 +138,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   onTap: () {
                     Navigator.of(context).push(MaterialPageRoute(
-                      builder: (context) => LanguageSelectionScreen(),
+                      builder: (context) => const LanguageSelectionScreen(),
                     ));
                   },
                 ),

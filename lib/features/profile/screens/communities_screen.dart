@@ -84,8 +84,8 @@ class CommunitiesScreen extends StatelessWidget {
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => UniversitySelectScreen(
-                    routes: const [],
+                  builder: (context) => const UniversitySelectScreen(
+                    routes: [],
                   ),
                      
                 ),

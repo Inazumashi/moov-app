@@ -164,17 +164,6 @@ class _HomeScreenState extends State<HomeScreen> {
       backgroundColor: cs.surface,
       appBar: AppBar(
         backgroundColor: cs.primary,
-<<<<<<< HEAD
-        title: const Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Bonjour 👋',
-              style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 22),
-=======
         // 4. MODIFICATION ICI : Utilisation des variables dynamiques
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -182,7 +171,6 @@ class _HomeScreenState extends State<HomeScreen> {
             Text(
               'Bonjour $firstName 👋', // ✅ Affiche le prénom chargé
               style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 22),
->>>>>>> 38397c1094c7156cf54cdb86b901a3d5d3bc6b55
             ),
             Text(
               '$university - $profileType', // ✅ Affiche Univ et Profil

@@ -1,6 +1,6 @@
 // File: lib/features/reservations/widgets/reservation_list.dart
 import 'package:flutter/material.dart';
-import 'package:moovapp/core/models/reservation_model.dart';
+import 'package:moovapp/core/models/reservation.dart';
 import 'package:moovapp/core/utils/reservation_utils.dart';
 import 'package:moovapp/widgets/reservation_card.dart';
 

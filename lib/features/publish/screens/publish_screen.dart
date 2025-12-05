@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:moovapp/core/service/ride_service.dart';
+import 'package:moovapp/core/service/ride_service.dart'; // Note: "services" au pluriel
+import 'package:moovapp/core/api/api_service.dart'; // Ajout de l'import ApiService
 import 'package:moovapp/core/models/ride_model.dart';
 import '../widgets/publish_ride_form.dart';
 
@@ -24,6 +25,16 @@ class _PublishScreenState extends State<PublishScreen> {
 
   bool _isRegularRide = false;
   bool _isLoading = false;
+
+  late RideService _rideService; // Déclarez-le ici
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialisez RideService avec ApiService
+    final apiService = ApiService();
+    _rideService = RideService(apiService);
+  }
 
   @override
   void dispose() {
@@ -105,9 +116,12 @@ class _PublishScreenState extends State<PublishScreen> {
         int.parse(timeParts[1]),
       );
 
+      // TODO: Obtenez l'ID utilisateur depuis le token ou SharedPreferences
+      final String? userId = ''; // À remplacer par votre logique d'authentification
+      
       final ride = RideModel(
         rideId: '', // backend génère l'ID
-        driverId: '', // à remplacer par l'ID de l'utilisateur connecté
+        driverId: userId ?? '', // ID de l'utilisateur connecté
         driverName: '', // optionnel, backend peut remplir
         driverRating: 0.0,
         startPoint: _departureController.text,
@@ -120,21 +134,34 @@ class _PublishScreenState extends State<PublishScreen> {
         isRegularRide: _isRegularRide,
       );
 
-      await RideService().publishRide(ride);
+      await _rideService.publishRide(ride); // Utilisez _rideService au lieu de RideService()
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Trajet publié avec succès !')),
+        const SnackBar(
+          content: Text('Trajet publié avec succès !'),
+          backgroundColor: Colors.green,
+        ),
       );
 
+      // Réinitialiser le formulaire
       _formKey.currentState!.reset();
-      setState(() => _isRegularRide = false);
+      setState(() {
+        _isRegularRide = false;
+        _seatsController.text = '3';
+        _priceController.text = '50';
+      });
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur lors de la publication: $e')),
+        SnackBar(
+          content: Text('Erreur lors de la publication: $e'),
+          backgroundColor: Colors.red,
+        ),
       );
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
-
-    setState(() => _isLoading = false);
   }
 
   @override

@@ -62,7 +62,6 @@ class RideProvider with ChangeNotifier {
 
     try {
       await _rideService.publishRide(ride);
-      // Recharger les trajets publiés après publication
       await loadMyPublishedRides();
       _isLoading = false;
       notifyListeners();
@@ -99,7 +98,6 @@ class RideProvider with ChangeNotifier {
 
     try {
       await _rideService.deleteRide(rideId);
-      // Recharger la liste après suppression
       await loadMyPublishedRides();
       _isLoading = false;
       notifyListeners();
@@ -165,24 +163,42 @@ class RideProvider with ChangeNotifier {
   }
 
   // Ajouter aux favoris
-  Future<void> addToFavorites(String rideId) async {
+  Future<bool> addToFavorites(String rideId) async {
+    _isLoading = true;
+    _error = '';
+    notifyListeners();
+
     try {
       await _rideService.addToFavorites(rideId);
-      await loadFavoriteRides(); // Recharger la liste
+      await loadFavoriteRides();
+      _isLoading = false;
+      notifyListeners();
+      return true;
     } catch (e) {
       _error = 'Erreur lors de l\'ajout aux favoris: $e';
+      _isLoading = false;
       notifyListeners();
+      return false;
     }
   }
 
   // Retirer des favoris
-  Future<void> removeFromFavorites(String rideId) async {
+  Future<bool> removeFromFavorites(String rideId) async {
+    _isLoading = true;
+    _error = '';
+    notifyListeners();
+
     try {
       await _rideService.removeFromFavorites(rideId);
-      await loadFavoriteRides(); // Recharger la liste
+      await loadFavoriteRides();
+      _isLoading = false;
+      notifyListeners();
+      return true;
     } catch (e) {
       _error = 'Erreur lors de la suppression des favoris: $e';
+      _isLoading = false;
       notifyListeners();
+      return false;
     }
   }
 
@@ -212,27 +228,38 @@ class RideProvider with ChangeNotifier {
     }
   }
 
-  // Obtenir un trajet par ID (depuis les résultats de recherche)
+  // Obtenir un trajet par ID
   RideModel? getRideById(String rideId) {
-    return _searchResults.firstWhere(
-      (ride) => ride.rideId == rideId,
-      orElse: () => _myPublishedRides.firstWhere(
-        (ride) => ride.rideId == rideId,
-        orElse: () => _favoriteRides.firstWhere(
-          (ride) => ride.rideId == rideId,
-          orElse: () => RideModel(
-            rideId: '',
-            driverId: '',
-            driverName: '',
-            driverRating: 0,
-            startPoint: '',
-            endPoint: '',
-            departureTime: DateTime.now(),
-            availableSeats: 0,
-            pricePerSeat: 0,
-          ),
-        ),
-      ),
-    );
+    // Chercher dans les résultats de recherche
+    for (var ride in _searchResults) {
+      if (ride.rideId == rideId) return ride;
+    }
+    
+    // Chercher dans mes trajets publiés
+    for (var ride in _myPublishedRides) {
+      if (ride.rideId == rideId) return ride;
+    }
+    
+    // Chercher dans les favoris
+    for (var ride in _favoriteRides) {
+      if (ride.rideId == rideId) return ride;
+    }
+    
+    return null;
+  }
+
+  // Méthode utilitaire pour recharger toutes les données
+  Future<void> refreshAllData() async {
+    await Future.wait([
+      loadMyPublishedRides(),
+      loadFavoriteRides(),
+      loadUniversities(),
+    ]);
+  }
+
+  // Vider les résultats de recherche
+  void clearSearchResults() {
+    _searchResults = [];
+    notifyListeners();
   }
 }

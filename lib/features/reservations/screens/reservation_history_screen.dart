@@ -1,7 +1,7 @@
 // File: lib/features/reservations/screens/reservation_history_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:moovapp/core/models/reservation_model.dart';
+import 'package:moovapp/core/models/reservation.dart';
 import 'package:moovapp/core/providers/reservation_provider.dart';
 import 'package:moovapp/features/reservations/widgets/reservation_list.dart';
 import 'package:moovapp/features/reservations/widgets/reservation_filter.dart';

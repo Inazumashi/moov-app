@@ -214,17 +214,46 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
             const SizedBox(height: 12),
             const Divider(),
             const SizedBox(height: 8),
+            
+            // AFFICHAGE DE LA DATE ET HEURE (GÉRÉ NULL)
             Row(
               children: [
                 const Icon(Icons.event, size: 16, color: Colors.blue),
                 const SizedBox(width: 8),
-                Text(_formatDate(ride.departureTime)),
-                const SizedBox(width: 16),
-                const Icon(Icons.access_time, size: 16, color: Colors.orange),
-                const SizedBox(width: 8),
-                Text(_formatTime(ride.departureTime)),
+                if (ride.departureTime != null)
+                  Text(_formatDate(ride.departureTime!)),
+                if (ride.departureTime != null) const SizedBox(width: 16),
+                if (ride.departureTime != null) ...[
+                  const Icon(Icons.access_time, size: 16, color: Colors.orange),
+                  const SizedBox(width: 8),
+                  Text(_formatTime(ride.departureTime!)),
+                ],
+                if (ride.departureTime == null)
+                  Text(
+                    'Trajet régulier',
+                    style: TextStyle(
+                      color: Colors.blue[800],
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
               ],
             ),
+            
+            // AFFICHAGE DES JOURS SI C'EST UN TRAJET RÉGULIER
+            if (ride.scheduleDays != null && ride.scheduleDays!.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  const Icon(Icons.repeat, size: 16, color: Colors.purple),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Jours: ${ride.scheduleDays!.join(', ')}',
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ],
+              ),
+            ],
+            
             const SizedBox(height: 8),
             Row(
               children: [
@@ -234,10 +263,10 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
                 const SizedBox(width: 16),
                 const Icon(Icons.attach_money, size: 16, color: Colors.green),
                 const SizedBox(width: 8),
-                Text('${ride.pricePerSeat} DH/place'),
+                Text('${ride.pricePerSeat.toStringAsFixed(2)} DH/place'),
               ],
             ),
-            if (ride.vehicleInfo != null) ...[
+            if (ride.vehicleInfo != null && ride.vehicleInfo!.isNotEmpty) ...[
               const SizedBox(height: 8),
               Row(
                 children: [
@@ -265,7 +294,13 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
   void _editRide(BuildContext context, RideModel ride) {
     // TODO: Implémenter l'écran d'édition
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Édition du trajet - À implémenter')),
+      SnackBar(
+        content: Text('Édition du trajet: ${ride.startPoint} → ${ride.endPoint}'),
+        action: SnackBarAction(
+          label: 'OK',
+          onPressed: () {},
+        ),
+      ),
     );
   }
 
@@ -309,6 +344,7 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
     );
   }
 
+  // Fonctions auxiliaires qui gèrent le null
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
   }

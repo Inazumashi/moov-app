@@ -1,4 +1,4 @@
-import 'package:moovapp/core/models/reservation_model.dart';
+import 'package:moovapp/core/models/reservation.dart';
 
 class ReservationUtils {
   // Convertir le statut en texte lisible

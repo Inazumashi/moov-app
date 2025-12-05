@@ -1,6 +1,6 @@
 // File: lib/core/providers/reservation_provider.dart
 import 'package:flutter/foundation.dart';
-import 'package:moovapp/core/models/reservation_model.dart';
+import 'package:moovapp/core/models/reservation.dart';
 import 'package:moovapp/core/service/reservation_service.dart';
 import 'package:moovapp/core/api/api_service.dart';
 

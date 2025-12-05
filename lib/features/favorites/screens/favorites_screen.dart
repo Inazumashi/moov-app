@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../widgets/favorite_ride_card.dart';
-<<<<<<< HEAD
-import 'package:moovapp/core/providers/ride_provider.dart';
-import 'package:moovapp/core/models/ride_model.dart';
-=======
-import '../providers/favorite_rides_provider.dart'; 
->>>>>>> cef8c6aabcde6ab6828e1abee46d73d006194ee9
+import 'package:moovapp/core/providers/ride_provider.dart'; // Changé depuis favorite_rides_provider
+import 'package:moovapp/core/models/ride_model.dart'; // Ajout pour RideModel
 
 class FavoritesScreen extends StatefulWidget {
   const FavoritesScreen({super.key});
@@ -26,71 +22,52 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   @override
   Widget build(BuildContext context) {
-<<<<<<< HEAD
-    final Color primaryColor = Theme.of(context).colorScheme.primary;
     final rideProvider = Provider.of<RideProvider>(context);
-=======
     final colors = Theme.of(context).colorScheme;
-
-    // On récupère la liste depuis le provider
-    final favoriteRides = Provider.of<FavoriteRidesProvider>(context).rides;
->>>>>>> cef8c6aabcde6ab6828e1abee46d73d006194ee9
 
     return Scaffold(
       backgroundColor: colors.surface,
       appBar: AppBar(
-<<<<<<< HEAD
-=======
         backgroundColor: colors.primary,
-        toolbarHeight: 90,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 16.0),
-          child: Icon(Icons.favorite, color: colors.onPrimary, size: 28),
-        ),
-        leadingWidth: 44,
->>>>>>> cef8c6aabcde6ab6828e1abee46d73d006194ee9
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Mes favoris',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 2),
-            Text(
-<<<<<<< HEAD
-              '${rideProvider.favoriteRides.length} trajet(s) sauvegardé(s)',
-              style: TextStyle(color: Colors.white70, fontSize: 14),
-=======
-              '${favoriteRides.length} trajet(s) sauvegardé(s)',
-              style: TextStyle(
-                color: colors.onPrimary.withOpacity(0.7),
-                fontSize: 14,
-              ),
->>>>>>> cef8c6aabcde6ab6828e1abee46d73d006194ee9
-            ),
-          ],
-        ),
-        backgroundColor: primaryColor,
         toolbarHeight: 90,
         leading: const Padding(
           padding: EdgeInsets.only(left: 16.0),
-          child: Icon(Icons.favorite, color: Colors.white, size: 28),
         ),
         leadingWidth: 44,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Mes Favoris',
+              style: TextStyle(
+                color: Colors.white, 
+                fontWeight: FontWeight.bold,
+                fontSize: 20,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              '${rideProvider.favoriteRides.length} trajet(s) sauvegardé(s)',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.7),
+                fontSize: 14,
+              ),
+            ),
+          ],
+        ),
         actions: [
           IconButton(
-            icon: Icon(Icons.refresh),
+            icon: const Icon(Icons.refresh),
             onPressed: () => rideProvider.loadFavoriteRides(),
+            color: Colors.white,
           ),
         ],
       ),
-<<<<<<< HEAD
-      body: _buildBody(rideProvider, primaryColor),
+      body: _buildBody(rideProvider, colors),
     );
   }
 
-  Widget _buildBody(RideProvider provider, Color primaryColor) {
+  Widget _buildBody(RideProvider provider, ColorScheme colors) {
     if (provider.isLoading && provider.favoriteRides.isEmpty) {
       return const Center(
         child: Column(
@@ -160,88 +137,63 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         await provider.loadFavoriteRides();
       },
       child: ListView(
-=======
-      body: ListView(
->>>>>>> cef8c6aabcde6ab6828e1abee46d73d006194ee9
         padding: const EdgeInsets.all(16.0),
         children: [
           Text(
-            'Disponibles',
+            'Trajets favoris',
             style: TextStyle(
-              fontSize: 16,
+              fontSize: 18,
               fontWeight: FontWeight.bold,
               color: colors.onBackground.withOpacity(0.8),
             ),
           ),
           const SizedBox(height: 12),
-<<<<<<< HEAD
-          ...provider.favoriteRides.map((ride) => FavoriteRideCard(
-                ride: ride,
-                onRemove: () => _removeFromFavorites(ride.rideId, provider),
-                onView: () => _viewRideDetails(context, ride),
-              )),
-=======
-          if (favoriteRides.isEmpty)
-            Center(
-              child: Text(
-                'Aucun trajet favori pour le moment',
-                style: TextStyle(
-                  color: colors.onBackground.withOpacity(0.6),
-                  fontSize: 14,
-                ),
-              ),
-            ),
-          ...favoriteRides.asMap().entries.map(
-                (entry) => Stack(
-                  children: [
-                    FavoriteRideCard(
-                      name: entry.value.name,
-                      rating: entry.value.rating,
-                      isPremium: entry.value.isPremium,
-                      departure: entry.value.departure,
-                      arrival: entry.value.arrival,
-                      date: entry.value.date,
-                      time: entry.value.time,
-                      seats: entry.value.seats,
-                      price: entry.value.price,
-                    ),
-                    Positioned(
-                      right: 0,
-                      top: 0,
-                      child: IconButton(
-                        icon: const Icon(Icons.delete, color: Colors.red),
-                        onPressed: () {
-                          // Supprimer via le provider
-                          Provider.of<FavoriteRidesProvider>(context, listen: false)
-                              .removeRide(entry.value);
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
->>>>>>> cef8c6aabcde6ab6828e1abee46d73d006194ee9
+          ...provider.favoriteRides.map((ride) => _buildFavoriteRideCard(ride, provider)),
         ],
       ),
     );
   }
 
-  void _removeFromFavorites(String rideId, RideProvider provider) async {
-    await provider.removeFromFavorites(rideId);
-    
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Trajet retiré des favoris'),
-        backgroundColor: Colors.orange,
+  Widget _buildFavoriteRideCard(RideModel ride, RideProvider provider) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12.0),
+      child: FavoriteRideCard(
+        ride: ride,
+        onRemove: () => _removeFromFavorites(ride.rideId, provider),
+        onView: () => _viewRideDetails(ride),
       ),
     );
   }
 
-  void _viewRideDetails(BuildContext context, RideModel ride) {
+  void _removeFromFavorites(String rideId, RideProvider provider) async {
+    final success = await provider.removeFromFavorites(rideId);
+    
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Trajet retiré des favoris'),
+          backgroundColor: Colors.orange,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Erreur: ${provider.error}'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  void _viewRideDetails(RideModel ride) {
     // TODO: Naviguer vers l'écran de détails du trajet
+    // Pour l'instant, affichons un snackbar
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Navigation vers détails de ${ride.startPoint} → ${ride.endPoint}'),
+        content: Text('Détails: ${ride.startPoint} → ${ride.endPoint}'),
+        duration: const Duration(seconds: 2),
       ),
     );
   }

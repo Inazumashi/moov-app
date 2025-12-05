@@ -1,59 +1,36 @@
 // File: lib/core/providers/auth_provider.dart
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:moovapp/core/models/user_model.dart';
-// 👇 1. Importez le service ET le modèle RouteInfo
-import 'package:moovapp/core/service/auth_service.dart'; 
-import 'package:moovapp/features/inscription/screens/routes_config_screen.dart'; 
+import 'package:moovapp/core/service/auth_service.dart';
+import 'package:moovapp/features/inscription/screens/routes_config_screen.dart';
 
 class AuthProvider with ChangeNotifier {
-<<<<<<< HEAD
   final AuthService _authService = AuthService();
-  UserModel? _user;
+
+  UserModel? _currentUser;
   bool _isLoading = false;
   String _error = '';
-
-  UserModel? get user => _user;
+  
+  bool get isAuthenticated => _currentUser != null;
+  UserModel? get currentUser => _currentUser;
   bool get isLoading => _isLoading;
   String get error => _error;
-  bool get isLoggedIn => _user != null;
 
-  Future<bool> signIn(String email, String password) async {
+  // --- CONNEXION ---
+  Future<void> login(String email, String password) async {
     _isLoading = true;
     _error = '';
     notifyListeners();
 
     try {
-      _user = await _authService.signIn(email, password);
+      final user = await _authService.signIn(email, password);
+      _currentUser = user;
       _isLoading = false;
       notifyListeners();
-      return true;
     } catch (e) {
       _error = e.toString();
       _isLoading = false;
       notifyListeners();
-      return false;
-    }
-  }
-
-  Future<bool> signUp({
-  // On utilise notre service qui parle au backend
-=======
->>>>>>> 38397c1094c7156cf54cdb86b901a3d5d3bc6b55
-  final AuthService _authService = AuthService();
-
-  UserModel? _currentUser;
-  
-  bool get isAuthenticated => _currentUser != null;
-  UserModel? get currentUser => _currentUser;
-
-  // --- CONNEXION (Inchangé) ---
-  Future<void> login(String email, String password) async {
-    try {
-      final user = await _authService.signIn(email, password);
-      _currentUser = user;
-      notifyListeners();
-    } catch (e) {
       rethrow;
     }
   }
@@ -66,17 +43,13 @@ class AuthProvider with ChangeNotifier {
     required String universityId,
     required String profileType,
     required String phoneNumber,
-    
-    required List<RouteInfo> routes, 
+    required List<RouteInfo> routes,
   }) async {
     _isLoading = true;
     _error = '';
     notifyListeners();
 
     try {
-      _user = await _authService.signUp(
-    try {
-      // 👇 3. TRANSMISSION : On passe les routes au service
       final user = await _authService.signUp(
         email: email,
         password: password,
@@ -84,51 +57,129 @@ class AuthProvider with ChangeNotifier {
         universityId: universityId,
         profileType: profileType,
         phoneNumber: phoneNumber,
-        routes: routes, // ✅ C'est ce qui manquait !
+        routes: routes,
       );
+      _currentUser = user;
       _isLoading = false;
       notifyListeners();
-      return true;
     } catch (e) {
       _error = e.toString();
       _isLoading = false;
       notifyListeners();
-      return false;
-    }
-  }
-
-  Future<void> signOut() async {
-    await _authService.signOut();
-    _user = null;
-    notifyListeners();
-  }
-
-  Future<void> checkAuthStatus() async {
-    final isLoggedIn = await _authService.isLoggedIn();
-    if (isLoggedIn) {
-      // Optionnel: Récupérer les infos utilisateur
-      // _user = await _authService.getCurrentUser();
-    } else {
-      _user = null;
-    }
-    notifyListeners();
-  }
-
-  void clearError() {
-    _error = '';
-    notifyListeners();
-      
-      _currentUser = user;
-      notifyListeners();
-    } catch (e) {
       rethrow;
     }
   }
 
-  // --- DÉCONNEXION (Inchangé) ---
+  // --- VÉRIFICATION EMAIL ---
+  Future<Map<String, dynamic>> checkUniversityEmail(String email) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final result = await _authService.checkUniversityEmail(email);
+      _isLoading = false;
+      notifyListeners();
+      return result;
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  // --- VÉRIFICATION CODE ---
+  Future<Map<String, dynamic>> verifyEmailCode(String email, String code) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final result = await _authService.verifyEmailCode(email, code);
+      _isLoading = false;
+      notifyListeners();
+      return result;
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  // --- RÉENVOYER CODE ---
+  Future<Map<String, dynamic>> resendVerificationCode(String email) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final result = await _authService.resendVerificationCode(email);
+      _isLoading = false;
+      notifyListeners();
+      return result;
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  // --- MISE À JOUR PROFIL ---
+  Future<void> updateProfile({
+    required String fullName,
+    required String phone,
+  }) async {
+    _isLoading = true;
+    _error = '';
+    notifyListeners();
+
+    try {
+      await _authService.updateProfile(
+        fullName: fullName,
+        phone: phone,
+      );
+      
+      // Mettre à jour l'utilisateur local
+      if (_currentUser != null) {
+        _currentUser = UserModel(
+          uid: _currentUser!.uid,
+          email: _currentUser!.email,
+          fullName: fullName,
+          universityId: _currentUser!.universityId,
+          profileType: _currentUser!.profileType,
+          phoneNumber: phone,
+          averageRating: _currentUser!.averageRating,
+          ridesCompleted: _currentUser!.ridesCompleted,
+          isPremium: _currentUser!.isPremium,
+        );
+      }
+      
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  // --- DÉCONNEXION ---
   Future<void> logout() async {
     await _authService.signOut();
     _currentUser = null;
+    notifyListeners();
+  }
+
+  // --- VÉRIFIER ÉTAT CONNEXION ---
+  Future<void> checkAuthStatus() async {
+    final isLoggedIn = await _authService.isLoggedIn();
+    if (!isLoggedIn) {
+      _currentUser = null;
+    }
+    notifyListeners();
+  }
+
+  // --- EFFACER ERREUR ---
+  void clearError() {
+    _error = '';
     notifyListeners();
   }
 }

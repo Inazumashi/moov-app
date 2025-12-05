@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 // (Les imports rouges sont normaux tant que les fichiers n'existent pas)
+import 'package:moovapp/features/reservations/screens/book_ride_screen.dart';
 import 'package:moovapp/features/home/screens/home_screen.dart';
 import 'package:moovapp/features/search/screens/search_screen.dart';
 import 'package:moovapp/features/publish/screens/publish_screen.dart';

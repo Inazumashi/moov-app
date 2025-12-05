@@ -68,7 +68,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Erreur : Impossible de mettre à jour le profil.'),
             backgroundColor: Colors.red,
           ),

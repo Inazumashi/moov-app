@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../core/models/reservation_model.dart';
+import '../core/models/reservation.dart';
 import '../../../core/models/ride_model.dart';
 
 class ReservationCard extends StatelessWidget {
@@ -27,7 +27,9 @@ class ReservationCard extends StatelessWidget {
                 Text(
                   'Réservation #${reservation.id}',
                   style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
+                    fontSize: 16, 
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 Container(
                   padding:
@@ -37,7 +39,7 @@ class ReservationCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    reservation.status.toUpperCase(),
+                    reservation.statusText,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 12,
@@ -51,7 +53,12 @@ class ReservationCard extends StatelessWidget {
             if (reservation.ride != null) ..._buildRideInfo(reservation.ride!),
             const SizedBox(height: 8),
             Text(
-                '${reservation.seatsReserved} place(s) - ${reservation.totalPrice} DH'),
+              '${reservation.seatsReserved} place(s) - ${reservation.totalPrice.toStringAsFixed(2)} DH',
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
             const SizedBox(height: 8),
             Text(
               'Réservé le ${reservation.formattedDate}',
@@ -63,7 +70,10 @@ class ReservationCard extends StatelessWidget {
                 width: double.infinity,
                 child: OutlinedButton(
                   onPressed: onCancel,
-                  style: OutlinedButton.styleFrom(foregroundColor: Colors.red),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.red,
+                    side: const BorderSide(color: Colors.red),
+                  ),
                   child: const Text('Annuler la réservation'),
                 ),
               ),
@@ -76,10 +86,38 @@ class ReservationCard extends StatelessWidget {
 
   List<Widget> _buildRideInfo(RideModel ride) {
     return [
-      Text('${ride.startPoint} → ${ride.endPoint}'),
-      const SizedBox(height: 4),
       Text(
-          '${_formatDate(ride.departureTime)} à ${_formatTime(ride.departureTime)}'),
+        '${ride.startPoint} → ${ride.endPoint}',
+        style: const TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      const SizedBox(height: 4),
+      if (ride.departureTime != null)
+        Text(
+          '${_formatDate(ride.departureTime!)} à ${_formatTime(ride.departureTime!)}',
+          style: const TextStyle(
+            fontSize: 14,
+            color: Colors.grey,
+          ),
+        )
+      else if (ride.scheduleDays != null && ride.scheduleDays!.isNotEmpty)
+        Text(
+          'Trajet régulier: ${ride.scheduleDays!.join(', ')}',
+          style: const TextStyle(
+            fontSize: 14,
+            color: Colors.grey,
+          ),
+        )
+      else
+        const Text(
+          'Trajet sans date spécifiée',
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey,
+          ),
+        ),
     ];
   }
 
@@ -92,13 +130,15 @@ class ReservationCard extends StatelessWidget {
   }
 
   Color _getStatusColor(String status) {
-    switch (status) {
+    switch (status.toLowerCase()) {
       case 'confirmed':
         return Colors.green;
       case 'cancelled':
         return Colors.red;
       case 'completed':
         return Colors.blue;
+      case 'pending':
+        return Colors.orange;
       default:
         return Colors.grey;
     }

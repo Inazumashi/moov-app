@@ -1,14 +1,13 @@
+// File: lib/features/search/screens/search_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:moovapp/features/search/widgets/ride_result_card.dart';
-<<<<<<< HEAD
 import 'package:moovapp/core/providers/ride_provider.dart';
+import 'package:moovapp/core/providers/station_provider.dart';
 import 'package:moovapp/core/models/ride_model.dart';
-=======
-import 'package:provider/provider.dart';
-import '../../favorites/providers/favorite_rides_provider.dart';
-import 'package:moovapp/core/models/favorite_ride.dart';
->>>>>>> cef8c6aabcde6ab6828e1abee46d73d006194ee9
+import 'package:moovapp/core/models/station_model.dart';
+import 'package:moovapp/features/search/widgets/ride_result_card.dart';
+import 'package:moovapp/features/search/widgets/search_filters_sheet.dart';
+import 'package:moovapp/features/reservations/screens/book_ride_screen.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
@@ -21,207 +20,51 @@ class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _departureController = TextEditingController();
   final TextEditingController _arrivalController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
-  bool _showAd = true;
+  bool _showFilters = false;
 
   @override
   void initState() {
     super.initState();
-    // Charger les universités au démarrage
+    // Charger les stations populaires au démarrage
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<RideProvider>(context, listen: false).loadUniversities();
+      Provider.of<StationProvider>(context, listen: false).loadPopularStations();
     });
   }
 
   @override
-  Widget build(BuildContext context) {
-<<<<<<< HEAD
-    final Color primaryColor = Theme.of(context).colorScheme.primary;
-    final rideProvider = Provider.of<RideProvider>(context);
-=======
-    final colorScheme = Theme.of(context).colorScheme;
-    final primaryColor = colorScheme.primary;
-    final favoriteProvider = Provider.of<FavoriteRidesProvider>(context);
->>>>>>> cef8c6aabcde6ab6828e1abee46d73d006194ee9
-
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      body: CustomScrollView(
-        slivers: [
-          SliverAppBar(
-            backgroundColor: colorScheme.surface,
-            pinned: true,
-            expandedHeight: 360.0,
-            flexibleSpace: FlexibleSpaceBar(
-              titlePadding: const EdgeInsets.only(left: 16, bottom: 16),
-              background: SafeArea(
-                child: SingleChildScrollView(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 90, 16, 16),
-                    child: _buildSearchForm(primaryColor, rideProvider),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          SliverList(
-            delegate: SliverChildListDelegate(
-              [
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      if (_showAd) _buildAdCard(),
-
-                      _buildResultsHeader(primaryColor, rideProvider),
-                      const SizedBox(height: 12),
-
-<<<<<<< HEAD
-                      if (rideProvider.isLoading) ...[
-                        const Center(child: CircularProgressIndicator()),
-                        const SizedBox(height: 20),
-                      ],
-
-                      if (rideProvider.error.isNotEmpty) ...[
-                        _buildErrorState(rideProvider),
-                        const SizedBox(height: 20),
-                      ],
-
-                      if (rideProvider.searchResults.isEmpty && !rideProvider.isLoading) ...[
-                        _buildEmptyState(),
-                        const SizedBox(height: 20),
-                      ],
-
-                      // RÉSULTATS DYNAMIQUES
-                      ...rideProvider.searchResults.map((ride) => 
-                        Column(
-                          children: [
-                            RideResultCard(
-                              ride: ride,
-                              isFavorite: rideProvider.isFavorite(ride.rideId),
-                              onFavoriteToggle: () => _toggleFavorite(ride.rideId, rideProvider),
-                              onTap: () => _viewRideDetails(context, ride),
-                            ),
-                            const SizedBox(height: 12),
-                          ],
-                        ),
-=======
-                      // -- Premier trajet --
-                      RideResultCard(
-                        name: 'Karim El Idrissi',
-                        rating: 4.7,
-                        departure: 'Ben Guerir',
-                        departureDetail: 'Départ',
-                        arrival: 'Casablanca',
-                        arrivalDetail: 'Arrivée',
-                        dateTime: '12 Oct • 15:00',
-                        price: '70 MAD',
-                        seats: 4,
-                        tag: 'UM6P - Étudiants',
-                        isFavorited: favoriteProvider.isFavorite('Karim El Idrissi'),
-                        onFavoriteTap: () {
-                          final ride = FavoriteRide(
-                            name: 'Karim El Idrissi',
-                            rating: 4.7,
-                            isPremium: false,
-                            departure: 'Ben Guerir',
-                            arrival: 'Casablanca',
-                            date: '12 Oct',
-                            time: '15:00',
-                            seats: 4,
-                            price: 70,
-                          );
-                          favoriteProvider.toggleFavorite(ride);
-                        },
-                      ),
-                      const SizedBox(height: 12),
-
-                      // -- Deuxième trajet --
-                      RideResultCard(
-                        name: 'Amina Laaroussi',
-                        rating: 4.9,
-                        departure: 'UM6P Campus',
-                        departureDetail: 'Départ',
-                        arrival: 'Marrakech',
-                        arrivalDetail: 'Arrivée',
-                        dateTime: '13 Oct • 09:00',
-                        price: '45 MAD',
-                        seats: 2,
-                        isPremium: true,
-                        isFavorited: favoriteProvider.isFavorite('Amina Laaroussi'),
-                        onFavoriteTap: () {
-                          final ride = FavoriteRide(
-                            name: 'Amina Laaroussi',
-                            rating: 4.9,
-                            isPremium: true,
-                            departure: 'UM6P Campus',
-                            arrival: 'Marrakech',
-                            date: '13 Oct',
-                            time: '09:00',
-                            seats: 2,
-                            price: 45,
-                          );
-                          favoriteProvider.toggleFavorite(ride);
-                        },
->>>>>>> cef8c6aabcde6ab6828e1abee46d73d006194ee9
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+  void dispose() {
+    _departureController.dispose();
+    _arrivalController.dispose();
+    super.dispose();
   }
 
-  void _performSearch(RideProvider provider) async {
+  void _searchRides() {
     if (_departureController.text.isEmpty || _arrivalController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Veuillez remplir les champs de départ et d\'arrivée'),
+          content: Text('Veuillez saisir une station de départ et d\'arrivée'),
           backgroundColor: Colors.orange,
         ),
       );
       return;
     }
 
-    await provider.searchRides(
+    final rideProvider = Provider.of<RideProvider>(context, listen: false);
+    rideProvider.searchRides(
       from: _departureController.text,
       to: _arrivalController.text,
       date: _selectedDate,
     );
   }
 
-  void _toggleFavorite(String rideId, RideProvider provider) async {
-    await provider.toggleFavorite(rideId);
-    
-    if (provider.isFavorite(rideId)) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Trajet ajouté aux favoris'),
-          backgroundColor: Colors.green,
-        ),
-      );
-    }
-  }
-
-  void _viewRideDetails(BuildContext context, RideModel ride) {
-    // TODO: Naviguer vers l'écran de réservation ou détails
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Voir détails: ${ride.startPoint} → ${ride.endPoint}'),
-      ),
-    );
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
+  void _showDatePicker() async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
       firstDate: DateTime.now(),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
+
     if (picked != null && picked != _selectedDate) {
       setState(() {
         _selectedDate = picked;
@@ -229,223 +72,488 @@ class _SearchScreenState extends State<SearchScreen> {
     }
   }
 
-  // ----------------------------
-  // FORMULAIRE SEARCH
-  // ----------------------------
-  Widget _buildSearchForm(Color primaryColor, RideProvider provider) {
-    return Column(
-      children: [
-        TextField(
-          controller: _departureController,
-          decoration: InputDecoration(
-            hintText: 'Départ',
-            prefixIcon: Icon(Icons.location_on_outlined, color: primaryColor),
-            filled: true,
-            fillColor: colorScheme.surfaceVariant,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.0),
-              borderSide: BorderSide.none,
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        TextField(
-          controller: _arrivalController,
-          decoration: InputDecoration(
-            hintText: 'Arrivée',
-            prefixIcon: Icon(Icons.location_on, color: Colors.green[600]),
-            filled: true,
-            fillColor: colorScheme.surfaceVariant,
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12.0),
-              borderSide: BorderSide.none,
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: TextField(
-                decoration: InputDecoration(
-                  hintText: 'jj/mm/aaaa',
-                  prefixIcon: Icon(Icons.calendar_today_outlined, color: colorScheme.onSurfaceVariant),
-                  filled: true,
-                  fillColor: colorScheme.surfaceVariant,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                    borderSide: BorderSide.none,
+  @override
+  Widget build(BuildContext context) {
+    final rideProvider = Provider.of<RideProvider>(context);
+    final stationProvider = Provider.of<StationProvider>(context);
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Rechercher un trajet'),
+        backgroundColor: colors.primary,
+        foregroundColor: colors.onPrimary,
+        elevation: 0,
+      ),
+      body: Column(
+        children: [
+          // Barre de recherche
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              children: [
+                // Départ
+                TextField(
+                  controller: _departureController,
+                  decoration: InputDecoration(
+                    hintText: 'Départ (ville, station, campus...)',
+                    prefixIcon: const Icon(Icons.my_location),
+                    filled: true,
+                    fillColor: colors.surface,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
                   ),
+                  onTap: () async {
+                    final station = await _showStationSearch(
+                      context,
+                      stationProvider,
+                    );
+                    if (station != null) {
+                      _departureController.text = station.name;
+                    }
+                  },
                 ),
-                readOnly: true,
-                controller: TextEditingController(
-                  text: '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+                const SizedBox(height: 12),
+
+                // Arrivée
+                TextField(
+                  controller: _arrivalController,
+                  decoration: InputDecoration(
+                    hintText: 'Arrivée (ville, station, campus...)',
+                    prefixIcon: const Icon(Icons.location_on),
+                    filled: true,
+                    fillColor: colors.surface,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  onTap: () async {
+                    final station = await _showStationSearch(
+                      context,
+                      stationProvider,
+                    );
+                    if (station != null) {
+                      _arrivalController.text = station.name;
+                    }
+                  },
                 ),
-                onTap: () => _selectDate(context),
-              ),
+                const SizedBox(height: 12),
+
+                // Date et bouton recherche
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: _showDatePicker,
+                        icon: const Icon(Icons.calendar_today),
+                        label: Text(
+                          '${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    ElevatedButton.icon(
+                      onPressed: rideProvider.isLoading ? null : _searchRides,
+                      icon: const Icon(Icons.search),
+                      label: rideProvider.isLoading
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text('Rechercher'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colors.primary,
+                        foregroundColor: colors.onPrimary,
+                        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                // Filtres
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _showFilters = !_showFilters;
+                        });
+                      },
+                      icon: Icon(
+                        _showFilters ? Icons.filter_alt : Icons.filter_alt_outlined,
+                        size: 16,
+                      ),
+                      label: Text(
+                        _showFilters ? 'Masquer les filtres' : 'Filtres',
+                        style: const TextStyle(fontSize: 14),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
-            const SizedBox(width: 8),
-            IconButton(
-              onPressed: () {
-                // TODO: Implémenter l'écran de filtres avancés
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Filtres avancés - À implémenter')),
-                );
+          ),
+
+          // Section de filtres (expandable)
+          if (_showFilters) ...[
+            SearchFiltersSheet(
+              onFiltersChanged: (filters) {
+                // TODO: Appliquer les filtres
+                print('Filtres appliqués: $filters');
               },
-              icon: const Icon(Icons.filter_list),
-              style: IconButton.styleFrom(
-                backgroundColor: colorScheme.surfaceVariant,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-                padding: const EdgeInsets.all(14),
-              ),
             ),
           ],
-        ),
-        const SizedBox(height: 16),
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: provider.isLoading ? null : () => _performSearch(provider),
-            icon: const Icon(Icons.search, color: Colors.white),
-            label: provider.isLoading 
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+
+          // Stations populaires (avant recherche)
+          if (rideProvider.searchResults.isEmpty && !rideProvider.isLoading) ...[
+            _buildPopularStations(stationProvider, colors),
+          ],
+
+          // Résultats ou état de chargement
+          Expanded(
+            child: rideProvider.isLoading
+                ? const Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(),
+                        SizedBox(height: 16),
+                        Text('Recherche en cours...'),
+                      ],
+                    ),
                   )
-                : const Text('Rechercher'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: primaryColor,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
+                : rideProvider.error.isNotEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                            const SizedBox(height: 16),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 32),
+                              child: Text(
+                                rideProvider.error,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: _searchRides,
+                              child: const Text('Réessayer'),
+                            ),
+                          ],
+                        ),
+                      )
+                    : rideProvider.searchResults.isEmpty
+                        ? const Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.search, size: 80, color: Colors.grey),
+                                SizedBox(height: 16),
+                                Text(
+                                  'Aucun trajet trouvé',
+                                  style: TextStyle(fontSize: 18, color: Colors.grey),
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  'Essayez d\'autres stations ou dates',
+                                  style: TextStyle(color: Colors.grey),
+                                ),
+                              ],
+                            ),
+                          )
+                        : ListView.builder(
+                            padding: const EdgeInsets.all(16),
+                            itemCount: rideProvider.searchResults.length,
+                            itemBuilder: (context, index) {
+                              final ride = rideProvider.searchResults[index];
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 12.0),
+                                child: RideResultCard(
+                                  ride: ride,
+                                  isFavorited: rideProvider.isFavorite(ride.rideId),
+                                  onFavoriteTap: () {
+                                    rideProvider.toggleFavorite(ride.rideId);
+                                  },
+                                  onViewTap: () {
+                                    _showRideDetails(context, ride);
+                                  },
+                                ),
+                              );
+                            },
+                          ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  // ----------------------------
-  // CARTE PUBLICITÉ
-  // ----------------------------
-  Widget _buildAdCard(ColorScheme colorScheme) {
-    return Card(
-      elevation: 0,
-      color: colorScheme.secondaryContainer,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(color: colorScheme.secondary.withOpacity(0.4)),
+  Widget _buildPopularStations(StationProvider provider, ColorScheme colors) {
+    if (provider.popularStations.isEmpty) return const SizedBox();
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Stations populaires',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: colors.onSurface,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: provider.popularStations
+                .take(6)
+                .map((station) => Chip(
+                      label: Text(station.displayName),
+                      onDeleted: () {
+                        // Quick search avec cette station comme départ
+                        _departureController.text = station.name;
+                        _searchRides();
+                      },
+                      deleteIcon: const Icon(Icons.arrow_forward, size: 16),
+                    ))
+                .toList(),
+          ),
+        ],
       ),
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: colorScheme.secondary,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                'AD',
+    );
+  }
+
+  void _showRideDetails(BuildContext context, RideModel ride) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    
+    // Format de date et heure
+    String formatDate(DateTime? date) {
+      if (date == null) return 'N/A';
+      return '${date.day}/${date.month}/${date.year}';
+    }
+
+    String formatTime(DateTime? date) {
+      if (date == null) return '';
+      return '${date.hour}h${date.minute.toString().padLeft(2, '0')}';
+    }
+
+    // Utilisez `scheduleDays` pour les trajets réguliers
+    String getScheduleText() {
+      if (ride.scheduleDays != null && ride.scheduleDays!.isNotEmpty) {
+        return 'Jours: ${ride.scheduleDays!.join(', ')}';
+      }
+      return '';
+    }
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Détails du trajet',
                 style: TextStyle(
-                  color: colorScheme.onSecondary,
-                  fontSize: 12,
+                  fontSize: 18,
                   fontWeight: FontWeight.bold,
+                  color: colors.onSurface,
                 ),
               ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                'Passez à Premium pour une expérience sans pub',
-                style: TextStyle(fontSize: 13, color: colorScheme.onSurface),
+              const SizedBox(height: 16),
+              ListTile(
+                leading: const Icon(Icons.person),
+                title: const Text('Conducteur'),
+                subtitle: Text(ride.driverName.isNotEmpty ? ride.driverName : 'Conducteur'),
               ),
-            ),
-            IconButton(
-              icon: Icon(Icons.close, size: 18, color: colorScheme.onSurfaceVariant),
-              onPressed: () {
-                setState(() {
-                  _showAd = false;
-                });
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ----------------------------
-  // HEADER RÉSULTATS
-  // ----------------------------
-  Widget _buildResultsHeader(Color primaryColor, RideProvider provider) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          'Résultats (${provider.searchResults.length})',
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        TextButton(
-          onPressed: () {
-            // TODO: Implémenter le tri
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Tri par prix - À implémenter')),
-            );
-          },
-          child: Text(
-            'Trier par prix',
-            style: TextStyle(color: primaryColor, fontWeight: FontWeight.bold),
+              ListTile(
+                leading: const Icon(Icons.location_on),
+                title: const Text('Itinéraire'),
+                // Utilisation des propriétés correctes de RideModel
+                subtitle: Text('${ride.startPoint} → ${ride.endPoint}'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.access_time),
+                title: const Text('Départ'),
+                subtitle: Text(
+                  ride.departureTime != null
+                      ? '${formatDate(ride.departureTime)} ${formatTime(ride.departureTime)}'
+                      : 'Trajet régulier',
+                ),
+              ),
+              // Si c'est un trajet régulier, afficher les jours
+              if (ride.scheduleDays != null && ride.scheduleDays!.isNotEmpty) ...[
+                ListTile(
+                  leading: const Icon(Icons.repeat),
+                  title: const Text('Jours'),
+                  subtitle: Text(getScheduleText()),
+                ),
+              ],
+              ListTile(
+                leading: const Icon(Icons.people),
+                title: const Text('Places disponibles'),
+                subtitle: Text('${ride.availableSeats}'),
+              ),
+              ListTile(
+                leading: const Icon(Icons.attach_money),
+                title: const Text('Prix'),
+                subtitle: Text('${ride.pricePerSeat.toStringAsFixed(2)} DH par place'),
+              ),
+              if (ride.vehicleInfo != null && ride.vehicleInfo!.isNotEmpty) ...[
+                ListTile(
+                  leading: const Icon(Icons.directions_car),
+                  title: const Text('Véhicule'),
+                  subtitle: Text(ride.vehicleInfo!),
+                ),
+              ],
+              if (ride.notes != null && ride.notes!.isNotEmpty) ...[
+                ListTile(
+                  leading: const Icon(Icons.note),
+                  title: const Text('Notes'),
+                  subtitle: Text(ride.notes!),
+                ),
+              ],
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  // Naviguer vers l'écran de réservation
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => BookRideScreen(ride: ride),
+                    ),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: colors.primary,
+                  foregroundColor: colors.onPrimary,
+                  minimumSize: const Size(double.infinity, 50),
+                ),
+                child: const Text('Réserver ce trajet'),
+              ),
+            ],
           ),
-        ),
-      ],
+        );
+      },
     );
   }
 
-  Widget _buildErrorState(RideProvider provider) {
-    return Column(
-      children: [
-        const Icon(Icons.error_outline, size: 64, color: Colors.red),
-        const SizedBox(height: 16),
-        const Text(
-          'Erreur de recherche',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        const SizedBox(height: 8),
-        Text(provider.error),
-        const SizedBox(height: 16),
-        ElevatedButton(
-          onPressed: () => _performSearch(provider),
-          child: const Text('Réessayer'),
-        ),
-      ],
+  Future<StationModel?> _showStationSearch(BuildContext context, StationProvider provider) async {
+    final station = await showSearch<StationModel?>(
+      context: context,
+      delegate: _StationSearchDelegate(provider),
+    );
+    return station;
+  }
+}
+
+class _StationSearchDelegate extends SearchDelegate<StationModel?> {
+  final StationProvider stationProvider;
+
+  _StationSearchDelegate(this.stationProvider);
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: const Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, null);
+      },
     );
   }
 
-  Widget _buildEmptyState() {
-    return Column(
-      children: [
-        Icon(Icons.search_off, size: 80, color: Colors.grey[400]),
-        const SizedBox(height: 16),
-        Text(
-          'Aucun trajet trouvé',
-          style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Essayez de modifier vos critères de recherche',
-          style: TextStyle(color: Colors.grey[500]),
-          textAlign: TextAlign.center,
-        ),
-      ],
+  @override
+  Widget buildResults(BuildContext context) {
+    return _buildSuggestionsWidget(context);
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return _buildSuggestionsWidget(context);
+  }
+
+  Widget _buildSuggestionsWidget(BuildContext context) {
+    if (query.isEmpty) {
+      return ListView(
+        children: stationProvider.popularStations
+            .map((station) => ListTile(
+                  leading: const Icon(Icons.location_on),
+                  title: Text(station.displayName),
+                  subtitle: Text(station.city),
+                  onTap: () {
+                    close(context, station);
+                  },
+                ))
+            .toList(),
+      );
+    }
+
+    // Déclencher la recherche
+    stationProvider.searchStations(query);
+
+    return Consumer<StationProvider>(
+      builder: (context, provider, child) {
+        if (provider.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        return ListView(
+          children: provider.searchResults
+              .map((station) => ListTile(
+                    leading: const Icon(Icons.location_on),
+                    title: Text(station.displayName),
+                    subtitle: Text(station.city),
+                    onTap: () {
+                      close(context, station);
+                    },
+                  ))
+              .toList(),
+        );
+      },
     );
   }
+
+  @override
+  String get searchFieldLabel => 'Rechercher une station...';
 }

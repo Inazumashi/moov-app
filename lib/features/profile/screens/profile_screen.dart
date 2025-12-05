@@ -48,11 +48,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       fullName = "$fName $lName".trim();
       if (fullName.isEmpty) fullName = "Utilisateur";
 
-      // Email (il faut s'assurer de l'avoir sauvegardé à la connexion, sinon vide)
-      // Astuce : Si vous ne l'avez pas sauvegardé dans AuthService, ajoutez-le !
-      // Pour l'instant, on suppose qu'il est là ou on met une valeur par défaut
       email = prefs.getString('email') ?? "email@um6p.ma"; 
-
       university = prefs.getString('university_id') ?? "Université";
       profileType = prefs.getString('profile_type') ?? "Profil";
       phone = prefs.getString('phone') ?? "";
@@ -100,17 +96,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 },
               ),
             ],
-<<<<<<< HEAD
-            flexibleSpace: const FlexibleSpaceBar(
-=======
             flexibleSpace: FlexibleSpaceBar(
-              // 4. Utilisation des données dynamiques dans le Header
->>>>>>> 38397c1094c7156cf54cdb86b901a3d5d3bc6b55
               background: ProfileHeader(
-                name: fullName,       // ✅ Dynamique
-                email: email,         // ✅ Dynamique
-                avatarInitials: initials, // ✅ Dynamique
-                universityInfo: '$university - $profileType', // ✅ Dynamique
+                name: fullName,
+                email: email,
+                avatarInitials: initials,
+                universityInfo: '$university - $profileType',
               ),
               collapseMode: CollapseMode.pin,
             ),
@@ -251,7 +242,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      email, // ✅ Utilisation de la variable dynamique
+                      email,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
@@ -279,22 +270,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      // ✅ Affichage conditionnel du téléphone
                       phone.isNotEmpty ? phone : 'Non renseigné',
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
-<<<<<<< HEAD
-                        color: colors.onSurface.withOpacity(0.5),
-=======
-                        color: colors.onBackground.withOpacity(phone.isNotEmpty ? 1.0 : 0.5),
->>>>>>> 38397c1094c7156cf54cdb86b901a3d5d3bc6b55
+                        color: colors.onSurface.withOpacity(phone.isNotEmpty ? 1.0 : 0.5),
                       ),
                     ),
                     Text(
                       'Numéro de téléphone',
                       style: TextStyle(
                         color: colors.onSurface.withOpacity(0.5),
+                        fontSize: 12,
                       ),
                     ),
                   ],
@@ -302,34 +289,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
             const SizedBox(height: 16),
-<<<<<<< HEAD
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content:
-                          const Text('L\'ajout de téléphone est optionnel'),
-                      backgroundColor: colors.primary,
-                    ),
-                  );
-                },
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  side: BorderSide(color: colors.onSurface.withOpacity(0.2)),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text(
-                  'Ajouter un numéro (optionnel)',
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: colors.onSurface,
-=======
 
-            // On masque le bouton d'ajout si le téléphone existe déjà (optionnel)
             if (phone.isEmpty)
               SizedBox(
                 width: double.infinity,
@@ -344,7 +304,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   },
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 12),
-                    side: BorderSide(color: colors.onBackground.withOpacity(0.2)),
+                    side: BorderSide(color: colors.onSurface.withOpacity(0.2)),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -353,9 +313,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     'Ajouter un numéro (optionnel)',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: colors.onBackground,
+                      color: colors.onSurface,
                     ),
->>>>>>> 38397c1094c7156cf54cdb86b901a3d5d3bc6b55
                   ),
                 ),
               ),
@@ -541,10 +500,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: TextButton(
-<<<<<<< HEAD
-        onPressed: () {},
-        child: const Row(
-=======
         onPressed: () async {
           // 5. Déconnexion PROPRE
           final authService = AuthService();
@@ -560,11 +515,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           }
         },
         child: Row(
->>>>>>> 38397c1094c7156cf54cdb86b901a3d5d3bc6b55
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.logout, color: Colors.redAccent),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Text(
               'Se déconnecter',
               style: TextStyle(

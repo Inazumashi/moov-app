@@ -7,9 +7,6 @@ class RideModel {
   final bool driverIsPremium;
   final String startPoint;
   final String endPoint;
-<<<<<<< HEAD
-  final DateTime departureTime;
-=======
   
   // 1. Pour les trajets ponctuels (ex: Demain à 8h)
   final DateTime? departureTime; 
@@ -18,7 +15,6 @@ class RideModel {
   final List<String>? scheduleDays; // ["Lun", "Mar"]
   final String? timeSlot;          // "Matin (6h-12h)"
 
->>>>>>> 38397c1094c7156cf54cdb86b901a3d5d3bc6b55
   final int availableSeats;
   final double pricePerSeat;
   final String? vehicleInfo;
@@ -45,25 +41,6 @@ class RideModel {
 
   factory RideModel.fromJson(Map<String, dynamic> json) {
     return RideModel(
-<<<<<<< HEAD
-      rideId: json['rideId'] ?? json['id']?.toString() ?? '',
-      driverId: json['driverId']?.toString() ?? '',
-      driverName: json['driverName'] ??
-          '${json['driverFirstName']} ${json['driverLastName']}',
-      driverRating:
-          double.tryParse(json['driverRating']?.toString() ?? '0') ?? 0.0,
-      driverIsPremium: json['driverIsPremium'] ?? false,
-      startPoint: json['startPoint'] ?? json['departureAddress'] ?? '',
-      endPoint: json['endPoint'] ?? json['destinationAddress'] ?? '',
-      departureTime:
-          DateTime.parse(json['departureTime'] ?? json['departureDate']),
-      availableSeats: json['availableSeats'] ?? 0,
-      pricePerSeat:
-          double.tryParse(json['pricePerSeat']?.toString() ?? '0') ?? 0.0,
-      vehicleInfo: json['vehicleInfo'] ?? json['carModel'],
-      notes: json['notes'] ?? json['description'],
-      isRegularRide: json['isRegularRide'] ?? false,
-=======
       rideId: json['ride_id']?.toString() ?? '',
       driverId: json['driver_id']?.toString() ?? '',
       driverName: json['driver_name'] ?? 'Conducteur',
@@ -89,7 +66,6 @@ class RideModel {
       vehicleInfo: json['vehicle_details'],
       notes: json['notes'],
       isRegularRide: json['is_regular'] ?? false,
->>>>>>> 38397c1094c7156cf54cdb86b901a3d5d3bc6b55
     );
   }
 
