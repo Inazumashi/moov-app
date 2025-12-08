@@ -2,199 +2,147 @@
 import 'package:moovapp/core/api/api_service.dart';
 import 'package:moovapp/core/models/ride_model.dart';
 import 'package:moovapp/core/models/university_model.dart';
-import 'package:intl/intl.dart';
 
 class RideService {
   final ApiService _apiService;
 
   RideService(this._apiService);
 
-  // 1. RECHERCHER DES TRAJETS
+  // Recherche de trajets
   Future<List<RideModel>> searchRides({
     required String from,
     required String to,
     required DateTime date,
   }) async {
     try {
-      final String formattedDate = DateFormat('yyyy-MM-dd').format(date);
       final response = await _apiService.get(
-        'rides/search?departure=$from&arrival=$to&date=$formattedDate',
-        isProtected: false,
+        'rides/search?from=$from&to=$to&date=${date.toIso8601String()}',
       );
       
-      // Vérifiez la structure de la réponse de votre API
-      if (response is Map && response.containsKey('rides')) {
-        final List<dynamic> data = response['rides'] ?? [];
-        return data.map((json) => RideModel.fromJson(json)).toList();
-      } else if (response is List) {
-        return response.map((json) => RideModel.fromJson(json)).toList();
-      } else {
-        throw Exception('Format de réponse inattendu');
-      }
+      return (response['rides'] as List)
+          .map((json) => RideModel.fromJson(json))
+          .toList();
     } catch (e) {
       print('Erreur recherche trajets: $e');
+import 'package:moovapp/core/api/api_service.dart';
+import 'package:moovapp/core/models/ride_model.dart';
+import 'package:moovapp/core/models/university_model.dart';
+import 'package:intl/intl.dart'; 
+
+class RideService {
+  // On utilise notre service API pour faire les requêtes
+  final ApiService api = ApiService();
+
+  // 1. RECHERCHER DES TRAJETS
+  Future<List<RideModel>> searchRides(
+      String from, String to, DateTime date) async {
+    try {
+      // On formate la date pour l'envoyer à l'API (ex: 2025-10-12)
+      final String formattedDate = DateFormat('yyyy-MM-dd').format(date);
+
+      // Appel GET vers /rides/search avec des paramètres dans l'URL
+      // Exemple: /rides/search?departure=Casa&arrival=Rabat&date=2025-10-12
+      final response = await api.get(
+        'rides/search?departure=$from&arrival=$to&date=$formattedDate',
+        isProtected: false, // La recherche peut être publique
+      );
+
+      // L'API renvoie une liste JSON ([{}, {}]). On la convertit en liste de RideModel.
+      // (Assurez-vous que RideModel a une factory 'fromJson')
+      /* Note: Si RideModel.fromJson n'existe pas encore, vous devrez l'ajouter dans ride_model.dart
+         Pour l'instant, je suppose qu'elle existe ou que vous allez l'ajouter.
+         Si elle n'existe pas, ce code ne compilera pas.
+      */
+      final List<dynamic> data = response as List<dynamic>;
+      return data.map((json) => RideModel.fromJson(json)).toList();
+
+    } catch (e) {
+      // En cas d'erreur, on renvoie une liste vide ou on relance l'erreur
+      print('Erreur recherche: $e');
       rethrow;
     }
   }
 
+  // Publier un trajet
+  Future<void> publishRide(RideModel ride) async {
+    try {
+      await _apiService.post('rides', ride.toJson());
+    } catch (e) {
+      print('Erreur publication trajet: $e');
   // 2. PUBLIER UN TRAJET
   Future<void> publishRide(RideModel ride) async {
     try {
-      await _apiService.post(
-        'rides',
-        ride.toJson(),
-        isProtected: true,
-      );
-    } catch (e) {
-      print('Erreur publication trajet: $e');
-      rethrow;
-    }
-  }
-
-  // 3. TRAJETS PUBLIÉS PAR L'UTILISATEUR
-  Future<List<RideModel>> getMyPublishedRides() async {
-    try {
-      final response = await _apiService.get(
-        'rides/my-rides',
+      // Appel POST vers /rides/publish
+      // On doit être connecté (isProtected: true)
+      await api.post(
+        'rides/publish',
+        ride.toJson(), // On convertit l'objet RideModel en JSON
         isProtected: true,
       );
       
-      // Vérifiez la structure de la réponse
-      if (response is Map && response.containsKey('rides')) {
-        final List<dynamic> data = response['rides'] ?? [];
-        return data.map((json) => RideModel.fromJson(json)).toList();
-      } else if (response is List) {
-        return response.map((json) => RideModel.fromJson(json)).toList();
-      }
-      return [];
     } catch (e) {
-      print('Erreur trajets publiés: $e');
+      print('Erreur publication: $e');
       rethrow;
     }
   }
 
-  // 4. SUPPRIMER UN TRAJET
-  Future<void> deleteRide(String rideId) async {
+  // 3. RÉCUPÉRER LES FAVORIS (OU MES TRAJETS)
+  Future<List<RideModel>> getFavoriteRides(String userId) async {
     try {
-      await _apiService.delete(
-        'rides/$rideId',
+      // Appel GET vers une route imaginaire pour les favoris
+      // (À implémenter dans le backend si elle n'existe pas)
+      final response = await api.get(
+        'users/me/favorites', // Exemple d'URL
         isProtected: true,
       );
+
+      final List<dynamic> data = response as List<dynamic>;
+      return data.map((json) => RideModel.fromJson(json)).toList();
+
     } catch (e) {
-      print('Erreur suppression trajet: $e');
-      rethrow;
+      print('Erreur favoris: $e');
+      return []; // Retourne une liste vide en cas d'erreur
     }
   }
 
-  // 5. METTRE À JOUR UN TRAJET
-  Future<void> updateRide(RideModel ride) async {
-    try {
-      await _apiService.put(
-        'rides/${ride.rideId}',
-        ride.toJson(),
-        isProtected: true,
-      );
-    } catch (e) {
-      print('Erreur mise à jour trajet: $e');
-      rethrow;
-    }
-  }
-
-  // 6. TRAJETS FAVORIS
-  Future<List<RideModel>> getFavoriteRides() async {
-    try {
-      final response = await _apiService.get(
-        'advanced/favorite-rides',
-        isProtected: true,
-      );
-      
-      if (response is Map && response.containsKey('favorite_rides')) {
-        final List<dynamic> data = response['favorite_rides'] ?? [];
-        return data.map((json) => RideModel.fromJson(json)).toList();
-      }
-      return [];
-    } catch (e) {
-      print('Erreur trajets favoris: $e');
-      rethrow;
-    }
-  }
-
-  // 7. AJOUTER AUX FAVORIS
-  Future<void> addToFavorites(String rideId) async {
-    try {
-      await _apiService.post(
-        'advanced/favorite-rides',
-        {'rideId': rideId},
-        isProtected: true,
-      );
-    } catch (e) {
-      print('Erreur ajout favoris: $e');
-      rethrow;
-    }
-  }
-
-  // 8. RETIRER DES FAVORIS
-  Future<void> removeFromFavorites(String rideId) async {
-    try {
-      await _apiService.delete(
-        'advanced/favorite-rides/$rideId',
-        isProtected: true,
-      );
-    } catch (e) {
-      print('Erreur suppression favoris: $e');
-      rethrow;
-    }
-  }
-
-  // 9. UNIVERSITÉS
+  // 4. RÉCUPÉRER LES UNIVERSITÉS
+  // (Utile pour l'écran de sélection de l'université)
   Future<List<UniversityModel>> getUniversities() async {
     try {
-      final response = await _apiService.get(
-        'auth/universities',
-        isProtected: false,
-      );
+      // Appel GET vers /universities (si vous créez cette route dans le backend)
+      // Sinon, on peut garder la liste statique pour l'instant.
       
-      if (response is Map && response.containsKey('universities')) {
-        final List<dynamic> data = response['universities'] ?? [];
-        return data.map((json) => UniversityModel.fromJson(json)).toList();
-      }
-      
-      // Si l'API ne renvoie pas la bonne structure, retournez une liste vide
-      print('Avertissement: Structure de réponse des universités inattendue');
-      return [];
-    } catch (e) {
-      print('Erreur chargement universités: $e');
-      return []; // Retournez une liste vide au lieu de lancer une exception
-    }
-  }
+      // Pour l'exemple, imaginons que l'API existe :
+      /*
+      final response = await _api.get('universities', isProtected: false);
+      final List<dynamic> data = response as List<dynamic>;
+      return data.map((json) => UniversityModel.fromJson(json)).toList();
+      */
 
-  // 10. RECHERCHE AVANCÉE (optionnel)
-  Future<Map<String, dynamic>> searchAdvanced({
-    String? departureStationId,
-    String? arrivalStationId,
-    DateTime? departureDate,
-    int? minSeats,
-    double? maxPrice,
-  }) async {
-    try {
-      final params = <String, String>{};
-      
-      if (departureStationId != null) params['departure_station_id'] = departureStationId;
-      if (arrivalStationId != null) params['arrival_station_id'] = arrivalStationId;
-      if (departureDate != null) params['departure_date'] = DateFormat('yyyy-MM-dd').format(departureDate);
-      if (minSeats != null) params['min_seats'] = minSeats.toString();
-      if (maxPrice != null) params['max_price'] = maxPrice.toString();
-      
-      final queryString = Uri(queryParameters: params).query;
-      final response = await _apiService.get(
-        'rides/search?$queryString',
-        isProtected: false,
-      );
-      
-      return response;
+      // En attendant l'API, on retourne la liste statique (simulée)
+      await Future.delayed(const Duration(milliseconds: 200));
+      return [
+        UniversityModel(
+          universityId: 'um6p',
+          name: 'Université Mohammed VI Polytechnique',
+          studentCount: 3200,
+          domain: 'um6p.ma',
+        ),
+        UniversityModel(
+          universityId: 'uca',
+          name: 'Université Cadi Ayyad',
+          studentCount: 45000,
+          domain: 'uca.ma',
+        ),
+        UniversityModel(
+          universityId: 'uir',
+          name: 'Université Internationale de Rabat',
+          studentCount: 5000,
+          domain: 'uir.ac.ma',
+        ),
+      ];
     } catch (e) {
-      print('Erreur recherche avancée: $e');
-      rethrow;
+      return [];
     }
   }
 }

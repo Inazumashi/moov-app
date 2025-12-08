@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:moovapp/core/providers/ride_provider.dart';
 import 'package:moovapp/core/providers/auth_provider.dart';
 import 'package:moovapp/core/models/ride_model.dart';
-import 'package:moovapp/core/models/user_model.dart';
 
 class PublishRideScreen extends StatefulWidget {
   const PublishRideScreen({super.key});
@@ -70,7 +69,7 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
       _formKey.currentState!.save();
 
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final UserModel? currentUser = authProvider.currentUser; // CORRECTION: currentUser, pas user
+      final currentUser = authProvider.user;
 
       if (currentUser == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -124,65 +123,6 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
   @override
   Widget build(BuildContext context) {
     final rideProvider = Provider.of<RideProvider>(context);
-    final authProvider = Provider.of<AuthProvider>(context);
-
-    // Vérifier si l'utilisateur est connecté
-    if (!authProvider.isAuthenticated) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Publier un trajet'),
-          backgroundColor: const Color(0xFF1E3A8A),
-          foregroundColor: Colors.white,
-        ),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.error_outline,
-                  size: 64,
-                  color: Colors.orange,
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  'Connexion requise',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                const Text(
-                  'Vous devez être connecté pour publier un trajet',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey,
-                  ),
-                ),
-                const SizedBox(height: 30),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/login');
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1E3A8A),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 30,
-                      vertical: 15,
-                    ),
-                  ),
-                  child: const Text('Se connecter'),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
 
     return Scaffold(
       appBar: AppBar(
@@ -200,14 +140,6 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
               const Text(
                 'Nouveau trajet',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Connecté en tant que ${authProvider.currentUser?.fullName ?? 'Utilisateur'}',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey[600],
-                ),
               ),
               const SizedBox(height: 20),
 

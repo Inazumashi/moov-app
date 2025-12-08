@@ -125,9 +125,7 @@ class _BookRideScreenState extends State<BookRideScreen> {
                       children: [
                         const Icon(Icons.person, color: Colors.blue, size: 18),
                         const SizedBox(width: 8),
-                        Text(widget.ride.driverName.isNotEmpty 
-                          ? widget.ride.driverName 
-                          : 'Conducteur'),
+                        Text(widget.ride.driverName),
                       ],
                     ),
                     const SizedBox(height: 4),
@@ -136,10 +134,7 @@ class _BookRideScreenState extends State<BookRideScreen> {
                         const Icon(Icons.event, color: Colors.orange, size: 18),
                         const SizedBox(width: 8),
                         Text(
-                          widget.ride.departureTime != null
-                            ? '${_formatDate(widget.ride.departureTime!)} à ${_formatTime(widget.ride.departureTime!)}'
-                            : 'Trajet régulier',
-                        ),
+                            '${_formatDate(widget.ride.departureTime)} à ${_formatTime(widget.ride.departureTime)}'),
                       ],
                     ),
                     const SizedBox(height: 4),
@@ -148,10 +143,10 @@ class _BookRideScreenState extends State<BookRideScreen> {
                         const Icon(Icons.attach_money,
                             color: Colors.green, size: 18),
                         const SizedBox(width: 8),
-                        Text('${widget.ride.pricePerSeat.toStringAsFixed(2)} DH par place'),
+                        Text('${widget.ride.pricePerSeat} DH par place'),
                       ],
                     ),
-                    if (widget.ride.vehicleInfo != null && widget.ride.vehicleInfo!.isNotEmpty) ...[
+                    if (widget.ride.vehicleInfo != null) ...[
                       const SizedBox(height: 4),
                       Row(
                         children: [
@@ -159,21 +154,6 @@ class _BookRideScreenState extends State<BookRideScreen> {
                               color: Colors.purple, size: 18),
                           const SizedBox(width: 8),
                           Text('${widget.ride.vehicleInfo}'),
-                        ],
-                      ),
-                    ],
-                    
-                    // Si c'est un trajet régulier, afficher les jours
-                    if (widget.ride.scheduleDays != null && widget.ride.scheduleDays!.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          const Icon(Icons.repeat, color: Colors.deepPurple, size: 18),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Jours: ${widget.ride.scheduleDays!.join(', ')}',
-                            style: const TextStyle(fontSize: 14),
-                          ),
                         ],
                       ),
                     ],
@@ -198,7 +178,7 @@ class _BookRideScreenState extends State<BookRideScreen> {
                     value: _selectedSeats.toDouble(),
                     min: 1,
                     max: widget.ride.availableSeats.toDouble(),
-                    divisions: widget.ride.availableSeats > 1 ? widget.ride.availableSeats - 1 : 0,
+                    divisions: widget.ride.availableSeats - 1,
                     label: _selectedSeats.toString(),
                     onChanged: (double value) {
                       setState(() {
@@ -252,7 +232,7 @@ class _BookRideScreenState extends State<BookRideScreen> {
                           ),
                         ),
                         Text(
-                          '$_selectedSeats place(s) × ${widget.ride.pricePerSeat.toStringAsFixed(2)} DH',
+                          '$_selectedSeats place(s) × ${widget.ride.pricePerSeat} DH',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey[600],
@@ -261,7 +241,7 @@ class _BookRideScreenState extends State<BookRideScreen> {
                       ],
                     ),
                     Text(
-                      '${totalPrice.toStringAsFixed(2)} DH',
+                      '$totalPrice DH',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
