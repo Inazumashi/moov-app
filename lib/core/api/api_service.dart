@@ -8,7 +8,7 @@ class ApiService {
   // - Émulateur Android : utilisez 'http://10.0.2.2:5000/api/v1'
   // - Émulateur iOS : utilisez 'http://localhost:5000/api/v1'
   // - Téléphone réel : utilisez l'adresse IP de votre PC (ex: 'http://192.168.1.15:5000/api/v1')
-  final String _baseUrl = "http://10.0.2.2:5000/api/v1";
+  final String _baseUrl = "http://10.0.2.2:5001/api/v1";
 
   // 2. INITIALISER LE STOCKAGE SÉCURISÉ
   final _storage = const FlutterSecureStorage();
