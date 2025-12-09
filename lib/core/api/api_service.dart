@@ -1,5 +1,7 @@
 import 'dart:convert'; // Pour convertir les données en JSON
+import 'dart:core';
 import 'package:http/http.dart' as http; // Pour faire les appels réseau
+import 'dart:developer';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // Pour stocker le token
 
 class ApiService {
@@ -8,7 +10,7 @@ class ApiService {
   // - Émulateur Android : utilisez 'http://10.0.2.2:5000/api/v1'
   // - Émulateur iOS : utilisez 'http://localhost:5000/api/v1'
   // - Téléphone réel : utilisez l'adresse IP de votre PC (ex: 'http://192.168.1.15:5000/api/v1')
-  final String _baseUrl = "http://10.0.2.2:5001/api/v1";
+  final String _baseUrl = "http://localhost:3000/api";
 
   // 2. INITIALISER LE STOCKAGE SÉCURISÉ
   final _storage = const FlutterSecureStorage();
@@ -83,6 +85,8 @@ class ApiService {
   // Fonction GET (pour récupérer des données, ex: liste de trajets)
   Future<dynamic> get(String endpoint, {bool isProtected = true}) async {
     final Uri url = Uri.parse('$_baseUrl/$endpoint');
+    print(url);
+    
 
     try {
       final headers = await _getHeaders(isProtected: isProtected);
