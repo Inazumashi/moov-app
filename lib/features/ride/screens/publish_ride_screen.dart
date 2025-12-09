@@ -69,7 +69,7 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
       _formKey.currentState!.save();
 
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final currentUser = authProvider.user;
+      final currentUser = authProvider.currentUser; // CORRECTION: .currentUser au lieu de .user
 
       if (currentUser == null) {
         ScaffoldMessenger.of(context).showSnackBar(

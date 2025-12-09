@@ -69,12 +69,14 @@ class _BookRideScreenState extends State<BookRideScreen> {
   Widget build(BuildContext context) {
     final totalPrice = _selectedSeats * widget.ride.pricePerSeat;
     final reservationProvider = Provider.of<ReservationProvider>(context);
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Réserver un trajet'),
-        backgroundColor: const Color(0xFF1E3A8A),
-        foregroundColor: Colors.white,
+        backgroundColor: colors.primary,
+        foregroundColor: colors.onPrimary,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -125,7 +127,9 @@ class _BookRideScreenState extends State<BookRideScreen> {
                       children: [
                         const Icon(Icons.person, color: Colors.blue, size: 18),
                         const SizedBox(width: 8),
-                        Text(widget.ride.driverName),
+                        Text(widget.ride.driverName.isNotEmpty 
+                            ? widget.ride.driverName 
+                            : 'Conducteur'),
                       ],
                     ),
                     const SizedBox(height: 4),
@@ -134,7 +138,8 @@ class _BookRideScreenState extends State<BookRideScreen> {
                         const Icon(Icons.event, color: Colors.orange, size: 18),
                         const SizedBox(width: 8),
                         Text(
-                            '${_formatDate(widget.ride.departureTime)} à ${_formatTime(widget.ride.departureTime)}'),
+                          _formatDepartureTime(widget.ride), // Fonction corrigée
+                        ),
                       ],
                     ),
                     const SizedBox(height: 4),
@@ -146,14 +151,30 @@ class _BookRideScreenState extends State<BookRideScreen> {
                         Text('${widget.ride.pricePerSeat} DH par place'),
                       ],
                     ),
-                    if (widget.ride.vehicleInfo != null) ...[
+                    if (widget.ride.vehicleInfo != null && 
+                        widget.ride.vehicleInfo!.isNotEmpty) ...[
                       const SizedBox(height: 4),
                       Row(
                         children: [
                           const Icon(Icons.directions_car,
                               color: Colors.purple, size: 18),
                           const SizedBox(width: 8),
-                          Text('${widget.ride.vehicleInfo}'),
+                          Text(widget.ride.vehicleInfo!),
+                        ],
+                      ),
+                    ],
+                    // Affichage des jours si c'est un trajet régulier
+                    if (widget.ride.scheduleDays != null && 
+                        widget.ride.scheduleDays!.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Icon(Icons.repeat, color: Colors.purple, size: 18),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Jours: ${widget.ride.scheduleDays!.join(", ")}',
+                            style: const TextStyle(fontSize: 14),
+                          ),
                         ],
                       ),
                     ],
@@ -178,7 +199,9 @@ class _BookRideScreenState extends State<BookRideScreen> {
                     value: _selectedSeats.toDouble(),
                     min: 1,
                     max: widget.ride.availableSeats.toDouble(),
-                    divisions: widget.ride.availableSeats - 1,
+                    divisions: widget.ride.availableSeats > 1 
+                        ? widget.ride.availableSeats - 1 
+                        : 0,
                     label: _selectedSeats.toString(),
                     onChanged: (double value) {
                       setState(() {
@@ -264,8 +287,8 @@ class _BookRideScreenState extends State<BookRideScreen> {
                     ? null
                     : () => _bookRide(context),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1E3A8A),
-                  foregroundColor: Colors.white,
+                  backgroundColor: colors.primary,
+                  foregroundColor: colors.onPrimary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -305,11 +328,18 @@ class _BookRideScreenState extends State<BookRideScreen> {
     );
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
-  }
-
-  String _formatTime(DateTime date) {
-    return '${date.hour}h${date.minute.toString().padLeft(2, '0')}';
+  // Fonction corrigée qui gère DateTime nullable
+  String _formatDepartureTime(RideModel ride) {
+    if (ride.departureTime != null) {
+      final date = ride.departureTime!;
+      return '${date.day}/${date.month}/${date.year} à ${date.hour}h${date.minute.toString().padLeft(2, '0')}';
+    } else if (ride.scheduleDays != null && ride.scheduleDays!.isNotEmpty) {
+      // C'est un trajet régulier
+      final days = ride.scheduleDays!.join(", ");
+      final timeSlot = ride.timeSlot ?? "Heure non définie";
+      return 'Trajet régulier ($days) - $timeSlot';
+    } else {
+      return 'Date et heure non définies';
+    }
   }
 }

@@ -22,7 +22,7 @@ class ApiService {
   }
 
   // Lire le token (pour les requêtes)
-  Future<String?> _getToken() async {
+  Future<String?> getToken() async {
     return await _storage.read(key: _tokenKey);
   }
 
@@ -41,7 +41,7 @@ class ApiService {
     };
 
     if (isProtected) {
-      final String? token = await _getToken();
+      final String? token = await getToken();
       if (token != null) {
         // C'est ici qu'on ajoute le "pass" pour le serveur
         headers['Authorization'] = 'Bearer $token';
@@ -113,5 +113,43 @@ class ApiService {
     }
   }
 
-  // Vous pourrez ajouter PUT et DELETE plus tard si nécessaire
+// PUT avec body
+Future<dynamic> put(String endpoint, Map<String, dynamic> data,
+    {bool isProtected = true}) async {
+  final Uri url = Uri.parse('$_baseUrl/$endpoint');
+  
+  try {
+    final headers = await _getHeaders(isProtected: isProtected);
+    final response = await http.put(
+      url,
+      headers: headers,
+      body: json.encode(data),
+    );
+    return _handleResponse(response);
+  } catch (e) {
+    throw Exception('Erreur PUT: $e');
+  }
+}
+
+// DELETE avec ou sans body
+Future<dynamic> delete(String endpoint, {Map<String, dynamic>? data, bool isProtected = true}) async {
+  final Uri url = Uri.parse('$_baseUrl/$endpoint');
+  
+  try {
+    final headers = await _getHeaders(isProtected: isProtected);
+    
+    final request = http.Request('DELETE', url);
+    request.headers.addAll(headers);
+    
+    if (data != null) {
+      request.body = json.encode(data);
+    }
+    
+    final streamedResponse = await request.send();
+    final response = await http.Response.fromStream(streamedResponse);
+    return _handleResponse(response);
+  } catch (e) {
+    throw Exception('Erreur DELETE: $e');
+  }
+}
 }

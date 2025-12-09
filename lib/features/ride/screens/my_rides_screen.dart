@@ -9,7 +9,7 @@ class MyRidesScreen extends StatefulWidget {
   const MyRidesScreen({super.key});
 
   @override
-  _MyRidesScreenState createState() => _MyRidesScreenState();
+  State<MyRidesScreen> createState() => _MyRidesScreenState();
 }
 
 class _MyRidesScreenState extends State<MyRidesScreen> {
@@ -214,17 +214,57 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
             const SizedBox(height: 12),
             const Divider(),
             const SizedBox(height: 8),
+            
+            // Affichage des informations de date/heure avec gestion du null
             Row(
               children: [
                 const Icon(Icons.event, size: 16, color: Colors.blue),
                 const SizedBox(width: 8),
-                Text(_formatDate(ride.departureTime)),
+                Text(
+                  ride.departureTime != null 
+                    ? _formatDate(ride.departureTime!) 
+                    : 'Date non définie',
+                ),
                 const SizedBox(width: 16),
                 const Icon(Icons.access_time, size: 16, color: Colors.orange),
                 const SizedBox(width: 8),
-                Text(_formatTime(ride.departureTime)),
+                Text(
+                  ride.departureTime != null 
+                    ? _formatTime(ride.departureTime!) 
+                    : 'Heure non définie',
+                ),
               ],
             ),
+            
+            // Affichage pour les trajets réguliers (scheduleDays)
+            if (ride.isRegularRide && ride.scheduleDays != null && ride.scheduleDays!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: Row(
+                  children: [
+                    const Icon(Icons.repeat, size: 16, color: Colors.purple),
+                    const SizedBox(width: 8),
+                    Text(
+                      ride.scheduleDays!.join(', '),
+                      style: const TextStyle(color: Colors.purple),
+                    ),
+                  ],
+                ),
+              ),
+            
+            // Si timeSlot est disponible pour les trajets réguliers
+            if (ride.isRegularRide && ride.timeSlot != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 4.0),
+                child: Row(
+                  children: [
+                    const Icon(Icons.schedule, size: 16, color: Colors.orange),
+                    const SizedBox(width: 8),
+                    Text(ride.timeSlot!),
+                  ],
+                ),
+              ),
+            
             const SizedBox(height: 8),
             Row(
               children: [
