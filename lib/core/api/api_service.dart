@@ -1,7 +1,6 @@
 import 'dart:convert'; // Pour convertir les données en JSON
 import 'dart:core';
 import 'package:http/http.dart' as http; // Pour faire les appels réseau
-import 'dart:developer';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart'; // Pour stocker le token
 
 class ApiService {
