@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moovapp/features/premium/screens/premium_screen.dart';
+import 'package:moovapp/features/auth/screens/welcome_screen.dart';
 import '../widgets/profile_activity_item.dart';
 import '../widgets/profile_menu_item.dart';
 import '../widgets/profile_header.dart';
@@ -447,7 +448,13 @@ class ProfileScreen extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: TextButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+       );
+
+        },
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
