@@ -7,7 +7,7 @@ import 'package:moovapp/core/api/api_service.dart';
 
 class RideProvider with ChangeNotifier {
   late final RideService _rideService;
-  
+
   List<RideModel> _searchResults = [];
   List<RideModel> _myPublishedRides = [];
   List<RideModel> _favoriteRides = [];
@@ -234,17 +234,17 @@ class RideProvider with ChangeNotifier {
     for (var ride in _searchResults) {
       if (ride.rideId == rideId) return ride;
     }
-    
+
     // Chercher dans mes trajets publiés
     for (var ride in _myPublishedRides) {
       if (ride.rideId == rideId) return ride;
     }
-    
+
     // Chercher dans les favoris
     for (var ride in _favoriteRides) {
       if (ride.rideId == rideId) return ride;
     }
-    
+
     return null;
   }
 
