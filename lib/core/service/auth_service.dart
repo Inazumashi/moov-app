@@ -31,12 +31,13 @@ class AuthService {
 
       return UserModel.fromJson(userData);
     } catch (e) {
+      print('❌ ERREUR CONNEXION: $e');
       rethrow;
     }
   }
   
   // ---------------------------------------------------------------------------
-  // 2. INSCRIPTION (CORRIGÉ)
+  // 2. INSCRIPTION (CORRIGÉ AVEC LOGS)
   // ---------------------------------------------------------------------------
   Future<UserModel> signUp({
     required String email,
@@ -63,20 +64,47 @@ class AuthService {
         };
       }).toList();
 
+      // ✅ DONNÉES À ENVOYER (avec le bon format)
+      final requestData = {
+        'email': email,
+        'password': password,
+        'first_name': firstName,      
+        'last_name': lastName,        
+        'university': universityId,      // ✅ CORRIGÉ: "university" au lieu de "university_id"
+        'profile_type': profileType,  
+        'phone': phoneNumber, 
+        'student_id': null,        
+        'routes': routesFormatted,    
+      };
+
+      // ✅ LOG: Afficher les données avant l'envoi
+      print('═══════════════════════════════════════');
+      print('📤 INSCRIPTION - Données envoyées au backend:');
+      print('Email: $email');
+      print('Prénom: $firstName');
+      print('Nom: $lastName');
+      print('Université: $universityId');
+      print('Type de profil: $profileType');
+      print('Téléphone: $phoneNumber');
+      print('Nombre de routes: ${routesFormatted.length}');
+      print('Données complètes: $requestData');
+      print('═══════════════════════════════════════');
+
+      // Envoyer la requête
       final response = await _api.post(
         'auth/register',
-        {
-          'email': email,
-          'password': password,
-          'first_name': firstName,      
-          'last_name': lastName,        
-          'university_id': universityId,
-          'profile_type': profileType,  
-          'phone': phoneNumber,         
-          'routes': routesFormatted,    
-        },
+        requestData,
         isProtected: false,
       );
+
+      // ✅ LOG: Afficher la réponse du backend
+      print('═══════════════════════════════════════');
+      print('📥 INSCRIPTION - Réponse du backend:');
+      print('Success: ${response['success']}');
+      print('Message: ${response['message']}');
+      print('User ID: ${response['user']?['id']}');
+      print('Réponse complète: $response');
+      print('═══════════════════════════════════════');
 
       final String token = response['token'];
       final Map<String, dynamic> userData = response['user'];
@@ -86,6 +114,12 @@ class AuthService {
 
       return UserModel.fromJson(userData);
     } catch (e) {
+      // ✅ LOG: Afficher l'erreur détaillée
+      print('═══════════════════════════════════════');
+      print('❌ ERREUR INSCRIPTION DÉTAILLÉE:');
+      print('Type: ${e.runtimeType}');
+      print('Message: $e');
+      print('═══════════════════════════════════════');
       rethrow;
     }
   }
@@ -95,12 +129,18 @@ class AuthService {
   // ---------------------------------------------------------------------------
   Future<Map<String, dynamic>> checkUniversityEmail(String email) async {
     try {
-      return await _api.post(
+      print('📧 Vérification email: $email');
+      
+      final response = await _api.post(
         'auth/check-email',
         {'email': email},
         isProtected: false,
       );
+      
+      print('✅ Email vérifié: ${response['success']}');
+      return response;
     } catch (e) {
+      print('❌ ERREUR vérification email: $e');
       rethrow;
     }
   }
@@ -110,12 +150,18 @@ class AuthService {
   // ---------------------------------------------------------------------------
   Future<Map<String, dynamic>> verifyEmailCode(String email, String code) async {
     try {
-      return await _api.post(
+      print('🔐 Vérification code pour: $email');
+      
+      final response = await _api.post(
         'auth/verify-code',
         {'email': email, 'code': code},
         isProtected: false,
       );
+      
+      print('✅ Code vérifié: ${response['success']}');
+      return response;
     } catch (e) {
+      print('❌ ERREUR vérification code: $e');
       rethrow;
     }
   }
@@ -125,12 +171,18 @@ class AuthService {
   // ---------------------------------------------------------------------------
   Future<Map<String, dynamic>> resendVerificationCode(String email) async {
     try {
-      return await _api.post(
+      print('🔄 Renvoi du code pour: $email');
+      
+      final response = await _api.post(
         'auth/resend-code',
         {'email': email},
         isProtected: false,
       );
+      
+      print('✅ Code renvoyé: ${response['success']}');
+      return response;
     } catch (e) {
+      print('❌ ERREUR renvoi code: $e');
       rethrow;
     }
   }
@@ -147,6 +199,8 @@ class AuthService {
       String firstName = names.isNotEmpty ? names.first : "";
       String lastName = names.length > 1 ? names.sublist(1).join(" ") : "";
 
+      print('📝 Mise à jour profil: $firstName $lastName');
+
       await _api.put(
         'auth/profile',
         {
@@ -161,7 +215,9 @@ class AuthService {
       await prefs.setString('last_name', lastName);
       await prefs.setString('phone', phone);
       
+      print('✅ Profil mis à jour avec succès');
     } catch (e) {
+      print('❌ ERREUR mise à jour profil: $e');
       rethrow;
     }
   }
@@ -170,9 +226,11 @@ class AuthService {
   // 7. DÉCONNEXION
   // ---------------------------------------------------------------------------
   Future<void> signOut() async {
+    print('👋 Déconnexion...');
     await _api.deleteToken();
     final prefs = await SharedPreferences.getInstance();
     await prefs.clear();
+    print('✅ Déconnexion réussie');
   }
 
   // ---------------------------------------------------------------------------
@@ -180,13 +238,17 @@ class AuthService {
   // ---------------------------------------------------------------------------
   Future<bool> isLoggedIn() async {
     final token = await _api.getToken();
-    return token != null && token.isNotEmpty;
+    final isLogged = token != null && token.isNotEmpty;
+    print('🔑 Utilisateur connecté: $isLogged');
+    return isLogged;
   }
 
   // ---------------------------------------------------------------------------
   // 9. SAUVEGARDE LOCALE
   // ---------------------------------------------------------------------------
   Future<void> _saveUserDataLocally(Map<String, dynamic> userData) async {
+    print('💾 Sauvegarde données utilisateur localement...');
+    
     final prefs = await SharedPreferences.getInstance();
     
     await prefs.setString('user_id', userData['id']?.toString() ?? '');
@@ -197,5 +259,7 @@ class AuthService {
     await prefs.setString('university', userData['university'] ?? '');
     await prefs.setString('profile_type', userData['profile_type'] ?? '');
     await prefs.setDouble('rating', (userData['rating'] as num?)?.toDouble() ?? 5.0);
+    
+    print('✅ Données utilisateur sauvegardées');
   }
 }

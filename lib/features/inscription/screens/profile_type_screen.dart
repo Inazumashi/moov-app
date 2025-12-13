@@ -49,9 +49,10 @@ class ProfileTypeScreen extends StatelessWidget {
               icon: Icons.school_outlined,
               title: 'Étudiant',
               subtitle: 'Je suis étudiant(e) dans cette université',
+              backendValue: 'student', // ✅ En anglais pour le backend
               color: Colors.blue.shade700,
               onTap: () {
-                _navigateToNextScreen(context, 'Étudiant');
+                _navigateToNextScreen(context, 'student'); // ✅ 'student' pas 'Étudiant'
               },
             ),
             _buildProfileCard(
@@ -59,9 +60,10 @@ class ProfileTypeScreen extends StatelessWidget {
               icon: Icons.work_outline,
               title: 'Personnel administratif',
               subtitle: 'Je fais partie du personnel administratif',
+              backendValue: 'staff', // ✅ En anglais pour le backend
               color: Colors.green.shade700,
               onTap: () {
-                _navigateToNextScreen(context, 'Personnel administratif');
+                _navigateToNextScreen(context, 'staff'); // ✅ 'staff' pas 'Personnel administratif'
               },
             ),
             _buildProfileCard(
@@ -69,9 +71,10 @@ class ProfileTypeScreen extends StatelessWidget {
               icon: Icons.people_outline,
               title: 'Enseignant',
               subtitle: 'Je suis enseignant(e) ou chercheur(se)',
+              backendValue: 'professor', // ✅ En anglais pour le backend
               color: Colors.purple.shade700,
               onTap: () {
-                _navigateToNextScreen(context, 'Enseignant');
+                _navigateToNextScreen(context, 'professor'); // ✅ 'professor' pas 'Enseignant'
               },
             ),
             const Spacer(),
@@ -108,8 +111,8 @@ class ProfileTypeScreen extends StatelessWidget {
       MaterialPageRoute(
         builder: (context) => CreateAccountScreen(
           universityName: universityName,
-          profileType: profileType,
-          routes: routes, // ✅ On passe également la liste des trajets
+          profileType: profileType, // ✅ Déjà en anglais
+          routes: routes,
         ),
       ),
     );
@@ -120,6 +123,7 @@ class ProfileTypeScreen extends StatelessWidget {
     required IconData icon,
     required String title,
     required String subtitle,
+    required String backendValue, // ✅ Nouveau paramètre pour la valeur backend
     required Color color,
     required VoidCallback onTap,
   }) {

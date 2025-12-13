@@ -1,36 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:moovapp/features/auth/widgets/auth_textfield.dart';
 import 'package:moovapp/features/inscription/screens/email_verification_screen.dart';
-import 'package:moovapp/features/inscription/screens/routes_config_screen.dart'; // pour RouteInfo
+import 'package:moovapp/features/inscription/screens/routes_config_screen.dart';
 
-// 👇 1. J'ai ajouté cet import pour connecter le backend
-import 'package:moovapp/core/service/auth_service.dart'; 
-
-// --- Modèle pour stocker toutes les infos utilisateur ---
-class UserProfileData {
-  final String nom;
-  final String email;
-  final String? telephone;
-  final String motDePasse;
-  final String universityName;
-  final String profileType;
-  final List<RouteInfo> routes;
-
-  UserProfileData({
-    required this.nom,
-    required this.email,
-    this.telephone,
-    required this.motDePasse,
-    required this.universityName,
-    required this.profileType,
-    required this.routes,
-  });
-}
+// Import du service d'authentification
+import 'package:moovapp/core/service/auth_service.dart';
 
 class CreateAccountScreen extends StatefulWidget {
   final String universityName;
   final String profileType;
-  final List<RouteInfo> routes; // ✅ on reçoit la liste des trajets
+  final List<RouteInfo> routes;
 
   const CreateAccountScreen({
     super.key,
@@ -50,9 +29,8 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
-  // 👇 Instance du service d'authentification
   final AuthService _authService = AuthService();
-  bool _isLoading = false; // Pour éviter de cliquer deux fois
+  bool _isLoading = false;
 
   @override
   void dispose() {
@@ -146,7 +124,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _isLoading ? null : _createAccount, // Désactive si chargement
+                  onPressed: _isLoading ? null : _createAccount,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryColor,
                     foregroundColor: Colors.white,
@@ -180,9 +158,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     );
   }
 
-  // 👇 2. C'EST ICI QUE J'AI FAIT LA CONNEXION AVEC LE BACKEND
   void _createAccount() async {
-    // 1. Validation de base
     if (_nomController.text.isEmpty || 
         _emailController.text.isEmpty || 
         _passwordController.text.isEmpty) {
@@ -195,28 +171,30 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     }
 
     setState(() {
-      _isLoading = true; // Affiche le chargement
+      _isLoading = true;
     });
 
     try {
-      // 2. Appel au AuthService (Communication avec le Backend Node.js)
+      print('🚀 Début de l\'inscription...');
+      
       await _authService.signUp(
         email: _emailController.text,
         password: _passwordController.text,
-        fullName: _nomController.text, // Sera découpé en Nom/Prénom dans le service
+        fullName: _nomController.text,
         universityId: widget.universityName, 
         profileType: widget.profileType,
         phoneNumber: _telephoneController.text,
-        routes: widget.routes, // ✅ Envoi des trajets au backend
+        routes: widget.routes,
       );
 
-      // 3. Si succès, on arrête le chargement
+      print('✅ Inscription réussie, navigation vers vérification...');
+      
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
 
-        // 4. Navigation vers la vérification d'email
+        // Navigation vers l'écran de vérification
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -228,30 +206,45 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       }
 
     } catch (e) {
-      // 5. Gestion des erreurs (ex: Email déjà utilisé)
+      print('❌ Erreur inscription: $e');
+      
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
         
-        // On affiche l'erreur brute ou un message plus sympa
-        // Le `rethrow` dans AuthService envoie l'erreur ici
-        _showError("Erreur lors de l'inscription. Vérifiez votre connexion ou l'email.");
-        print("Erreur inscription: $e");
+        String errorMessage = "Erreur lors de l'inscription";
+        
+        if (e.toString().contains('Email déjà utilisé')) {
+          errorMessage = 'Cet email est déjà utilisé';
+        } else if (e.toString().contains('Email universitaire invalide')) {
+          errorMessage = 'Veuillez utiliser un email universitaire valide';
+        } else if (e.toString().contains('500') || e.toString().contains('serveur')) {
+          errorMessage = 'Erreur serveur. Veuillez réessayer.';
+        }
+        
+        _showError(errorMessage);
       }
     }
   }
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+      ),
     );
   }
 
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
-      child: Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+      child: Text(
+        title,
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+      ),
     );
   }
 
@@ -269,7 +262,7 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
           SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Un code de vérification sera envoyé à votre email universitaire',
+              'Un code de vérification à 6 chiffres sera envoyé à votre email universitaire',
               style: TextStyle(color: Colors.black87),
             ),
           ),
