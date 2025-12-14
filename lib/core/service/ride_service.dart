@@ -92,9 +92,24 @@ class RideService {
   // 2. CORRECTION CRITIQUE : Publication de trajet
   Future<void> publishRide(RideModel ride) async {
     try {
-      // Obtenir les IDs des stations
-      final departureId = await _getStationId(ride.startPoint);
-      final arrivalId = await _getStationId(ride.endPoint);
+      print('📤 Début publication du trajet...');
+      print('   Départ: ${ride.startPoint}');
+      print('   Arrivée: ${ride.endPoint}');
+      
+      // ✅ VÉRIFIER SI ON A DÉJÀ LES IDs DANS LE MODÈLE
+      int? departureId = ride.departureStationId;
+      int? arrivalId = ride.arrivalStationId;
+      
+      // Si on n'a pas les IDs, on les récupère via le nom
+      if (departureId == null) {
+        print('🔍 Recherche ID station départ: ${ride.startPoint}');
+        departureId = await _getStationId(ride.startPoint);
+      }
+      
+      if (arrivalId == null) {
+        print('🔍 Recherche ID station arrivée: ${ride.endPoint}');
+        arrivalId = await _getStationId(ride.endPoint);
+      }
 
       if (departureId == null) {
         throw Exception('Station de départ non trouvée: ${ride.startPoint}');
@@ -102,6 +117,8 @@ class RideService {
       if (arrivalId == null) {
         throw Exception('Station d\'arrivée non trouvée: ${ride.endPoint}');
       }
+
+      print('✅ IDs récupérés: Départ=$departureId, Arrivée=$arrivalId');
 
       // Préparer les données au format backend
       final Map<String, dynamic> rideData = {
@@ -125,10 +142,12 @@ class RideService {
       await _apiService.post(
         'rides',
         rideData,
-        isProtected: true,
+        isProtected: true, // ✅ IMPORTANT: Route protégée
       );
+      
+      print('✅ Trajet publié avec succès!');
     } catch (e) {
-      print('Erreur publication trajet: $e');
+      print('❌ Erreur publication trajet: $e');
       rethrow;
     }
   }
@@ -167,31 +186,54 @@ class RideService {
 
   // Les autres méthodes restent inchangées...
   Future<List<RideModel>> getMyPublishedRides() async {
-    try {
-      final response = await _apiService.get(
-        'rides/my-rides',
-        isProtected: true,
-      );
-
-      if (response is Map) {
-        final Map<String, dynamic> convertedResponse =
-            _convertMap(response as Map<dynamic, dynamic>);
-
-        if (convertedResponse.containsKey('rides')) {
-          final List<dynamic> data = convertedResponse['rides'] ?? [];
-          return data
-              .map((json) => RideModel.fromJson(
-                  _convertMap(json as Map<dynamic, dynamic>)))
-              .toList();
+  try {
+    print('🚗 getMyPublishedRides appelé');
+    
+    final response = await _apiService.get('rides/my-rides', isProtected: true);
+    
+    print('📊 Type réponse: ${response.runtimeType}');
+    
+    if (response is Map && response.containsKey('rides')) {
+      final ridesList = response['rides'] as List;
+      print('📊 Nombre de trajets: ${ridesList.length}');
+      
+      final parsedRides = <RideModel>[];
+      for (var i = 0; i < ridesList.length; i++) {
+        try {
+          final rideJson = ridesList[i] as Map<String, dynamic>;
+          
+          // ✅ DEBUG DÉTAILLÉ
+          print('=' * 50);
+          print('🔍 Trajet $i - Champs disponibles:');
+          rideJson.forEach((key, value) {
+            print('   $key: $value (${value.runtimeType})');
+          });
+          
+          final ride = RideModel.fromJson(rideJson);
+          parsedRides.add(ride);
+          
+          // ✅ VÉRIFICATION
+          print('✅ Trajet parsé:');
+          print('   ID: ${ride.rideId}');
+          print('   Départ: ${ride.startPoint}');
+          print('   Arrivée: ${ride.endPoint}');
+          print('   Date: ${ride.departureTime}');
+          
+        } catch (e, stack) {
+          print('❌ Erreur parsing trajet $i: $e');
+          print('❌ Stack: $stack');
         }
       }
+      return parsedRides;
+    } else {
+      print('❌ Format inattendu ou pas de trajets');
       return [];
-    } catch (e) {
-      print('Erreur trajets publiés: $e');
-      rethrow;
     }
+  } catch (e) {
+    print('❌ ERREUR getMyPublishedRides: $e');
+    rethrow;
   }
-
+}
   Future<void> deleteRide(String rideId) async {
     try {
       await _apiService.delete(

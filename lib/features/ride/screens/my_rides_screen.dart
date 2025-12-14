@@ -22,111 +22,66 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Mes trajets publiés'),
-        backgroundColor: const Color(0xFF1E3A8A),
-        foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () {
-              Provider.of<RideProvider>(context, listen: false)
-                  .loadMyPublishedRides();
-            },
+Widget build(BuildContext context) {
+  final rideProvider = Provider.of<RideProvider>(context);
+  
+  if (rideProvider.isLoading) {
+    return Center(child: CircularProgressIndicator());
+  }
+  
+  if (rideProvider.error.isNotEmpty) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('Erreur: ${rideProvider.error}'),
+          ElevatedButton(
+            onPressed: () => rideProvider.loadMyPublishedRides(),
+            child: Text('Réessayer'),
           ),
         ],
       ),
-      body: Consumer<RideProvider>(
-        builder: (context, rideProvider, child) {
-          if (rideProvider.isLoading && rideProvider.myPublishedRides.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (rideProvider.error.isNotEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                  const SizedBox(height: 16),
-                  const Text('Erreur de chargement'),
-                  const SizedBox(height: 8),
-                  Text(rideProvider.error),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () => rideProvider.loadMyPublishedRides(),
-                    child: const Text('Réessayer'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          if (rideProvider.myPublishedRides.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.directions_car, size: 80, color: Colors.grey[400]),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Aucun trajet publié',
-                    style: TextStyle(fontSize: 20, color: Colors.grey[600]),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Publiez votre premier trajet !',
-                    style: TextStyle(color: Colors.grey[500]),
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const PublishRideScreen(),
-                        ),
-                      );
-                    },
-                    child: const Text('Publier un trajet'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          return RefreshIndicator(
-            onRefresh: () async {
-              await rideProvider.loadMyPublishedRides();
-            },
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: rideProvider.myPublishedRides.length,
-              itemBuilder: (context, index) {
-                final ride = rideProvider.myPublishedRides[index];
-                return _buildRideCard(context, ride, rideProvider);
-              },
-            ),
-          );
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const PublishRideScreen(),
-            ),
-          );
-        },
-        backgroundColor: const Color(0xFF1E3A8A),
-        child: const Icon(Icons.add, color: Colors.white),
+    );
+  }
+  
+  if (rideProvider.myPublishedRides.isEmpty) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.directions_car, size: 64, color: Colors.grey),
+          SizedBox(height: 16),
+          Text('Aucun trajet publié'),
+          Text('Publiez votre premier trajet !', style: TextStyle(color: Colors.grey)),
+        ],
       ),
     );
   }
-
+  
+  // 🔥 ESSAIE D'ABORD UN SEUL TRAJET SIMPLE
+  final firstRide = rideProvider.myPublishedRides.first;
+  return Scaffold(
+    appBar: AppBar(title: Text('Test - 1er trajet')),
+    body: Card(
+      margin: EdgeInsets.all(16),
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('ID: ${firstRide.rideId}'),
+            Text('Départ: ${firstRide.startPoint}'),
+            Text('Arrivée: ${firstRide.endPoint}'),
+            Text('Date: ${firstRide.formattedDate}'),
+            Text('Heure: ${firstRide.formattedTime}'),
+            Text('Places: ${firstRide.availableSeats}'),
+            Text('Prix: ${firstRide.pricePerSeat} DH'),
+          ],
+        ),
+      ),
+    ),
+  );
+}
   Widget _buildRideCard(
       BuildContext context, RideModel ride, RideProvider provider) {
     return Card(

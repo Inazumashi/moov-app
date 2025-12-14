@@ -1,4 +1,5 @@
 // File: lib/core/providers/station_provider.dart
+import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:moovapp/core/models/station_model.dart';
 import 'package:moovapp/core/service/station_service.dart';
@@ -21,31 +22,62 @@ class StationProvider with ChangeNotifier {
   StationProvider() {
     final apiService = ApiService();
     _stationService = StationService(apiService);
+    _initialize();
+  }
+
+  // Initialisation différée pour éviter setState pendant build
+  void _initialize() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadInitialData();
+    });
+  }
+
+  Future<void> _loadInitialData() async {
+    await loadPopularStations();
+    await loadPopularRoutes();
   }
 
   // Getters
-  List<StationModel> get searchResults => _searchResults;
-  List<StationModel> get favoriteStations => _favoriteStations;
-  List<StationModel> get recentStations => _recentStations;
-  List<StationModel> get popularStations => _popularStations;
-  List<StationModel> get nearbyStations => _nearbyStations;
-  List<Map<String, dynamic>> get popularRoutes => _popularRoutes;
+  List<StationModel> get searchResults => List.unmodifiable(_searchResults);
+  List<StationModel> get favoriteStations => List.unmodifiable(_favoriteStations);
+  List<StationModel> get recentStations => List.unmodifiable(_recentStations);
+  List<StationModel> get popularStations => List.unmodifiable(_popularStations);
+  List<StationModel> get nearbyStations => List.unmodifiable(_nearbyStations);
+  List<Map<String, dynamic>> get popularRoutes => List.unmodifiable(_popularRoutes);
   bool get isLoading => _isLoading;
   String get error => _error;
   String get searchQuery => _searchQuery;
+
+  // Méthode pour notifier les changements de façon sécurisée
+  void _safeNotifyListeners() {
+    if (!_isDisposed) {
+      notifyListeners();
+    }
+  }
+
+  bool _isDisposed = false;
+  
+  @override
+  void dispose() {
+    _isDisposed = true;
+    super.dispose();
+  }
 
   // Auto-complétion
   Future<void> searchStations(String query, {int limit = 10}) async {
     if (query.length < 2) {
       _searchResults = [];
-      notifyListeners();
+      // ✅ SOLUTION: Utiliser Future.microtask pour éviter setState pendant build
+      Future.microtask(() => notifyListeners());
       return;
     }
 
     _isLoading = true;
     _error = '';
     _searchQuery = query;
-    notifyListeners();
+    
+    // ✅ SOLUTION: Délai pour éviter setState pendant build
+    Future.microtask(() => notifyListeners());
 
     try {
       _searchResults = await _stationService.autocomplete(query, limit: limit);
@@ -53,23 +85,23 @@ class StationProvider with ChangeNotifier {
       _error = 'Erreur lors de la recherche: $e';
     } finally {
       _isLoading = false;
-      notifyListeners();
+      Future.microtask(() => notifyListeners());
     }
   }
-
   // Stations proches
   Future<void> loadNearbyStations(double lat, double lng, {double radius = 10, int limit = 20}) async {
     _isLoading = true;
     _error = '';
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
       _nearbyStations = await _stationService.nearby(lat, lng, radius: radius, limit: limit);
     } catch (e) {
       _error = 'Erreur stations proches: $e';
+      _nearbyStations = [];
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
@@ -77,15 +109,16 @@ class StationProvider with ChangeNotifier {
   Future<void> loadFavoriteStations({String? type}) async {
     _isLoading = true;
     _error = '';
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
       _favoriteStations = await _stationService.getMyFavorites(type: type);
     } catch (e) {
       _error = 'Erreur chargement favoris: $e';
+      _favoriteStations = [];
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
@@ -93,15 +126,16 @@ class StationProvider with ChangeNotifier {
   Future<void> loadRecentStations({int limit = 10}) async {
     _isLoading = true;
     _error = '';
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
       _recentStations = await _stationService.getRecent(limit: limit);
     } catch (e) {
       _error = 'Erreur stations récentes: $e';
+      _recentStations = [];
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
@@ -109,15 +143,16 @@ class StationProvider with ChangeNotifier {
   Future<void> loadPopularStations({int limit = 10}) async {
     _isLoading = true;
     _error = '';
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
       _popularStations = await _stationService.popular(limit: limit);
     } catch (e) {
       _error = 'Erreur stations populaires: $e';
+      _popularStations = [];
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
@@ -125,15 +160,16 @@ class StationProvider with ChangeNotifier {
   Future<void> loadPopularRoutes({int limit = 10}) async {
     _isLoading = true;
     _error = '';
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
       _popularRoutes = await _stationService.getPopularRoutes(limit: limit);
     } catch (e) {
       _error = 'Erreur itinéraires populaires: $e';
+      _popularRoutes = [];
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
@@ -141,21 +177,20 @@ class StationProvider with ChangeNotifier {
   Future<bool> addToFavorites(StationModel station, {String type = 'both'}) async {
     _isLoading = true;
     _error = '';
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
       final success = await _stationService.addToFavorites(station.id, type: type);
       if (success) {
         await loadFavoriteStations();
       }
-      _isLoading = false;
-      notifyListeners();
       return success;
     } catch (e) {
       _error = 'Erreur ajout favoris: $e';
-      _isLoading = false;
-      notifyListeners();
       return false;
+    } finally {
+      _isLoading = false;
+      _safeNotifyListeners();
     }
   }
 
@@ -163,21 +198,20 @@ class StationProvider with ChangeNotifier {
   Future<bool> removeFromFavorites(StationModel station, {String? type}) async {
     _isLoading = true;
     _error = '';
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
       final success = await _stationService.removeFromFavorites(station.id, type: type);
       if (success) {
         await loadFavoriteStations();
       }
-      _isLoading = false;
-      notifyListeners();
       return success;
     } catch (e) {
       _error = 'Erreur suppression favoris: $e';
-      _isLoading = false;
-      notifyListeners();
       return false;
+    } finally {
+      _isLoading = false;
+      _safeNotifyListeners();
     }
   }
 
@@ -205,7 +239,7 @@ class StationProvider with ChangeNotifier {
   }) async {
     _isLoading = true;
     _error = '';
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
       final result = await _stationService.quickSearch(
@@ -213,43 +247,132 @@ class StationProvider with ChangeNotifier {
         arrival: arrival,
         date: date,
       );
-      _isLoading = false;
-      notifyListeners();
       return result;
     } catch (e) {
       _error = 'Erreur recherche rapide: $e';
-      _isLoading = false;
-      notifyListeners();
       return {'rides': [], 'suggested_departures': [], 'suggested_arrivals': []};
+    } finally {
+      _isLoading = false;
+      _safeNotifyListeners();
     }
   }
 
   // Effacer les erreurs
   void clearError() {
     _error = '';
-    notifyListeners();
+    _safeNotifyListeners();
   }
 
   // Effacer les résultats de recherche
   void clearSearch() {
     _searchResults = [];
     _searchQuery = '';
-    notifyListeners();
+    _safeNotifyListeners();
   }
 
   // Trouver une station par ID
   StationModel? findStationById(int id) {
-    return _searchResults
-        .firstWhere((station) => station.id == id, orElse: () => _favoriteStations
-        .firstWhere((station) => station.id == id, orElse: () => _recentStations
-        .firstWhere((station) => station.id == id, orElse: () => _popularStations
-        .firstWhere((station) => station.id == id, orElse: () => _nearbyStations
-        .firstWhere((station) => station.id == id, orElse: () => StationModel(
-          id: 0,
-          name: 'Inconnue',
-          type: 'landmark',
-          city: '',
-          label: 'Station inconnue',
-        ))))));
+    // Chercher dans toutes les listes
+    final allStations = [
+      ..._searchResults,
+      ..._favoriteStations,
+      ..._recentStations,
+      ..._popularStations,
+      ..._nearbyStations,
+    ];
+    
+    return allStations.firstWhere(
+      (station) => station.id == id,
+      orElse: () => StationModel(
+        id: 0,
+        name: 'Station inconnue',
+        type: 'landmark',
+        city: 'Inconnu',
+        label: 'Station inconnue',
+        address: '',
+        latitude: 0,
+        longitude: 0,
+      ),
+    );
+  }
+
+  // Recherche améliorée pour l'autocomplétion
+  Future<List<StationModel>> enhancedSearch(String query, {int limit = 15}) async {
+    if (query.isEmpty) {
+      return [];
+    }
+
+    try {
+      // Priorité 1: Recherche exacte par nom
+      final exactMatches = _searchResults
+          .where((station) =>
+              station.name.toLowerCase().contains(query.toLowerCase()) ||
+              station.city.toLowerCase().contains(query.toLowerCase()))
+          .toList();
+
+      if (exactMatches.isNotEmpty) {
+        return exactMatches.take(limit).toList();
+      }
+
+      // Priorité 2: Recherche par mots-clés communs
+      final keywordMap = {
+        'gare': ['gare', 'station', 'train'],
+        'aéroport': ['aéroport', 'airport'],
+        'université': ['université', 'univ', 'école', 'faculté'],
+        'campus': ['campus'],
+        'centre': ['centre', 'downtown', 'ville'],
+      };
+
+      for (final entry in keywordMap.entries) {
+        if (entry.value.any((keyword) => query.toLowerCase().contains(keyword))) {
+          return _searchResults
+              .where((station) =>
+                  station.type.contains(entry.key) ||
+                  station.name.toLowerCase().contains(entry.key))
+              .take(limit)
+              .toList();
+        }
+      }
+
+      return _searchResults.take(limit).toList();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  // Méthode pour charger toutes les stations d'une ville
+  Future<List<StationModel>> getStationsByCity(String city) async {
+    _isLoading = true;
+    _error = '';
+    _safeNotifyListeners();
+
+    try {
+      final stations = await _stationService.getStationsByCity(city);
+      return stations;
+    } catch (e) {
+      _error = 'Erreur chargement stations par ville: $e';
+      return [];
+    } finally {
+      _isLoading = false;
+      _safeNotifyListeners();
+    }
+  }
+
+  // Méthode pour charger toutes les stations d'une université
+  Future<List<StationModel>> getStationsByUniversity(int universityId) async {
+    _isLoading = true;
+    _error = '';
+    _safeNotifyListeners();
+
+    try {
+      final stations = await _stationService.getStationsByUniversity(universityId);
+      return stations;
+    } catch (e) {
+      _error = 'Erreur chargement stations université: $e';
+      return [];
+    } finally {
+      _isLoading = false;
+      _safeNotifyListeners();
+    }
   }
 }

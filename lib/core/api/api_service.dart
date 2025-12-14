@@ -142,10 +142,21 @@ class ApiService {
 
     try {
       final headers = await _getHeaders(isProtected: isProtected);
+      
+      // 🔍 VÉRIFICATION DU TOKEN POUR LES ROUTES PROTÉGÉES
+      if (isProtected) {
+        final token = await getToken();
+        if (token == null || token.isEmpty) {
+          print('🔴 Aucun token disponible pour route protégée');
+          throw Exception('Session expirée. Veuillez vous reconnecter.');
+        }
+        print('🔑 Token présent: ${token.substring(0, 20)}...');
+      }
+      
       final response = await http.post(
         url,
         headers: headers,
-        body: json.encode(data), // On convertit les données en JSON
+        body: json.encode(data),
       );
       print('📡 Réponse: ${response.statusCode}');
 

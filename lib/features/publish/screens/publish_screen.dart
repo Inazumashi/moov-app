@@ -1,7 +1,9 @@
+// lib/features/publish/screens/publish_screen.dart - VERSION CORRIGÉE
 import 'package:flutter/material.dart';
 import 'package:moovapp/core/models/ride_model.dart';
 import 'package:moovapp/core/providers/ride_provider.dart';
 import 'package:moovapp/features/publish/widgets/publish_ride_form.dart';
+import 'package:moovapp/features/main_navigation/main_navigation_shell.dart';
 import 'package:provider/provider.dart';
 
 class PublishScreen extends StatefulWidget {
@@ -18,10 +20,8 @@ class _PublishScreenState extends State<PublishScreen> {
   final TextEditingController _arrivalController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _timeController = TextEditingController();
-  final TextEditingController _seatsController =
-      TextEditingController(text: '4');
-  final TextEditingController _priceController =
-      TextEditingController(text: '20');
+  final TextEditingController _seatsController = TextEditingController(text: '4');
+  final TextEditingController _priceController = TextEditingController(text: '20');
   final TextEditingController _vehicleController = TextEditingController();
   final TextEditingController _notesController = TextEditingController();
 
@@ -34,11 +34,11 @@ class _PublishScreenState extends State<PublishScreen> {
   void initState() {
     super.initState();
     // Initialiser la date par défaut (demain)
-    _selectedDate = DateTime.now().add(Duration(days: 1));
+    _selectedDate = DateTime.now().add(const Duration(days: 1));
     _dateController.text = _formatDate(_selectedDate!);
 
     // Initialiser l'heure par défaut (8h00)
-    _selectedTime = TimeOfDay(hour: 8, minute: 0);
+    _selectedTime = const TimeOfDay(hour: 8, minute: 0);
     _timeController.text = _formatTime(_selectedTime!);
   }
 
@@ -69,7 +69,7 @@ class _PublishScreenState extends State<PublishScreen> {
       context: context,
       initialDate: _selectedDate ?? DateTime.now(),
       firstDate: DateTime.now(),
-      lastDate: DateTime.now().add(Duration(days: 365)),
+      lastDate: DateTime.now().add(const Duration(days: 365)),
     );
 
     if (picked != null && picked != _selectedDate) {
@@ -95,33 +95,30 @@ class _PublishScreenState extends State<PublishScreen> {
   }
 
   Future<void> _publishRide() async {
+    // ✅ Validation du formulaire
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
-    // Vérifier que les stations sont sélectionnées
+    // ✅ Vérifier que les stations sont sélectionnées
     if (_departureController.text.isEmpty || _arrivalController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-              'Veuillez sélectionner les stations de départ et d\'arrivée'),
-          backgroundColor: Colors.red,
-        ),
+      _showSnackBar(
+        'Veuillez sélectionner les stations de départ et d\'arrivée',
+        isError: true,
       );
       return;
     }
 
-    // Vérifier que la date et l'heure sont sélectionnées
+    // ✅ Vérifier que la date et l'heure sont sélectionnées
     if (_selectedDate == null || _selectedTime == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Veuillez sélectionner la date et l\'heure'),
-          backgroundColor: Colors.red,
-        ),
+      _showSnackBar(
+        'Veuillez sélectionner la date et l\'heure',
+        isError: true,
       );
       return;
     }
 
+    // ✅ Démarrer le chargement
     setState(() {
       _isLoading = true;
     });
@@ -129,7 +126,7 @@ class _PublishScreenState extends State<PublishScreen> {
     try {
       final rideProvider = Provider.of<RideProvider>(context, listen: false);
 
-      // Combiner date et heure
+      // ✅ Combiner date et heure
       final departureTime = DateTime(
         _selectedDate!.year,
         _selectedDate!.month,
@@ -138,7 +135,7 @@ class _PublishScreenState extends State<PublishScreen> {
         _selectedTime!.minute,
       );
 
-      // Créer le modèle de trajet
+      // ✅ Créer le modèle de trajet
       final ride = RideModel(
         driverId: '', // Le backend remplira avec l'ID du conducteur
         startPoint: _departureController.text,
@@ -146,46 +143,81 @@ class _PublishScreenState extends State<PublishScreen> {
         departureTime: departureTime,
         availableSeats: int.parse(_seatsController.text),
         pricePerSeat: double.parse(_priceController.text),
-        vehicleInfo: _vehicleController.text,
-        notes: _notesController.text,
+        vehicleInfo: _vehicleController.text.isEmpty ? null : _vehicleController.text,
+        notes: _notesController.text.isEmpty ? null : _notesController.text,
         isRegularRide: _isRegularRide,
       );
 
-      // Publier le trajet
+      // ✅ Publier le trajet
       final success = await rideProvider.publishRide(ride);
 
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Trajet publié avec succès!'),
-            backgroundColor: Colors.green,
-          ),
-        );
+      // ✅ CRITIQUE : Vérifier que le widget existe encore après l'opération async
+      if (!mounted) return;
 
-        // Vider le formulaire
-        _clearForm();
-
-        // Retourner à l'écran précédent
-        Navigator.pop(context);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erreur: ${rideProvider.error}'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Erreur: $e'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    } finally {
+      // ✅ Arrêter le chargement
       setState(() {
         _isLoading = false;
       });
+
+      if (success) {
+        // ✅ Afficher le message de succès
+        _showSnackBar(
+          '🎉 Trajet publié avec succès !',
+          isError: false,
+        );
+
+        // ✅ Vider le formulaire
+        _clearForm();
+
+        // ✅ Attendre un peu pour que l'utilisateur voie le message
+        await Future.delayed(const Duration(milliseconds: 800));
+
+        // ✅ CRITIQUE : Revérifier que le widget existe avant de naviguer
+        if (!mounted) return;
+
+        // 💡 Étape 1 : Chercher l'état du Shell de Navigation Parent
+        final MainNavigationShellState? parentState = 
+            context.findAncestorStateOfType<MainNavigationShellState>();
+            
+        if (parentState != null) {
+            // 💡 Étape 2 : L'état a été trouvé, on peut naviguer.
+            // Index 0 = Accueil
+            parentState.navigateTo(0); 
+            
+        } else {
+            // 💡 Étape 3 : Si l'état parent n'est pas trouvé (cause de l'écran blanc)
+            // On affiche un message d'erreur clair dans la console
+            print('🚨 FATAL ERROR: MainNavigationShellState parent non trouvé. Impossible de changer d\'onglet vers l\'Accueil.');
+            
+            // Et on affiche un message d'erreur à l'utilisateur
+            _showSnackBar(
+              'Erreur de navigation après publication. Veuillez redémarrer l\'application.',
+              isError: true,
+            );
+            // Vous pourriez choisir de ne rien faire pour éviter un crash, mais le message est essentiel.
+        }
+      } else {
+        // ✅ Afficher l'erreur
+        _showSnackBar(
+          'Erreur: ${rideProvider.error}',
+          isError: true,
+        );
+      }
+    } catch (e) {
+      // ✅ Gérer les erreurs inattendues
+      print('❌ Erreur lors de la publication: $e');
+      
+      // ✅ Vérifier que le widget existe
+      if (!mounted) return;
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      _showSnackBar(
+        'Erreur inattendue: ${e.toString()}',
+        isError: true,
+      );
     }
   }
 
@@ -194,11 +226,11 @@ class _PublishScreenState extends State<PublishScreen> {
     _arrivalController.clear();
 
     // Réinitialiser la date (demain)
-    _selectedDate = DateTime.now().add(Duration(days: 1));
+    _selectedDate = DateTime.now().add(const Duration(days: 1));
     _dateController.text = _formatDate(_selectedDate!);
 
     // Réinitialiser l'heure (8h00)
-    _selectedTime = TimeOfDay(hour: 8, minute: 0);
+    _selectedTime = const TimeOfDay(hour: 8, minute: 0);
     _timeController.text = _formatTime(_selectedTime!);
 
     // Réinitialiser les autres champs
@@ -207,23 +239,44 @@ class _PublishScreenState extends State<PublishScreen> {
     _vehicleController.clear();
     _notesController.clear();
     _isRegularRide = false;
+
+    setState(() {});
+  }
+
+  // ✅ Méthode helper pour afficher les SnackBars
+  void _showSnackBar(String message, {required bool isError}) {
+    if (!mounted) return;
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: isError ? Colors.red : Colors.green,
+        duration: Duration(seconds: isError ? 4 : 2),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('Publier un trajet'),
+        title: const Text('Publier un trajet'),
+        backgroundColor: colors.primary,
+        foregroundColor: colors.onPrimary,
         actions: [
           IconButton(
-            icon: Icon(Icons.clear),
+            icon: const Icon(Icons.clear),
             onPressed: _clearForm,
             tooltip: 'Effacer le formulaire',
           ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Form(
           key: _formKey,
           child: Column(
@@ -235,10 +288,10 @@ class _PublishScreenState extends State<PublishScreen> {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Theme.of(context).primaryColor,
+                  color: colors.primary,
                 ),
               ),
-              SizedBox(height: 8),
+              const SizedBox(height: 8),
               Text(
                 'Remplissez les informations de votre trajet',
                 style: TextStyle(
@@ -246,9 +299,9 @@ class _PublishScreenState extends State<PublishScreen> {
                   color: Colors.grey[600],
                 ),
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-              // Utiliser le PublishRideForm avec toutes les variables nécessaires
+              // Formulaire
               PublishRideForm(
                 formKey: _formKey,
                 departureController: _departureController,
@@ -275,9 +328,9 @@ class _PublishScreenState extends State<PublishScreen> {
                 },
               ),
 
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
 
-              // Bouton de publication
+              // ✅ Bouton de publication avec gestion du chargement
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton.icon(
@@ -288,15 +341,17 @@ class _PublishScreenState extends State<PublishScreen> {
                           height: 16,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation(Colors.white),
+                            valueColor: AlwaysStoppedAnimation(colors.onPrimary),
                           ),
                         )
-                      : Icon(Icons.send),
-                  label: Text(_isLoading
-                      ? 'Publication en cours...'
-                      : 'Publier le trajet'),
+                      : const Icon(Icons.send),
+                  label: Text(
+                    _isLoading ? 'Publication en cours...' : 'Publier le trajet',
+                  ),
                   style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 16),
+                    backgroundColor: colors.primary,
+                    foregroundColor: colors.onPrimary,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -304,35 +359,35 @@ class _PublishScreenState extends State<PublishScreen> {
                 ),
               ),
 
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
 
               // Informations supplémentaires
               Card(
                 color: Colors.blue[50],
                 child: Padding(
-                  padding: EdgeInsets.all(12),
+                  padding: const EdgeInsets.all(12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.info, color: Colors.blue),
-                          SizedBox(width: 8),
+                          Icon(Icons.info, color: Colors.blue[800]),
+                          const SizedBox(width: 8),
                           Text(
                             'Conseils de publication',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: Colors.blue,
+                              color: Colors.blue[800],
                             ),
                           ),
                         ],
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(
                         '• Sélectionnez les stations dans la liste pour faciliter la recherche\n'
                         '• Les trajets publiés apparaîtront dans les résultats de recherche\n'
                         '• Vous pouvez modifier ou annuler votre trajet plus tard',
-                        style: TextStyle(fontSize: 14),
+                        style: TextStyle(fontSize: 14, color: Colors.blue[900]),
                       ),
                     ],
                   ),

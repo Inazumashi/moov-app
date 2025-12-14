@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:moovapp/features/home/screens/home_screen.dart';
 import 'package:moovapp/features/search/screens/search_screen.dart';
 import 'package:moovapp/features/publish/screens/publish_screen.dart';
@@ -10,30 +9,64 @@ class MainNavigationShell extends StatefulWidget {
   const MainNavigationShell({super.key});
 
   @override
-  State<MainNavigationShell> createState() => _MainNavigationShellState();
+  MainNavigationShellState createState() => MainNavigationShellState();
 }
 
-class _MainNavigationShellState extends State<MainNavigationShell> {
+class MainNavigationShellState extends State<MainNavigationShell> {
   int _selectedIndex = 0;
-
-  static const List<Widget> _screens = <Widget>[
-    HomeScreen(),
-    SearchScreen(),
-    PublishScreen(),
-    FavoritesScreen(),
-    ProfileScreen(),
+  
+  // Configuration des écrans de navigation
+  static final List<Widget> _screens = [
+    const HomeScreen(),
+    const SearchScreen(),
+    const PublishScreen(),
+    const FavoritesScreen(),
+    const ProfileScreen(),
   ];
 
-  void _onItemTapped(int index) {
-    if (index == 2) {
-      setState(() {
-        _selectedIndex = index;
-      });
-    } else {
+  // Configuration des éléments de navigation
+  static const List<BottomNavigationBarItem> _navItems = [
+    BottomNavigationBarItem(
+      icon: Icon(Icons.home_outlined),
+      activeIcon: Icon(Icons.home),
+      label: 'Accueil',
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.search_outlined),
+      activeIcon: Icon(Icons.search),
+      label: 'Rechercher',
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.add_circle_outline, size: 32),
+      activeIcon: Icon(Icons.add_circle, size: 32),
+      label: 'Publier',
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.favorite_border_outlined),
+      activeIcon: Icon(Icons.favorite),
+      label: 'Favoris',
+    ),
+    BottomNavigationBarItem(
+      icon: Icon(Icons.person_outline),
+      activeIcon: Icon(Icons.person),
+      label: 'Profil',
+    ),
+  ];
+
+  // Méthode publique pour naviguer vers un index
+  void navigateTo(int index) {
+    if (index < 0 || index >= _screens.length) return;
+    
+    if (_selectedIndex != index) {
       setState(() {
         _selectedIndex = index;
       });
     }
+  }
+
+  // Gestionnaire de clic sur les items de navigation
+  void _onItemTapped(int index) {
+    navigateTo(index);
   }
 
   @override
@@ -43,49 +76,27 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
 
     return Scaffold(
       backgroundColor: colors.surface,
-
+      
       // Écran actif
-      body: _screens.elementAt(_selectedIndex),
-
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _screens,
+      ),
+      
+      // Barre de navigation inférieure
       bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
-            label: 'Accueil',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search_outlined),
-            activeIcon: Icon(Icons.search),
-            label: 'Rechercher',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.add_circle_outline, size: 32),
-            activeIcon: Icon(Icons.add_circle, size: 32),
-            label: 'Publier',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite_border_outlined),
-            activeIcon: Icon(Icons.favorite),
-            label: 'Favoris',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline),
-            activeIcon: Icon(Icons.person),
-            label: 'Profil',
-          ),
-        ],
-
+        items: _navItems,
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-
-        // --- MODE SOMBRE/CLEAR AUTOMATIQUE ---
+        type: BottomNavigationBarType.fixed,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        selectedFontSize: 12,
+        unselectedFontSize: 12,
         selectedItemColor: colors.primary,
         unselectedItemColor: colors.onSurface.withOpacity(0.6),
         backgroundColor: colors.surface,
-        showUnselectedLabels: true,
-        type: BottomNavigationBarType.fixed,
-        elevation: 5.0,
+        elevation: 8,
       ),
     );
   }

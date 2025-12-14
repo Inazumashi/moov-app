@@ -64,44 +64,30 @@ class StationService {
     }
   }
 
-  // Stations d'une université
-  Future<List<StationModel>> getByUniversity(String universityId) async {
-    try {
-      final response = await _apiService.get(
-        'stations/university/$universityId',
-        isProtected: false,
-      );
 
-      if (response['success'] == true) {
-        final List<dynamic> stations = response['stations'] ?? [];
-        return stations.map((json) => StationModel.fromJson(json)).toList();
-      }
-      return [];
-    } catch (e) {
-      print('Erreur stations université: $e');
-      rethrow;
-    }
+
+  // Dans station_service.dart
+Future<List<StationModel>> getStationsByCity(String city) async {
+  try {
+    final response = await _apiService.get('stations/city/$city');
+    final List<dynamic> data = response['stations'] ?? [];
+    return data.map((json) => StationModel.fromJson(json)).toList();
+  } catch (e) {
+    print('❌ Erreur getStationsByCity: $e');
+    return [];
   }
+}
 
-  // Stations d'une ville
-  Future<List<StationModel>> getByCity(String city) async {
-    try {
-      final response = await _apiService.get(
-        'stations/city/$city',
-        isProtected: false,
-      );
-
-      if (response['success'] == true) {
-        final List<dynamic> stations = response['stations'] ?? [];
-        return stations.map((json) => StationModel.fromJson(json)).toList();
-      }
-      return [];
-    } catch (e) {
-      print('Erreur stations ville: $e');
-      rethrow;
-    }
+Future<List<StationModel>> getStationsByUniversity(int universityId) async {
+  try {
+    final response = await _apiService.get('stations/university/$universityId');
+    final List<dynamic> data = response['stations'] ?? [];
+    return data.map((json) => StationModel.fromJson(json)).toList();
+  } catch (e) {
+    print('❌ Erreur getStationsByUniversity: $e');
+    return [];
   }
-
+}
   // Ajouter une station aux favoris
   Future<bool> addToFavorites(int stationId, {String type = 'both'}) async {
     try {
