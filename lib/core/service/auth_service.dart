@@ -319,8 +319,4 @@ class AuthService {
       rethrow;
     }
   }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> 048ffdf (Correction Recherche)
