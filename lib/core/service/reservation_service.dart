@@ -1,4 +1,4 @@
-// File: lib/core/service/reservation_service.dart
+// File: lib/core/service/reservation_service.dart - CORRIGÉ
 import 'package:moovapp/core/api/api_service.dart';
 
 class ReservationService {
@@ -6,21 +6,28 @@ class ReservationService {
 
   ReservationService(this._apiService);
 
+  // ✅ CORRECTION : Utiliser les bons noms de champs
   Future<Map<String, dynamic>> createReservation({
     required int rideId,
     required int seatsReserved,
   }) async {
     try {
+      print('📤 Création réservation: rideId=$rideId, seats=$seatsReserved');
+      
+      // ✅ CORRECTION : Envoyer avec les noms attendus par le backend
       final response = await _apiService.post('reservations', {
-        'ride_id': rideId,
-        'seats_reserved': seatsReserved,
+        'rideId': rideId,           // ✅ Backend attend 'rideId'
+        'seatsReserved': seatsReserved,  // ✅ Backend attend 'seatsReserved'
       });
+
+      print('✅ Réservation créée avec succès');
 
       return {
         'success': true,
         'data': response,
       };
     } catch (e) {
+      print('❌ Erreur création réservation: $e');
       return {
         'success': false,
         'error': e.toString(),
@@ -30,7 +37,6 @@ class ReservationService {
 
   Future<Map<String, dynamic>> getMyReservations() async {
     try {
-      // Backend routes use '/my-reservations' (see backend routes), not '/my'
       final response = await _apiService.get('reservations/my-reservations');
 
       return {
@@ -38,6 +44,7 @@ class ReservationService {
         'data': response,
       };
     } catch (e) {
+      print('❌ Erreur récupération réservations: $e');
       return {
         'success': false,
         'error': e.toString(),
@@ -45,15 +52,20 @@ class ReservationService {
     }
   }
 
-  // ✅ NOUVELLE MÉTHODE - Annulation réelle
+  // ✅ Annulation de réservation
   Future<Map<String, dynamic>> cancelReservation(int reservationId) async {
     try {
+      print('🚫 Annulation réservation ID: $reservationId');
+      
       await _apiService.delete('reservations/$reservationId');
+
+      print('✅ Réservation annulée avec succès');
 
       return {
         'success': true,
       };
     } catch (e) {
+      print('❌ Erreur annulation réservation: $e');
       return {
         'success': false,
         'error': e.toString(),
@@ -61,15 +73,20 @@ class ReservationService {
     }
   }
 
-  // ✅ NOUVELLE MÉTHODE - Confirmation de réservation
+  // ✅ Confirmation de réservation
   Future<Map<String, dynamic>> confirmReservation(int reservationId) async {
     try {
+      print('✅ Confirmation réservation ID: $reservationId');
+      
       await _apiService.put('reservations/$reservationId/confirm', {});
+
+      print('✅ Réservation confirmée avec succès');
 
       return {
         'success': true,
       };
     } catch (e) {
+      print('❌ Erreur confirmation réservation: $e');
       return {
         'success': false,
         'error': e.toString(),
@@ -80,6 +97,23 @@ class ReservationService {
   Future<Map<String, dynamic>> getReservationDetails(int reservationId) async {
     try {
       final response = await _apiService.get('reservations/$reservationId');
+
+      return {
+        'success': true,
+        'data': response,
+      };
+    } catch (e) {
+      return {
+        'success': false,
+        'error': e.toString(),
+      };
+    }
+  }
+
+  // ✅ NOUVELLE MÉTHODE : Obtenir les statistiques
+  Future<Map<String, dynamic>> getStats() async {
+    try {
+      final response = await _apiService.get('reservations/stats');
 
       return {
         'success': true,

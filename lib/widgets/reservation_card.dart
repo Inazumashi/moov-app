@@ -1,15 +1,18 @@
+// lib/features/reservations/widgets/reservation_card.dart - VERSION COMPLÈTE
 import 'package:flutter/material.dart';
-import '../core/models/reservation.dart';
-import '../../../core/models/ride_model.dart';
+import 'package:moovapp/core/models/reservation.dart';
+import 'package:moovapp/core/models/ride_model.dart';
 
 class ReservationCard extends StatelessWidget {
   final Reservation reservation;
   final VoidCallback? onCancel;
+  final VoidCallback? onViewDetails;
 
   const ReservationCard({
     super.key,
     required this.reservation,
     this.onCancel,
+    this.onViewDetails,
   });
 
   @override
@@ -23,125 +26,224 @@ class ReservationCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Réservation #${reservation.id}',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: colors.onSurface,
+      child: InkWell(
+        onTap: onViewDetails,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // ✅ En-tête avec numéro et statut
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.confirmation_number, 
+                           size: 20, 
+                           color: colors.primary),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Réservation #${reservation.id}',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: colors.onSurface,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: _getStatusColor(reservation.status),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    reservation.statusText.toUpperCase(),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: _getStatusColor(reservation.status),
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            
-            if (reservation.ride != null) ..._buildRideInfo(reservation.ride!),
-            
-            const SizedBox(height: 12),
-            
-            // Places et prix
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Icon(Icons.people, size: 16, color: colors.onSurface.withOpacity(0.6)),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${reservation.seatsReserved} place${reservation.seatsReserved > 1 ? 's' : ''}',
-                      style: TextStyle(
-                        color: colors.onSurface.withOpacity(0.8),
+                    child: Text(
+                      _getStatusText(reservation.status),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 11,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ],
-                ),
-                Text(
-                  '${reservation.totalPrice.toStringAsFixed(0)} DH',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: colors.primary,
                   ),
-                ),
-              ],
-            ),
-            
-            const SizedBox(height: 8),
-            
-            // Date de réservation
-            Row(
-              children: [
-                Icon(Icons.calendar_today, size: 14, color: colors.onSurface.withOpacity(0.5)),
-                const SizedBox(width: 6),
-                Text(
-                  'Réservé le ${reservation.formattedDate} à ${reservation.formattedTime}',
-                  style: TextStyle(
-                    color: colors.onSurface.withOpacity(0.6),
-                    fontSize: 12,
-                  ),
-                ),
-              ],
-            ),
-            
-            // Bouton d'annulation pour les réservations confirmées
-            if (reservation.status == 'confirmed' && onCancel != null) ...[
+                ],
+              ),
+              
               const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: onCancel,
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.red,
-                    side: const BorderSide(color: Colors.red),
-                    shape: RoundedRectangleBorder(
+              
+              // ✅ Informations du trajet
+              if (reservation.ride != null) 
+                ..._buildRideInfo(reservation.ride!, colors),
+              
+              const Divider(height: 24),
+              
+              // ✅ Détails de la réservation
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Places réservées
+                  Row(
+                    children: [
+                      Icon(Icons.people, 
+                           size: 18, 
+                           color: colors.onSurface.withOpacity(0.6)),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${reservation.seatsReserved} place${reservation.seatsReserved > 1 ? 's' : ''}',
+                        style: TextStyle(
+                          color: colors.onSurface.withOpacity(0.8),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
+                  ),
+                  
+                  // Prix total
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: colors.primaryContainer,
                       borderRadius: BorderRadius.circular(8),
                     ),
+                    child: Text(
+                      '${reservation.totalPrice.toStringAsFixed(0)} DH',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: colors.onPrimaryContainer,
+                      ),
+                    ),
                   ),
-                  child: const Text('Annuler la réservation'),
-                ),
+                ],
               ),
+              
+              const SizedBox(height: 12),
+              
+              // ✅ Date de réservation
+              Row(
+                children: [
+                  Icon(Icons.access_time, 
+                       size: 16, 
+                       color: colors.onSurface.withOpacity(0.5)),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Réservé le ${reservation.formattedDate} à ${reservation.formattedTime}',
+                    style: TextStyle(
+                      color: colors.onSurface.withOpacity(0.6),
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+              
+              // ✅ Avertissement pour annulation
+              if (reservation.status == 'confirmed' && onCancel != null) ...[
+                const SizedBox(height: 16),
+                _buildCancellationWarning(reservation, colors),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () => _showCancellationDialog(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    icon: const Icon(Icons.cancel, size: 20),
+                    label: const Text(
+                      'Annuler la réservation',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ],
+              
+              // ✅ Message pour réservations annulées
+              if (reservation.status == 'cancelled') ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.red[50],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.red[200]!),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.info_outline, color: Colors.red[700], size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Cette réservation a été annulée',
+                          style: TextStyle(
+                            color: Colors.red[700],
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              
+              // ✅ Message pour réservations complétées
+              if (reservation.status == 'completed') ...[
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.green[50],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.green[200]!),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.check_circle_outline, 
+                           color: Colors.green[700], 
+                           size: 20),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Trajet complété avec succès',
+                          style: TextStyle(
+                            color: Colors.green[700],
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
   }
 
-  List<Widget> _buildRideInfo(RideModel ride) {
+  List<Widget> _buildRideInfo(RideModel ride, ColorScheme colors) {
     return [
-      // Départ - Arrivée
+      // Départ
       Row(
         children: [
-          Icon(Icons.my_location, size: 16, color: Colors.green[600]),
-          const SizedBox(width: 8),
+          Icon(Icons.my_location, size: 18, color: Colors.green[600]),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
               ride.startPoint,
-              style: const TextStyle(fontWeight: FontWeight.w500),
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 15,
+              ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
@@ -150,70 +252,98 @@ class ReservationCard extends StatelessWidget {
       
       // Ligne verticale
       Padding(
-        padding: const EdgeInsets.only(left: 7, top: 4, bottom: 4),
+        padding: const EdgeInsets.only(left: 8, top: 6, bottom: 6),
         child: Container(
           height: 20,
           width: 2,
-          color: Colors.grey[300],
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.green[600]!, Colors.blue[600]!],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+            ),
+          ),
         ),
       ),
       
       // Arrivée
       Row(
         children: [
-          Icon(Icons.location_on, size: 16, color: Colors.blue[600]),
-          const SizedBox(width: 8),
+          Icon(Icons.location_on, size: 18, color: Colors.blue[600]),
+          const SizedBox(width: 12),
           Expanded(
             child: Text(
               ride.endPoint,
-              style: const TextStyle(fontWeight: FontWeight.w500),
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 15,
+              ),
               overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
       ),
       
-      const SizedBox(height: 8),
+      const SizedBox(height: 12),
       
-      // Date et heure (gestion du nullable)
-      Row(
-        children: [
-          Icon(Icons.access_time, size: 16, color: Colors.grey[600]),
-          const SizedBox(width: 8),
-          Text(
-            ride.departureTime != null 
-              ? _formatDateTime(ride.departureTime!)
-              : 'Date non définie',
-            style: TextStyle(
-              color: Colors.grey[700],
-              fontSize: 14,
+      // Date et heure du trajet
+      Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          color: colors.surfaceVariant.withOpacity(0.5),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.calendar_today, 
+                 size: 16, 
+                 color: colors.onSurfaceVariant),
+            const SizedBox(width: 8),
+            Text(
+              ride.departureTime != null
+                  ? _formatDateTime(ride.departureTime!)
+                  : 'Date non définie',
+              style: TextStyle(
+                color: colors.onSurfaceVariant,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       
       // Informations du conducteur
       if (ride.driverName.isNotEmpty) ...[
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
         Row(
           children: [
-            Icon(Icons.person, size: 16, color: Colors.grey[600]),
+            CircleAvatar(
+              radius: 14,
+              backgroundColor: colors.primaryContainer,
+              child: Icon(
+                Icons.person,
+                size: 16,
+                color: colors.onPrimaryContainer,
+              ),
+            ),
             const SizedBox(width: 8),
             Text(
-              'Conducteur: ${ride.driverName}',
+              ride.driverName,
               style: TextStyle(
-                color: Colors.grey[700],
+                color: colors.onSurface.withOpacity(0.8),
                 fontSize: 14,
+                fontWeight: FontWeight.w500,
               ),
             ),
             if (ride.driverRating > 0) ...[
               const SizedBox(width: 12),
-              Icon(Icons.star, size: 14, color: Colors.amber),
+              Icon(Icons.star, size: 16, color: Colors.amber[600]),
               const SizedBox(width: 4),
               Text(
                 ride.driverRating.toStringAsFixed(1),
                 style: const TextStyle(
-                  fontSize: 13,
+                  fontSize: 14,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -224,8 +354,139 @@ class ReservationCard extends StatelessWidget {
     ];
   }
 
+  // ✅ NOUVEAU : Avertissement sur les conditions d'annulation
+  Widget _buildCancellationWarning(Reservation reservation, ColorScheme colors) {
+    // Calculer le temps restant avant le départ
+    final departureTime = reservation.ride?.departureTime;
+    String warningText = 'L\'annulation est possible jusqu\'à 24h avant le départ.';
+    Color warningColor = Colors.orange[700]!;
+    IconData warningIcon = Icons.info_outline;
+    
+    if (departureTime != null) {
+      final hoursUntilDeparture = departureTime.difference(DateTime.now()).inHours;
+      
+      if (hoursUntilDeparture < 24) {
+        warningText = '⚠️ Moins de 24h avant le départ. Des frais peuvent s\'appliquer.';
+        warningColor = Colors.red[700]!;
+        warningIcon = Icons.warning_amber_rounded;
+      }
+    }
+    
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: warningColor.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: warningColor.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          Icon(warningIcon, color: warningColor, size: 20),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              warningText,
+              style: TextStyle(
+                color: warningColor,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showCancellationDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.orange, size: 28),
+            SizedBox(width: 12),
+            Text('Annuler la réservation ?'),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Êtes-vous sûr de vouloir annuler cette réservation ?',
+              style: TextStyle(fontSize: 15),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.red[50],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '⚠️ Attention :',
+                    style: TextStyle(
+                      color: Colors.red[900],
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    '• Cette action est irréversible\n'
+                    '• Le conducteur sera notifié\n'
+                    '• Des frais peuvent s\'appliquer selon le délai',
+                    style: TextStyle(
+                      color: Colors.red[800],
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Non, garder'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              if (onCancel != null) onCancel!();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('Oui, annuler'),
+          ),
+        ],
+      ),
+    );
+  }
+
   String _formatDateTime(DateTime date) {
     return '${date.day}/${date.month}/${date.year} à ${date.hour}h${date.minute.toString().padLeft(2, '0')}';
+  }
+
+  String _getStatusText(String status) {
+    switch (status.toLowerCase()) {
+      case 'confirmed':
+        return 'CONFIRMÉE';
+      case 'cancelled':
+        return 'ANNULÉE';
+      case 'completed':
+        return 'TERMINÉE';
+      case 'pending':
+        return 'EN ATTENTE';
+      default:
+        return status.toUpperCase();
+    }
   }
 
   Color _getStatusColor(String status) {

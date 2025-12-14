@@ -1,20 +1,19 @@
-// File: lib/features/reservations/screens/book_ride_screen.dart
+// File: lib/features/reservations/screens/book_ride_screen.dart - CORRIGÉ
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:moovapp/core/models/ride_model.dart';
 import 'package:moovapp/core/providers/reservation_provider.dart';
 
-// ✅ Définition de la fonction de rappel
 typedef OnBookingComplete = void Function();
 
 class BookRideScreen extends StatefulWidget {
   final RideModel ride;
-  final OnBookingComplete? onBookingComplete; // ✅ AJOUTEZ LE PARAMÈTRE
+  final OnBookingComplete? onBookingComplete;
 
   const BookRideScreen({
     super.key,
     required this.ride,
-    this.onBookingComplete, // ✅ Assurez-vous qu'il est ici
+    this.onBookingComplete,
   });
 
   @override
@@ -52,11 +51,7 @@ class _BookRideScreenState extends State<BookRideScreen> {
         ),
       );
 
-      // ✅ Appel du callback si fourni
-      if (widget.onBookingComplete != null) {
-        widget.onBookingComplete!();
-      }
-
+      widget.onBookingComplete?.call();
       Navigator.pop(context, true);
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -88,241 +83,214 @@ class _BookRideScreenState extends State<BookRideScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Carte d'information du trajet
-            Card(
-              elevation: 3,
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        const Icon(Icons.location_on,
-                            color: Colors.red, size: 20),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            widget.ride.startPoint,
-                            style: const TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 12),
-                      child: Divider(height: 20),
-                    ),
-                    Row(
-                      children: [
-                        const Icon(Icons.place, color: Colors.green, size: 20),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            widget.ride.endPoint,
-                            style: const TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    const Divider(),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(Icons.person, color: Colors.blue, size: 18),
-                        const SizedBox(width: 8),
-                        Text(widget.ride.driverName.isNotEmpty 
-                            ? widget.ride.driverName 
-                            : 'Conducteur'),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.event, color: Colors.orange, size: 18),
-                        const SizedBox(width: 8),
-                        Text(
-                          _formatDepartureTime(widget.ride),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        const Icon(Icons.attach_money,
-                            color: Colors.green, size: 18),
-                        const SizedBox(width: 8),
-                        Text('${widget.ride.pricePerSeat} DH par place'),
-                      ],
-                    ),
-                    if (widget.ride.vehicleInfo != null && 
-                        widget.ride.vehicleInfo!.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          const Icon(Icons.directions_car,
-                              color: Colors.purple, size: 18),
-                          const SizedBox(width: 8),
-                          Text(widget.ride.vehicleInfo!),
-                        ],
-                      ),
-                    ],
-                    if (widget.ride.scheduleDays != null && 
-                        widget.ride.scheduleDays!.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          const Icon(Icons.repeat, color: Colors.purple, size: 18),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Jours: ${widget.ride.scheduleDays!.join(", ")}',
-                            style: const TextStyle(fontSize: 14),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-            ),
-
+            _buildRideInfoCard(),
             const SizedBox(height: 24),
 
             // Sélection du nombre de places
-            const Text(
-              'Nombre de places à réserver:',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
+            _buildSeatSelection(),
+            const SizedBox(height: 24),
 
+            // Résumé du prix
+            _buildPriceSummary(totalPrice),
+            const SizedBox(height: 32),
+
+            // Bouton de confirmation
+            _buildConfirmationButton(reservationProvider),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRideInfoCard() {
+    return Card(
+      elevation: 3,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
             Row(
               children: [
+                const Icon(Icons.location_on, color: Colors.red, size: 20),
+                const SizedBox(width: 8),
                 Expanded(
-                  child: Slider(
-                    value: _selectedSeats.toDouble(),
-                    min: 1,
-                    max: widget.ride.availableSeats.toDouble(),
-                    divisions: widget.ride.availableSeats > 1 
-                        ? widget.ride.availableSeats - 1 
-                        : 0,
-                    label: _selectedSeats.toString(),
-                    onChanged: (double value) {
-                      setState(() {
-                        _selectedSeats = value.toInt();
-                      });
-                    },
-                  ),
-                ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.blue[50],
-                    borderRadius: BorderRadius.circular(8),
-                  ),
                   child: Text(
-                    '$_selectedSeats',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue[800],
-                    ),
+                    widget.ride.startPoint,
+                    style: const TextStyle(fontWeight: FontWeight.w500),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              'Places disponibles: ${widget.ride.availableSeats}',
-              style: TextStyle(color: Colors.grey[600]),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12),
+              child: Divider(height: 20),
             ),
+            Row(
+              children: [
+                const Icon(Icons.place, color: Colors.green, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    widget.ride.endPoint,
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            const Divider(),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(Icons.person, color: Colors.blue, size: 18),
+                const SizedBox(width: 8),
+                Text(widget.ride.driverName.isNotEmpty
+                    ? widget.ride.driverName
+                    : 'Conducteur'),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const Icon(Icons.event, color: Colors.orange, size: 18),
+                const SizedBox(width: 8),
+                Text(_formatDepartureTime(widget.ride)),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Row(
+              children: [
+                const Icon(Icons.attach_money, color: Colors.green, size: 18),
+                const SizedBox(width: 8),
+                Text('${widget.ride.pricePerSeat} DH par place'),
+              ],
+            ),
+            if (widget.ride.vehicleInfo != null &&
+                widget.ride.vehicleInfo!.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  const Icon(Icons.directions_car,
+                      color: Colors.purple, size: 18),
+                  const SizedBox(width: 8),
+                  Text(widget.ride.vehicleInfo!),
+                ],
+              ),
+            ],
+            if (widget.ride.scheduleDays != null &&
+                widget.ride.scheduleDays!.isNotEmpty) ...[
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  const Icon(Icons.repeat, color: Colors.purple, size: 18),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Jours: ${widget.ride.scheduleDays!.join(", ")}',
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
 
-            const SizedBox(height: 24),
-
-            // Résumé du prix
-            Card(
-              color: Colors.blue[50],
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Total à payer:',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        Text(
-                          '$_selectedSeats place(s) × ${widget.ride.pricePerSeat} DH',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
+  Widget _buildSeatSelection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Nombre de places à réserver:',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: widget.ride.availableSeats > 1
+                  ? Slider(
+                      value: _selectedSeats.toDouble(),
+                      min: 1,
+                      max: widget.ride.availableSeats.toDouble(),
+                      divisions: widget.ride.availableSeats - 1,
+                      label: _selectedSeats.toString(),
+                      onChanged: (double value) {
+                        setState(() {
+                          _selectedSeats = value.toInt();
+                        });
+                      },
+                    )
+                  : Slider(
+                      value: 1.0,
+                      min: 1,
+                      max: 1,
+                      divisions: null,
+                      label: '1',
+                      onChanged: null,
                     ),
-                    Text(
-                      '$totalPrice DH',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue[800],
-                      ),
-                    ),
-                  ],
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.blue[50],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                '$_selectedSeats',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue[800],
                 ),
               ),
             ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Places disponibles: ${widget.ride.availableSeats}',
+          style: TextStyle(color: Colors.grey[600]),
+        ),
+      ],
+    );
+  }
 
-            const SizedBox(height: 32),
-
-            // Bouton de confirmation
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                onPressed: reservationProvider.isLoading
-                    ? null
-                    : () => _bookRide(context),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colors.primary,
-                  foregroundColor: colors.onPrimary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+  Widget _buildPriceSummary(double totalPrice) {
+    return Card(
+      color: Colors.blue[50],
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Total à payer:',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-                child: reservationProvider.isLoading
-                    ? const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          ),
-                          SizedBox(width: 12),
-                          Text('Réservation en cours...'),
-                        ],
-                      )
-                    : const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.check_circle_outline),
-                          SizedBox(width: 8),
-                          Text(
-                            'Confirmer la réservation',
-                            style: TextStyle(fontSize: 16),
-                          ),
-                        ],
-                      ),
+                Text(
+                  '$_selectedSeats place(s) × ${widget.ride.pricePerSeat} DH',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+            Text(
+              '$totalPrice DH',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.blue[800],
               ),
             ),
           ],
@@ -331,13 +299,58 @@ class _BookRideScreenState extends State<BookRideScreen> {
     );
   }
 
-  // Fonction corrigée qui gère DateTime nullable
+  Widget _buildConfirmationButton(ReservationProvider reservationProvider) {
+    return SizedBox(
+      width: double.infinity,
+      height: 56,
+      child: ElevatedButton(
+        onPressed: reservationProvider.isLoading
+            ? null
+            : () => _bookRide(context),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          foregroundColor: Theme.of(context).colorScheme.onPrimary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        child: reservationProvider.isLoading
+            ? const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  ),
+                  SizedBox(width: 12),
+                  Text('Réservation en cours...'),
+                ],
+              )
+            : const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.check_circle_outline),
+                  SizedBox(width: 8),
+                  Text(
+                    'Confirmer la réservation',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+
   String _formatDepartureTime(RideModel ride) {
     if (ride.departureTime != null) {
       final date = ride.departureTime!;
-      return '${date.day}/${date.month}/${date.year} à ${date.hour}h${date.minute.toString().padLeft(2, '0')}';
+      return '${date.day}/${date.month}/${date.year} à '
+          '${date.hour}h${date.minute.toString().padLeft(2, '0')}';
     } else if (ride.scheduleDays != null && ride.scheduleDays!.isNotEmpty) {
-      // C'est un trajet régulier
       final days = ride.scheduleDays!.join(", ");
       final timeSlot = ride.timeSlot ?? "Heure non définie";
       return 'Trajet régulier ($days) - $timeSlot';
