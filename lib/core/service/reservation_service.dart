@@ -30,8 +30,9 @@ class ReservationService {
 
   Future<Map<String, dynamic>> getMyReservations() async {
     try {
-      final response = await _apiService.get('reservations/my');
-      
+      // Backend routes use '/my-reservations' (see backend routes), not '/my'
+      final response = await _apiService.get('reservations/my-reservations');
+
       return {
         'success': true,
         'data': response,
@@ -48,7 +49,7 @@ class ReservationService {
   Future<Map<String, dynamic>> cancelReservation(int reservationId) async {
     try {
       await _apiService.delete('reservations/$reservationId');
-      
+
       return {
         'success': true,
       };
@@ -64,7 +65,7 @@ class ReservationService {
   Future<Map<String, dynamic>> confirmReservation(int reservationId) async {
     try {
       await _apiService.put('reservations/$reservationId/confirm', {});
-      
+
       return {
         'success': true,
       };
@@ -79,7 +80,7 @@ class ReservationService {
   Future<Map<String, dynamic>> getReservationDetails(int reservationId) async {
     try {
       final response = await _apiService.get('reservations/$reservationId');
-      
+
       return {
         'success': true,
         'data': response,

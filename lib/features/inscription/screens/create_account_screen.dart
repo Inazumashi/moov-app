@@ -5,6 +5,7 @@ import 'package:moovapp/features/inscription/screens/routes_config_screen.dart';
 
 // Import du service d'authentification
 import 'package:moovapp/core/service/auth_service.dart';
+import 'dart:convert';
 
 class CreateAccountScreen extends StatefulWidget {
   final String universityName;
@@ -59,7 +60,10 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
           children: [
             Text(
               'Créer un compte',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+              style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18),
             ),
             Text(
               'Rejoignez Moov',
@@ -133,15 +137,16 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: _isLoading 
+                  child: _isLoading
                       ? const SizedBox(
-                          height: 20, 
-                          width: 20, 
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
-                        )
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                              color: Colors.white, strokeWidth: 2))
                       : const Text(
                           'Créer mon compte',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                 ),
               ),
@@ -159,8 +164,8 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
   }
 
   void _createAccount() async {
-    if (_nomController.text.isEmpty || 
-        _emailController.text.isEmpty || 
+    if (_nomController.text.isEmpty ||
+        _emailController.text.isEmpty ||
         _passwordController.text.isEmpty) {
       _showError('Veuillez remplir tous les champs obligatoires');
       return;
@@ -176,19 +181,19 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
 
     try {
       print('🚀 Début de l\'inscription...');
-      
+
       await _authService.signUp(
         email: _emailController.text,
         password: _passwordController.text,
         fullName: _nomController.text,
-        universityId: widget.universityName, 
+        universityId: widget.universityName,
         profileType: widget.profileType,
         phoneNumber: _telephoneController.text,
         routes: widget.routes,
       );
 
       print('✅ Inscription réussie, navigation vers vérification...');
-      
+
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -204,28 +209,44 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
           ),
         );
       }
-
     } catch (e) {
       print('❌ Erreur inscription: $e');
-      
+
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
-        
+
+        final serverMsg = _extractErrorMessage(e);
+
         String errorMessage = "Erreur lors de l'inscription";
-        
-        if (e.toString().contains('Email déjà utilisé')) {
+        if (serverMsg.isNotEmpty) errorMessage = serverMsg;
+
+        // Mappage pour messages plus conviviaux si nécessaire
+        if (errorMessage.contains('email') &&
+            errorMessage.contains('utilisé')) {
           errorMessage = 'Cet email est déjà utilisé';
-        } else if (e.toString().contains('Email universitaire invalide')) {
-          errorMessage = 'Veuillez utiliser un email universitaire valide';
-        } else if (e.toString().contains('500') || e.toString().contains('serveur')) {
-          errorMessage = 'Erreur serveur. Veuillez réessayer.';
         }
-        
+
         _showError(errorMessage);
       }
     }
+  }
+
+  String _extractErrorMessage(Object e) {
+    final raw = e.toString();
+    final jsonStart = raw.indexOf('{');
+    if (jsonStart != -1) {
+      try {
+        final jsonString = raw.substring(jsonStart);
+        final decoded = json.decode(jsonString) as Map<String, dynamic>;
+        if (decoded.containsKey('message'))
+          return decoded['message'].toString();
+      } catch (_) {}
+    }
+    if (raw.startsWith('Exception:'))
+      return raw.replaceFirst('Exception:', '').trim();
+    return raw;
   }
 
   void _showError(String message) {

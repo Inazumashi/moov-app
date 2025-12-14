@@ -7,10 +7,15 @@ import 'package:moovapp/features/inscription/screens/routes_config_screen.dart';
 class AuthProvider with ChangeNotifier {
   final AuthService _authService = AuthService();
 
+  AuthProvider() {
+    // Vérifier automatiquement l'état de connexion et charger l'utilisateur local
+    checkAuthStatus();
+  }
+
   UserModel? _currentUser;
   bool _isLoading = false;
   String _error = '';
-  
+
   bool get isAuthenticated => _currentUser != null;
   UserModel? get currentUser => _currentUser;
   bool get isLoading => _isLoading;
@@ -88,7 +93,8 @@ class AuthProvider with ChangeNotifier {
   }
 
   // --- VÉRIFICATION CODE ---
-  Future<Map<String, dynamic>> verifyEmailCode(String email, String code) async {
+  Future<Map<String, dynamic>> verifyEmailCode(
+      String email, String code) async {
     _isLoading = true;
     notifyListeners();
 
@@ -135,7 +141,7 @@ class AuthProvider with ChangeNotifier {
         fullName: fullName,
         phone: phone,
       );
-      
+
       // Mettre à jour l'utilisateur local
       if (_currentUser != null) {
         _currentUser = UserModel(
@@ -150,7 +156,7 @@ class AuthProvider with ChangeNotifier {
           isPremium: _currentUser!.isPremium,
         );
       }
-      
+
       _isLoading = false;
       notifyListeners();
     } catch (e) {
@@ -173,8 +179,25 @@ class AuthProvider with ChangeNotifier {
     final isLoggedIn = await _authService.isLoggedIn();
     if (!isLoggedIn) {
       _currentUser = null;
+    } else {
+      // Charger l'utilisateur depuis SharedPreferences si possible
+      final localUser = await _authService.getLocalUser();
+      _currentUser = localUser;
     }
     notifyListeners();
+  }
+
+  // Forcer le rafraîchissement du profil depuis le serveur
+  Future<void> refreshProfile() async {
+    try {
+      final updated = await _authService.fetchProfileFromServer();
+      if (updated != null) {
+        _currentUser = updated;
+        notifyListeners();
+      }
+    } catch (e) {
+      print('❌ Erreur refreshProfile: $e');
+    }
   }
 
   // --- EFFACER ERREUR ---

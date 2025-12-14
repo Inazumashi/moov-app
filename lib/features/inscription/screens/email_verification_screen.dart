@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:moovapp/core/service/auth_service.dart';
+import 'package:provider/provider.dart';
+import 'package:moovapp/core/providers/auth_provider.dart';
 import 'package:moovapp/features/main_navigation/main_navigation_shell.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
@@ -11,11 +13,13 @@ class EmailVerificationScreen extends StatefulWidget {
   });
 
   @override
-  State<EmailVerificationScreen> createState() => _EmailVerificationScreenState();
+  State<EmailVerificationScreen> createState() =>
+      _EmailVerificationScreenState();
 }
 
 class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
-  final List<TextEditingController> _codeControllers = List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> _codeControllers =
+      List.generate(6, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
   bool _isLoading = false;
   bool _isResending = false;
@@ -34,7 +38,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
   void _verifyEmail() async {
     final code = _codeControllers.map((c) => c.text).join();
-    
+
     if (code.length != 6) {
       _showError('Veuillez entrer le code complet à 6 chiffres');
       return;
@@ -46,15 +50,25 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
     try {
       print('🔐 Vérification du code pour ${widget.email}...');
-      
+
       // ✅ APPEL RÉEL AU BACKEND
       final response = await _authService.verifyEmailCode(widget.email, code);
-      
+      print('🔍 verifyEmailCode response: $response');
+
       if (response['success'] == true) {
         print('✅ Email vérifié avec succès!');
-        
+
         _showSuccess('Email vérifié avec succès !');
-        
+
+        // Rafraîchir le profil local depuis le serveur pour s'assurer
+        // que le flag `is_verified` est bien pris en compte en base.
+        try {
+          final authProv = Provider.of<AuthProvider>(context, listen: false);
+          await authProv.refreshProfile();
+        } catch (e) {
+          print('⚠️ Impossible de rafraîchir le profil après vérification: $e');
+        }
+
         // Navigation vers l'app principale
         Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
@@ -70,14 +84,16 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
       }
     } catch (e) {
       print('❌ Erreur vérification: $e');
-      
+
       String errorMessage = 'Erreur de vérification';
-      if (e.toString().contains('Code invalide') || e.toString().contains('expiré')) {
+      if (e.toString().contains('Code invalide') ||
+          e.toString().contains('expiré')) {
         errorMessage = 'Code invalide ou expiré';
-      } else if (e.toString().contains('timeout') || e.toString().contains('connexion')) {
+      } else if (e.toString().contains('timeout') ||
+          e.toString().contains('connexion')) {
         errorMessage = 'Problème de connexion. Vérifiez votre internet.';
       }
-      
+
       _showError('$errorMessage. Veuillez réessayer.');
     } finally {
       setState(() {
@@ -93,19 +109,19 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
     try {
       print('🔄 Renvoi du code à ${widget.email}...');
-      
+
       // ✅ APPEL RÉEL AU BACKEND
       final response = await _authService.resendVerificationCode(widget.email);
-      
+
       if (response['success'] == true) {
         _showSuccess('Nouveau code envoyé à ${widget.email}');
-        
+
         // Vider les champs
         for (var controller in _codeControllers) {
           controller.clear();
         }
         _focusNodes[0].requestFocus();
-        
+
         // Afficher le code en mode développement
         if (response['debug_code'] != null) {
           print('🔍 Code de débogage (DEV ONLY): ${response['debug_code']}');
@@ -130,9 +146,10 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
     } else if (value.isEmpty && index > 0) {
       _focusNodes[index - 1].requestFocus();
     }
-    
+
     // Vérifier si tous les champs sont remplis
-    final allFilled = _codeControllers.every((controller) => controller.text.isNotEmpty);
+    final allFilled =
+        _codeControllers.every((controller) => controller.text.isNotEmpty);
     if (allFilled) {
       _verifyEmail();
     }
@@ -186,7 +203,10 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
           children: [
             Text(
               'Vérification de l\'email',
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18),
+              style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18),
             ),
             Text(
               'Sécurisez votre compte',
@@ -219,11 +239,12 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                           color: primaryColor.withOpacity(0.1),
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(Icons.verified_outlined, color: primaryColor, size: 40),
+                        child: Icon(Icons.verified_outlined,
+                            color: primaryColor, size: 40),
                       ),
                     ),
                     const SizedBox(height: 24),
-                    
+
                     // Message principal
                     Text(
                       'Vérifiez votre email universitaire',
@@ -234,7 +255,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    
+
                     Text(
                       'Nous avons envoyé un code à 6 chiffres à :',
                       style: TextStyle(
@@ -243,17 +264,19 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    
+
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: primaryColor.withOpacity(0.05),
                         borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: primaryColor.withOpacity(0.2)),
+                        border:
+                            Border.all(color: primaryColor.withOpacity(0.2)),
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.email_outlined, color: primaryColor, size: 20),
+                          Icon(Icons.email_outlined,
+                              color: primaryColor, size: 20),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
@@ -269,11 +292,11 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    
+
                     // Champ de code
                     _buildCodeInput(),
                     const SizedBox(height: 24),
-                    
+
                     // Bouton "Vérifier"
                     SizedBox(
                       width: double.infinity,
@@ -294,7 +317,8 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                                 width: 22,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2.5,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white),
                                 ),
                               )
                             : const Text(
@@ -307,21 +331,24 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    
+
                     // Bouton "Renvoyer le code"
                     Center(
                       child: TextButton(
-                        onPressed: (_isLoading || _isResending) ? null : _resendCode,
+                        onPressed:
+                            (_isLoading || _isResending) ? null : _resendCode,
                         child: _isResending
                             ? const SizedBox(
                                 height: 18,
                                 width: 18,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
                               )
                             : Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(Icons.refresh, color: primaryColor, size: 18),
+                                  Icon(Icons.refresh,
+                                      color: primaryColor, size: 18),
                                   const SizedBox(width: 8),
                                   Text(
                                     'Renvoyer le code',
@@ -335,16 +362,17 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                               ),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 8),
                     Divider(color: colors.outline.withOpacity(0.3)),
                     const SizedBox(height: 8),
-                    
+
                     // Message d'aide
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.info_outline, color: colors.primary, size: 18),
+                        Icon(Icons.info_outline,
+                            color: colors.primary, size: 18),
                         const SizedBox(width: 10),
                         Expanded(
                           child: Text(
@@ -362,7 +390,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
               ),
             ),
             const SizedBox(height: 32),
-            
+
             // Indicateurs de progression
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -395,7 +423,6 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
           ),
         ),
         const SizedBox(height: 12),
-        
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: List.generate(6, (index) {
@@ -415,7 +442,10 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                 decoration: InputDecoration(
                   counterText: '',
                   filled: true,
-                  fillColor: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.3),
+                  fillColor: Theme.of(context)
+                      .colorScheme
+                      .surfaceVariant
+                      .withOpacity(0.3),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide.none,
@@ -443,7 +473,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
       height: 8,
       width: isActive ? 28 : 8,
       decoration: BoxDecoration(
-        color: isActive ? primaryColor : Theme.of(context).colorScheme.outline.withOpacity(0.3),
+        color: isActive
+            ? primaryColor
+            : Theme.of(context).colorScheme.outline.withOpacity(0.3),
         borderRadius: BorderRadius.circular(4),
       ),
     );

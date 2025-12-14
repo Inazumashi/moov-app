@@ -15,11 +15,8 @@ class AuthService {
   Future<UserModel> signIn(String email, String password) async {
     try {
       final response = await _api.post(
-        'auth/login', 
-        {
-          'email': email, 
-          'password': password
-        },
+        'auth/login',
+        {'email': email, 'password': password},
         isProtected: false,
       );
 
@@ -35,7 +32,7 @@ class AuthService {
       rethrow;
     }
   }
-  
+
   // ---------------------------------------------------------------------------
   // 2. INSCRIPTION (CORRIGÉ AVEC LOGS)
   // ---------------------------------------------------------------------------
@@ -43,10 +40,10 @@ class AuthService {
     required String email,
     required String password,
     required String fullName,
-    required String universityId, 
-    required String profileType, 
+    required String universityId,
+    required String profileType,
     required String phoneNumber,
-    required List<RouteInfo> routes, 
+    required List<RouteInfo> routes,
   }) async {
     try {
       // Découper le nom complet en prénom et nom
@@ -68,13 +65,14 @@ class AuthService {
       final requestData = {
         'email': email,
         'password': password,
-        'first_name': firstName,      
-        'last_name': lastName,        
-        'university': universityId,      // ✅ CORRIGÉ: "university" au lieu de "university_id"
-        'profile_type': profileType,  
-        'phone': phoneNumber, 
-        'student_id': null,        
-        'routes': routesFormatted,    
+        'first_name': firstName,
+        'last_name': lastName,
+        'university':
+            universityId, // ✅ CORRIGÉ: "university" au lieu de "university_id"
+        'profile_type': profileType,
+        'phone': phoneNumber,
+        'student_id': null,
+        'routes': routesFormatted,
       };
 
       // ✅ LOG: Afficher les données avant l'envoi
@@ -130,13 +128,13 @@ class AuthService {
   Future<Map<String, dynamic>> checkUniversityEmail(String email) async {
     try {
       print('📧 Vérification email: $email');
-      
+
       final response = await _api.post(
         'auth/check-email',
         {'email': email},
         isProtected: false,
       );
-      
+
       print('✅ Email vérifié: ${response['success']}');
       return response;
     } catch (e) {
@@ -148,16 +146,19 @@ class AuthService {
   // ---------------------------------------------------------------------------
   // 4. VÉRIFICATION CODE
   // ---------------------------------------------------------------------------
-  Future<Map<String, dynamic>> verifyEmailCode(String email, String code) async {
+  Future<Map<String, dynamic>> verifyEmailCode(
+      String email, String code) async {
     try {
       print('🔐 Vérification code pour: $email');
-      
+
+      // Ce endpoint doit s'exécuter en contexte d'utilisateur (token JWT)
+      // pour que le backend puisse associer la vérification à l'utilisateur.
       final response = await _api.post(
         'auth/verify-code',
         {'email': email, 'code': code},
-        isProtected: false,
+        isProtected: true,
       );
-      
+
       print('✅ Code vérifié: ${response['success']}');
       return response;
     } catch (e) {
@@ -172,13 +173,13 @@ class AuthService {
   Future<Map<String, dynamic>> resendVerificationCode(String email) async {
     try {
       print('🔄 Renvoi du code pour: $email');
-      
+
       final response = await _api.post(
         'auth/resend-code',
         {'email': email},
         isProtected: false,
       );
-      
+
       print('✅ Code renvoyé: ${response['success']}');
       return response;
     } catch (e) {
@@ -214,7 +215,7 @@ class AuthService {
       await prefs.setString('first_name', firstName);
       await prefs.setString('last_name', lastName);
       await prefs.setString('phone', phone);
-      
+
       print('✅ Profil mis à jour avec succès');
     } catch (e) {
       print('❌ ERREUR mise à jour profil: $e');
@@ -248,9 +249,9 @@ class AuthService {
   // ---------------------------------------------------------------------------
   Future<void> _saveUserDataLocally(Map<String, dynamic> userData) async {
     print('💾 Sauvegarde données utilisateur localement...');
-    
+
     final prefs = await SharedPreferences.getInstance();
-    
+
     await prefs.setString('user_id', userData['id']?.toString() ?? '');
     await prefs.setString('email', userData['email'] ?? '');
     await prefs.setString('first_name', userData['first_name'] ?? '');
@@ -258,8 +259,64 @@ class AuthService {
     await prefs.setString('phone', userData['phone'] ?? '');
     await prefs.setString('university', userData['university'] ?? '');
     await prefs.setString('profile_type', userData['profile_type'] ?? '');
-    await prefs.setDouble('rating', (userData['rating'] as num?)?.toDouble() ?? 5.0);
-    
+    await prefs.setDouble(
+        'rating', (userData['rating'] as num?)?.toDouble() ?? 5.0);
+
     print('✅ Données utilisateur sauvegardées');
+  }
+
+  // ---------------------------------------------------------------------------
+  // LIRE L'UTILISATEUR LOCALEMENT
+  // ---------------------------------------------------------------------------
+  Future<UserModel?> getLocalUser() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final id = prefs.getString('user_id') ?? '';
+      if (id.isEmpty) return null;
+
+      final firstName = prefs.getString('first_name') ?? '';
+      final lastName = prefs.getString('last_name') ?? '';
+      final fullName =
+          [firstName, lastName].where((s) => s.isNotEmpty).join(' ').trim();
+
+      final email = prefs.getString('email') ?? '';
+      final university = prefs.getString('university') ?? '';
+      final profileType = prefs.getString('profile_type') ?? '';
+      final phone = prefs.getString('phone') ?? '';
+      final rating = prefs.getDouble('rating') ?? 0.0;
+      final rides = prefs.getInt('rides_count') ?? 0;
+      final isPremium = prefs.getBool('is_premium') ?? false;
+
+      return UserModel(
+        uid: id,
+        email: email,
+        fullName: fullName,
+        universityId: university,
+        profileType: profileType,
+        phoneNumber: phone,
+        averageRating: rating,
+        ridesCompleted: rides,
+        isPremium: isPremium,
+      );
+    } catch (e) {
+      print('❌ Erreur lecture utilisateur local: $e');
+      return null;
+    }
+  }
+
+  // Récupérer le profil utilisateur depuis le backend (route protégée)
+  Future<UserModel?> fetchProfileFromServer() async {
+    try {
+      final response = await _api.get('auth/profile');
+      if (response != null && response['user'] != null) {
+        final userData = response['user'] as Map<String, dynamic>;
+        await _saveUserDataLocally(userData);
+        return UserModel.fromJson(userData);
+      }
+      return null;
+    } catch (e) {
+      print('❌ Erreur fetchProfileFromServer: $e');
+      rethrow;
+    }
   }
 }

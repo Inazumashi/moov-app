@@ -1,11 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'package:moovapp/features/home/widgets/my_reservations_widget.dart';
-import 'package:moovapp/features/home/widgets/ride_to_rate_card.dart';
 import 'package:moovapp/features/premium/screens/premium_screen.dart';
+import 'package:moovapp/features/ride/screens/my_rides_screen.dart';
+import 'package:moovapp/core/providers/auth_provider.dart';
+import 'package:moovapp/core/providers/ride_provider.dart';
+import 'package:moovapp/core/providers/reservation_provider.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final rideProv = Provider.of<RideProvider>(context, listen: false);
+      final resProv = Provider.of<ReservationProvider>(context, listen: false);
+      rideProv.refreshAllData();
+      resProv.loadReservations();
+    });
+  }
 
   // ------------------------------------------------------------
   // POP-UP NOTATION
@@ -127,24 +147,33 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final auth = Provider.of<AuthProvider>(context);
+    final rideProv = Provider.of<RideProvider>(context);
+
+    final user = auth.currentUser;
+
+    final ridesCount = user?.ridesCompleted ?? 0;
+    final rating = (user?.averageRating ?? 0.0).toStringAsFixed(1);
 
     return Scaffold(
       backgroundColor: cs.surface,
       appBar: AppBar(
         backgroundColor: cs.primary,
-        title: const Column(
+        title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Bonjour 👋',
-              style: TextStyle(
+              user?.fullName != null && user!.fullName.isNotEmpty
+                  ? 'Bonjour, ${user.fullName.split(' ').first} 👋'
+                  : 'Bonjour 👋',
+              style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 22),
             ),
             Text(
-              'uir - Étudiant',
-              style: TextStyle(color: Colors.white70, fontSize: 14),
+              user?.universityId ?? 'Étudiant',
+              style: const TextStyle(color: Colors.white70, fontSize: 14),
             ),
           ],
         ),
@@ -154,9 +183,9 @@ class HomeScreen extends StatelessWidget {
                 color: Colors.orange.shade300, size: 28),
             onPressed: () {
               Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const PremiumScreen()),
-              );
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const PremiumScreen()));
             },
           ),
           IconButton(
@@ -177,9 +206,7 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // --------------------------------------------------------
-            // CARTE DES TRAJETS DISPONIBLES
-            // --------------------------------------------------------
+            // Carte (garder)
             Card(
               elevation: 0.5,
               color: cs.primary.withOpacity(0.1),
@@ -193,80 +220,98 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     Icon(Icons.map_outlined, size: 36, color: cs.primary),
                     const SizedBox(width: 16),
-                    Text(
-                      'Carte des trajets disponibles',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: cs.primary,
-                      ),
-                    ),
+                    Text('Carte des trajets disponibles',
+                        style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: cs.primary)),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: 24),
 
-            // --------------------------------------------------------
-            // TRAJETS À NOTER
-            // --------------------------------------------------------
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Trajets à noter',
-                  style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: cs.onSurface),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: cs.error,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(
-                    '1',
-                    style: TextStyle(
-                        color: cs.onError,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 12),
-            RideToRateCard(onRatePressed: () => _showRatingDialog(context)),
-            const SizedBox(height: 24),
-
-            // --------------------------------------------------------
-            // STATISTIQUES
-            // --------------------------------------------------------
+            // Statistiques de l'utilisateur
             Row(
               children: [
-                _buildStatCard('12', 'Trajets', cs.primary),
+                _buildStatCard(ridesCount.toString(), 'Trajets', cs.primary),
                 const SizedBox(width: 12),
-                _buildStatCard('4.9', 'Note', cs.tertiary),
+                _buildStatCard(rating, 'Note', cs.tertiary),
                 const SizedBox(width: 12),
-                _buildStatCard('350', 'MAD Économisés', cs.secondary),
+                _buildStatCard('0', 'MAD Économisés', cs.secondary),
               ],
             ),
             const SizedBox(height: 24),
 
-            // --------------------------------------------------------
-            // MES RÉSERVATIONS
-            // --------------------------------------------------------
-            Text(
-              'Mes réservations',
-              style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: cs.onSurface),
-            ),
+            // Mes réservations réelles
+            Text('Mes réservations',
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: cs.onSurface)),
             const SizedBox(height: 12),
             const MyReservationsWidget(),
+            const SizedBox(height: 24),
+
+            // Mes trajets publiés
+            Text('Mes trajets publiés',
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: cs.onSurface)),
+            const SizedBox(height: 12),
+            if (rideProv.myPublishedRides.isEmpty)
+              Card(
+                elevation: 0.5,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Expanded(
+                        child: Text('Aucun trajet publié pour le moment.'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const MyRidesScreen())),
+                        child: const Text('Publier'),
+                      )
+                    ],
+                  ),
+                ),
+              )
+            else
+              Column(
+                children: rideProv.myPublishedRides.map((ride) {
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    child: ListTile(
+                      title: Text('${ride.startPoint} → ${ride.endPoint}'),
+                      subtitle: Text(ride.departureTime != null
+                          ? '${ride.formattedDate} • ${ride.formattedTime}'
+                          : 'Date non définie'),
+                      trailing: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('${ride.availableSeats} places'),
+                          const SizedBox(height: 4),
+                          Text('${ride.pricePerSeat} DH',
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold)),
+                        ],
+                      ),
+                      onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const MyRidesScreen())),
+                    ),
+                  );
+                }).toList(),
+              ),
           ],
         ),
       ),

@@ -89,7 +89,8 @@ class ApiService {
     // Code 401 (Non autorisé) : Le token est invalide ou expiré
     else if (response.statusCode == 401) {
       deleteToken(); // On supprime le token localement
-      throw Exception('Session expirée. Veuillez vous reconnecter.');
+      final body = response.body.isNotEmpty ? ' - ${response.body}' : '';
+      throw Exception('Session expirée. Veuillez vous reconnecter.$body');
     }
 
     // Code 400 (Bad Request)
@@ -109,7 +110,9 @@ class ApiService {
         final errorData = json.decode(response.body);
         throw Exception(errorData['message'] ?? 'Erreur inconnue');
       } catch (e) {
-        throw Exception('Erreur serveur (${response.statusCode})');
+        // Inclure le corps de la réponse pour faciliter le debug (peut contenir JSON ou texte)
+        final body = response.body.isNotEmpty ? ' - ${response.body}' : '';
+        throw Exception('Erreur serveur (${response.statusCode})$body');
       }
     }
   }
@@ -129,7 +132,7 @@ class ApiService {
       return _handleResponse(response);
     } catch (e) {
       print('❌ Erreur GET: $e');
-      throw Exception('Erreur de connexion : $e');
+      rethrow;
     }
   }
 
@@ -142,7 +145,7 @@ class ApiService {
 
     try {
       final headers = await _getHeaders(isProtected: isProtected);
-      
+
       // 🔍 VÉRIFICATION DU TOKEN POUR LES ROUTES PROTÉGÉES
       if (isProtected) {
         final token = await getToken();
@@ -152,7 +155,7 @@ class ApiService {
         }
         print('🔑 Token présent: ${token.substring(0, 20)}...');
       }
-      
+
       final response = await http.post(
         url,
         headers: headers,
@@ -163,7 +166,7 @@ class ApiService {
       return _handleResponse(response);
     } catch (e) {
       print('❌ Erreur POST: $e');
-      throw Exception('Erreur de connexion : $e');
+      rethrow;
     }
   }
 
@@ -181,7 +184,8 @@ class ApiService {
       );
       return _handleResponse(response);
     } catch (e) {
-      throw Exception('Erreur PUT: $e');
+      print('❌ Erreur PUT: $e');
+      rethrow;
     }
   }
 
@@ -204,7 +208,8 @@ class ApiService {
       final response = await http.Response.fromStream(streamedResponse);
       return _handleResponse(response);
     } catch (e) {
-      throw Exception('Erreur DELETE: $e');
+      print('❌ Erreur DELETE: $e');
+      rethrow;
     }
   }
 }

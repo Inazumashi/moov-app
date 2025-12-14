@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:moovapp/features/premium/screens/premium_screen.dart';
 import 'package:moovapp/features/auth/screens/welcome_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:moovapp/core/providers/auth_provider.dart';
 import '../widgets/profile_activity_item.dart';
+import 'package:provider/provider.dart';
+import 'package:moovapp/core/providers/reservation_provider.dart';
 import '../widgets/profile_menu_item.dart';
 import '../widgets/profile_header.dart';
 import '../widgets/profile_stat_card.dart';
@@ -46,13 +50,31 @@ class ProfileScreen extends StatelessWidget {
                 },
               ),
             ],
-            flexibleSpace: const FlexibleSpaceBar(
-              background: ProfileHeader(
-                name: 'Ahmed Benali',
-                email: 'ahmed.benali@um6p.ma',
-                avatarInitials: 'AB',
-                universityInfo: 'UM6P - Étudiant',
-              ),
+            flexibleSpace: FlexibleSpaceBar(
+              background: Builder(builder: (context) {
+                final auth = Provider.of<AuthProvider>(context);
+                final user = auth.currentUser;
+
+                final name = user?.fullName ?? 'Utilisateur';
+                final email = user?.email ?? '—';
+                final uni = user?.universityId ?? '';
+                final avatarInitials = name.isNotEmpty
+                    ? name
+                        .split(' ')
+                        .map((s) => s.isNotEmpty ? s[0] : '')
+                        .take(2)
+                        .join()
+                        .toUpperCase()
+                    : 'U';
+
+                return ProfileHeader(
+                  name: name,
+                  email: email,
+                  avatarInitials: avatarInitials,
+                  universityInfo:
+                      uni.isNotEmpty ? uni : 'Université non renseignée',
+                );
+              }),
               collapseMode: CollapseMode.pin,
             ),
           ),
@@ -191,14 +213,18 @@ class ProfileScreen extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'ahmed.benali@um6p.ma',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: colors.onSurface,
-                      ),
-                    ),
+                    Builder(builder: (context) {
+                      final user =
+                          Provider.of<AuthProvider>(context).currentUser;
+                      return Text(
+                        user?.email ?? '—',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: colors.onSurface,
+                        ),
+                      );
+                    }),
                     Text(
                       'Email universitaire vérifié',
                       style: TextStyle(
@@ -219,14 +245,21 @@ class ProfileScreen extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'Non renseigné',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: colors.onSurface.withOpacity(0.5),
-                      ),
-                    ),
+                    Builder(builder: (context) {
+                      final user =
+                          Provider.of<AuthProvider>(context).currentUser;
+                      final phone = user?.phoneNumber;
+                      return Text(
+                        phone != null && phone.isNotEmpty
+                            ? phone
+                            : 'Non renseigné',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: colors.onSurface.withOpacity(0.5),
+                        ),
+                      );
+                    }),
                     Text(
                       'Numéro de téléphone (optionnel)',
                       style: TextStyle(
@@ -278,30 +311,41 @@ class ProfileScreen extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: ProfileStatCard(
-              icon: Icons.directions_car_filled_outlined,
-              value: '12',
-              label: 'Trajets effectués',
-              iconColor: colors.primary,
-            ),
+            child: Builder(builder: (context) {
+              final user = Provider.of<AuthProvider>(context).currentUser;
+              return ProfileStatCard(
+                icon: Icons.directions_car_filled_outlined,
+                value: (user?.ridesCompleted ?? 0).toString(),
+                label: 'Trajets effectués',
+                iconColor: colors.primary,
+              );
+            }),
           ),
           const SizedBox(width: 12),
-          const Expanded(
-            child: ProfileStatCard(
-              icon: Icons.star_border_outlined,
-              value: '4.9',
-              label: 'Note moyenne',
-              iconColor: Colors.orange,
-            ),
+          Expanded(
+            child: Builder(builder: (context) {
+              final user = Provider.of<AuthProvider>(context).currentUser;
+              final rating = (user?.averageRating ?? 0.0).toStringAsFixed(1);
+              return ProfileStatCard(
+                icon: Icons.star_border_outlined,
+                value: rating,
+                label: 'Note moyenne',
+                iconColor: Colors.orange,
+              );
+            }),
           ),
           const SizedBox(width: 12),
-          const Expanded(
-            child: ProfileStatCard(
-              icon: Icons.people_outline,
-              value: '28',
-              label: 'Passagers',
-              iconColor: Colors.green,
-            ),
+          Expanded(
+            child: Builder(builder: (context) {
+              // Si vous avez un champ passagers, remplacez-le ici
+              final passengers = 0;
+              return ProfileStatCard(
+                icon: Icons.people_outline,
+                value: passengers.toString(),
+                label: 'Passagers',
+                iconColor: Colors.green,
+              );
+            }),
           ),
         ],
       ),
@@ -329,21 +373,44 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            ProfileActivityItem(
-              icon: Icons.directions_car_outlined,
-              iconBgColor: colors.primary,
-              title: 'Trajet complété',
-              subtitle: 'Ben Guerir → UM6P Campus',
-              trailing: 'Hier',
-            ),
-            Divider(height: 24, color: colors.onSurface.withOpacity(0.2)),
-            ProfileActivityItem(
-              icon: Icons.star_outline,
-              iconBgColor: colors.primary,
-              title: 'Nouvel avis reçu',
-              subtitle: '5 étoiles de Fatima Z.',
-              trailing: '2j',
-            ),
+            Builder(builder: (context) {
+              final provider = Provider.of<ReservationProvider>(context);
+              if (provider.isLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              final recent = provider.reservations;
+              if (recent.isEmpty) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12.0),
+                  child: Text('Aucune activité récente',
+                      style: TextStyle(color: colors.onSurfaceVariant)),
+                );
+              }
+
+              // Afficher jusqu'à 3 activités issues des réservations
+              final items = recent.take(3).map((r) {
+                final ride = r.ride;
+                final title = ride != null ? ride.displayRoute : 'Réservation';
+                final subtitle =
+                    ride != null ? ride.formattedDate : r.formattedDate;
+                final trailing =
+                    ride != null ? ride.formattedTime : r.formattedTime;
+
+                return Column(children: [
+                  ProfileActivityItem(
+                    icon: Icons.directions_car_outlined,
+                    iconBgColor: colors.primary,
+                    title: title,
+                    subtitle: subtitle,
+                    trailing: trailing,
+                  ),
+                  Divider(height: 24, color: colors.onSurface.withOpacity(0.2)),
+                ]);
+              }).toList();
+
+              return Column(children: items);
+            }),
           ],
         ),
       ),
@@ -448,12 +515,15 @@ class ProfileScreen extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: TextButton(
-        onPressed: () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const WelcomeScreen()),
-       );
-
+        onPressed: () async {
+          final auth = Provider.of<AuthProvider>(context, listen: false);
+          await auth.logout();
+          if (context.mounted) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const WelcomeScreen()),
+            );
+          }
         },
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,

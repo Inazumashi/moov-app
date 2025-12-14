@@ -15,6 +15,15 @@ bool isAcademicEmail(String email) {
     // ...
   ];
 
-  final domain = email.split('@').length == 2 ? email.split('@').last.toLowerCase() : '';
+  final domain =
+      email.split('@').length == 2 ? email.split('@').last.toLowerCase() : '';
   return domain.isNotEmpty && allowedDomains.contains(domain);
+}
+
+// Validation simple de la syntaxe d'un email (utilisée pour les formulaires de connexion)
+bool isValidEmail(String email) {
+  if (email.isEmpty) return false;
+  // Autorise sous-domaines (ex: user@dept.univ.ac.ma)
+  final regex = RegExp(r"^[\w\-.]+@([\w\-]+\.)+[a-zA-Z]{2,}");
+  return regex.hasMatch(email);
 }

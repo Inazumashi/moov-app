@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:moovapp/features/auth/widgets/auth_textfield.dart';
 import 'package:moovapp/features/inscription/screens/routes_config_screen.dart';
 import 'package:moovapp/features/main_navigation/main_navigation_shell.dart';
-//import 'package:moovapp/utils/email_utils.dart';
+import 'package:provider/provider.dart';
+import 'package:moovapp/core/providers/auth_provider.dart';
+import 'package:moovapp/utils/email_utils.dart';
+import 'dart:convert';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -36,12 +39,6 @@ class _LoginScreenState extends State<LoginScreen> {
   /* -------------------------------------------------------------------------- */
   /*                           VALIDATION EMAIL UNIV                            */
   /* -------------------------------------------------------------------------- */
-
-  bool isAcademicEmail(String email) {
-    return RegExp(
-      r'^[a-zA-Z0-9._%+-]+@(um6p\.ma|uir\.ma|uic\.ma|aui\.ac\.ma|alakhawayn\.ma)$',
-    ).hasMatch(email);
-  }
 
   /* -------------------------------------------------------------------------- */
   /*                               SNACKBAR UTILS                               */
@@ -87,27 +84,50 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    if (!isAcademicEmail(email)) {
-      _showError('Veuillez utiliser un email universitaire valide');
+    if (!isValidEmail(email)) {
+      _showError('Veuillez entrer une adresse email valide');
       return;
     }
 
     setState(() => _isLoading = true);
-
-    await Future.delayed(const Duration(seconds: 2));
-
     try {
-      Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (context) => const MainNavigationShell()),
-        (route) => false,
-      );
+      final auth = Provider.of<AuthProvider>(context, listen: false);
+      await auth.login(email, password);
 
-      _showSuccess('Connexion simulée - API en développement');
+      // Succès -> aller à l'écran principal
+      if (context.mounted) {
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => const MainNavigationShell()),
+          (route) => false,
+        );
+      }
     } catch (e) {
-      _showError('Erreur simulée: $e');
+      // Afficher l'erreur retournée par le service (ex: identifiants invalides)
+      _showError(_extractErrorMessage(e));
     } finally {
       setState(() => _isLoading = false);
     }
+  }
+
+  String _extractErrorMessage(Object e) {
+    final raw = e.toString();
+    // Si le message contient un JSON, essayer d'extraire 'message'
+    final jsonStart = raw.indexOf('{');
+    if (jsonStart != -1) {
+      try {
+        final jsonString = raw.substring(jsonStart);
+        final decoded = json.decode(jsonString) as Map<String, dynamic>;
+        if (decoded.containsKey('message'))
+          return decoded['message'].toString();
+      } catch (_) {
+        // ignore
+      }
+    }
+
+    // Retirer le préfixe Exception: si présent
+    if (raw.startsWith('Exception:'))
+      return raw.replaceFirst('Exception:', '').trim();
+    return raw;
   }
 
   /* -------------------------------------------------------------------------- */
@@ -204,7 +224,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               AlwaysStoppedAnimation<Color>(colors.onPrimary),
                         )
                       : const Text(
-                          'Se connecter (Mode Test)',
+                          'Se connecter',
                           style: TextStyle(
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),

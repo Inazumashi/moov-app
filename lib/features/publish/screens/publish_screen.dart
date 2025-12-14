@@ -20,8 +20,10 @@ class _PublishScreenState extends State<PublishScreen> {
   final TextEditingController _arrivalController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
   final TextEditingController _timeController = TextEditingController();
-  final TextEditingController _seatsController = TextEditingController(text: '4');
-  final TextEditingController _priceController = TextEditingController(text: '20');
+  final TextEditingController _seatsController =
+      TextEditingController(text: '4');
+  final TextEditingController _priceController =
+      TextEditingController(text: '20');
   final TextEditingController _vehicleController = TextEditingController();
   final TextEditingController _notesController = TextEditingController();
 
@@ -143,7 +145,8 @@ class _PublishScreenState extends State<PublishScreen> {
         departureTime: departureTime,
         availableSeats: int.parse(_seatsController.text),
         pricePerSeat: double.parse(_priceController.text),
-        vehicleInfo: _vehicleController.text.isEmpty ? null : _vehicleController.text,
+        vehicleInfo:
+            _vehicleController.text.isEmpty ? null : _vehicleController.text,
         notes: _notesController.text.isEmpty ? null : _notesController.text,
         isRegularRide: _isRegularRide,
       );
@@ -176,25 +179,28 @@ class _PublishScreenState extends State<PublishScreen> {
         if (!mounted) return;
 
         // 💡 Étape 1 : Chercher l'état du Shell de Navigation Parent
-        final MainNavigationShellState? parentState = 
+        final MainNavigationShellState? parentState =
             context.findAncestorStateOfType<MainNavigationShellState>();
-            
+
         if (parentState != null) {
-            // 💡 Étape 2 : L'état a été trouvé, on peut naviguer.
-            // Index 0 = Accueil
-            parentState.navigateTo(0); 
-            
+          // 💡 Étape 2 : L'état a été trouvé, on peut naviguer.
+          // Index 0 = Accueil
+          parentState.navigateTo(0);
+          // Forcer le rechargement des trajets publiés pour que l'accueil affiche immédiatement le nouveau trajet
+          final rideProv = Provider.of<RideProvider>(context, listen: false);
+          await rideProv.loadMyPublishedRides();
         } else {
-            // 💡 Étape 3 : Si l'état parent n'est pas trouvé (cause de l'écran blanc)
-            // On affiche un message d'erreur clair dans la console
-            print('🚨 FATAL ERROR: MainNavigationShellState parent non trouvé. Impossible de changer d\'onglet vers l\'Accueil.');
-            
-            // Et on affiche un message d'erreur à l'utilisateur
-            _showSnackBar(
-              'Erreur de navigation après publication. Veuillez redémarrer l\'application.',
-              isError: true,
-            );
-            // Vous pourriez choisir de ne rien faire pour éviter un crash, mais le message est essentiel.
+          // 💡 Étape 3 : Si l'état parent n'est pas trouvé (cause de l'écran blanc)
+          // On affiche un message d'erreur clair dans la console
+          print(
+              '🚨 FATAL ERROR: MainNavigationShellState parent non trouvé. Impossible de changer d\'onglet vers l\'Accueil.');
+
+          // Et on affiche un message d'erreur à l'utilisateur
+          _showSnackBar(
+            'Erreur de navigation après publication. Veuillez redémarrer l\'application.',
+            isError: true,
+          );
+          // Vous pourriez choisir de ne rien faire pour éviter un crash, mais le message est essentiel.
         }
       } else {
         // ✅ Afficher l'erreur
@@ -206,7 +212,7 @@ class _PublishScreenState extends State<PublishScreen> {
     } catch (e) {
       // ✅ Gérer les erreurs inattendues
       print('❌ Erreur lors de la publication: $e');
-      
+
       // ✅ Vérifier que le widget existe
       if (!mounted) return;
 
@@ -246,7 +252,7 @@ class _PublishScreenState extends State<PublishScreen> {
   // ✅ Méthode helper pour afficher les SnackBars
   void _showSnackBar(String message, {required bool isError}) {
     if (!mounted) return;
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -341,12 +347,15 @@ class _PublishScreenState extends State<PublishScreen> {
                           height: 16,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation(colors.onPrimary),
+                            valueColor:
+                                AlwaysStoppedAnimation(colors.onPrimary),
                           ),
                         )
                       : const Icon(Icons.send),
                   label: Text(
-                    _isLoading ? 'Publication en cours...' : 'Publier le trajet',
+                    _isLoading
+                        ? 'Publication en cours...'
+                        : 'Publier le trajet',
                   ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: colors.primary,
