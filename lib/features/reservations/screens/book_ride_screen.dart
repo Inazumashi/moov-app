@@ -4,14 +4,17 @@ import 'package:provider/provider.dart';
 import 'package:moovapp/core/models/ride_model.dart';
 import 'package:moovapp/core/providers/reservation_provider.dart';
 
+// ✅ Définition de la fonction de rappel
+typedef OnBookingComplete = void Function();
+
 class BookRideScreen extends StatefulWidget {
   final RideModel ride;
-  final VoidCallback? onReservationSuccess;
+  final OnBookingComplete? onBookingComplete; // ✅ AJOUTEZ LE PARAMÈTRE
 
   const BookRideScreen({
     super.key,
     required this.ride,
-    this.onReservationSuccess,
+    this.onBookingComplete, // ✅ Assurez-vous qu'il est ici
   });
 
   @override
@@ -49,8 +52,9 @@ class _BookRideScreenState extends State<BookRideScreen> {
         ),
       );
 
-      if (widget.onReservationSuccess != null) {
-        widget.onReservationSuccess!();
+      // ✅ Appel du callback si fourni
+      if (widget.onBookingComplete != null) {
+        widget.onBookingComplete!();
       }
 
       Navigator.pop(context, true);
@@ -138,7 +142,7 @@ class _BookRideScreenState extends State<BookRideScreen> {
                         const Icon(Icons.event, color: Colors.orange, size: 18),
                         const SizedBox(width: 8),
                         Text(
-                          _formatDepartureTime(widget.ride), // Fonction corrigée
+                          _formatDepartureTime(widget.ride),
                         ),
                       ],
                     ),
@@ -163,7 +167,6 @@ class _BookRideScreenState extends State<BookRideScreen> {
                         ],
                       ),
                     ],
-                    // Affichage des jours si c'est un trajet régulier
                     if (widget.ride.scheduleDays != null && 
                         widget.ride.scheduleDays!.isNotEmpty) ...[
                       const SizedBox(height: 4),

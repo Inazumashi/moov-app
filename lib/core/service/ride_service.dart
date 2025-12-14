@@ -19,27 +19,22 @@ class RideService {
         .toList();
   }
 
-  // 1. CORRECTION CRITIQUE : Recherche de trajets
+  // 🚀 LOGIQUE MODIFIÉE : Recherche de trajets par IDs (NOUVELLE SIGNATURE)
   Future<List<RideModel>> searchRides({
-    required String from,
-    required String to,
+    required int departureId, // ⭐️ ID DE DÉPART
+    required int arrivalId,   // ⭐️ ID D'ARRIVÉE
     required DateTime date,
   }) async {
     try {
       final String formattedDate = DateFormat('yyyy-MM-dd').format(date);
 
-      // D'abord, obtenir les IDs des stations
-      final departureId = await _getStationId(from);
-      final arrivalId = await _getStationId(to);
+      // 1. Logique de l'URL direct avec les IDs (ce que nous avons testé avec succès)
+      final url = 'rides/search?departure_station_id=$departureId&arrival_station_id=$arrivalId&departure_date=$formattedDate';
+      
+      print('🔍 Requête API: $url'); // 💡 AFFICHEZ LA REQUÊTE POUR LE DÉBOGAGE
 
-      if (departureId == null || arrivalId == null) {
-        throw Exception(
-            'Stations non trouvées. Veuillez sélectionner dans la liste.');
-      }
-
-      // Rechercher avec les IDs
       final response = await _apiService.get(
-        'rides/search?departure_station_id=$departureId&arrival_station_id=$arrivalId&departure_date=$formattedDate',
+        url,
         isProtected: false,
       );
 
@@ -49,11 +44,13 @@ class RideService {
 
         if (convertedResponse.containsKey('rides')) {
           final List<dynamic> data = convertedResponse['rides'] ?? [];
+          print('✅ ${data.length} trajets trouvés.');
           return data
               .map((json) => RideModel.fromJson(
                   _convertMap(json as Map<dynamic, dynamic>)))
               .toList();
         } else if (convertedResponse.containsKey('data')) {
+          // Gérer le format 'data' si l'API est incohérente
           final List<dynamic> data = convertedResponse['data'] ?? [];
           return data
               .map((json) => RideModel.fromJson(
@@ -63,12 +60,13 @@ class RideService {
       }
       return [];
     } catch (e) {
-      print('Erreur recherche trajets: $e');
+      print('❌ Erreur recherche trajets par ID: $e');
       rethrow;
     }
   }
 
-  // Nouvelle méthode : Obtenir l'ID d'une station par son nom
+  // 🛑 MÉTHODE À CONSERVER : Utile pour publishRide ou autres besoins
+  // Obtenir l'ID d'une station par son nom
   Future<int?> _getStationId(String stationName) async {
     try {
       final response = await _apiService.get(
@@ -184,56 +182,58 @@ class RideService {
     }
   }
 
-  // Les autres méthodes restent inchangées...
+  // 4. Charger les trajets publiés par l'utilisateur
   Future<List<RideModel>> getMyPublishedRides() async {
-  try {
-    print('🚗 getMyPublishedRides appelé');
-    
-    final response = await _apiService.get('rides/my-rides', isProtected: true);
-    
-    print('📊 Type réponse: ${response.runtimeType}');
-    
-    if (response is Map && response.containsKey('rides')) {
-      final ridesList = response['rides'] as List;
-      print('📊 Nombre de trajets: ${ridesList.length}');
+    try {
+      print('🚗 getMyPublishedRides appelé');
       
-      final parsedRides = <RideModel>[];
-      for (var i = 0; i < ridesList.length; i++) {
-        try {
-          final rideJson = ridesList[i] as Map<String, dynamic>;
-          
-          // ✅ DEBUG DÉTAILLÉ
-          print('=' * 50);
-          print('🔍 Trajet $i - Champs disponibles:');
-          rideJson.forEach((key, value) {
-            print('   $key: $value (${value.runtimeType})');
-          });
-          
-          final ride = RideModel.fromJson(rideJson);
-          parsedRides.add(ride);
-          
-          // ✅ VÉRIFICATION
-          print('✅ Trajet parsé:');
-          print('   ID: ${ride.rideId}');
-          print('   Départ: ${ride.startPoint}');
-          print('   Arrivée: ${ride.endPoint}');
-          print('   Date: ${ride.departureTime}');
-          
-        } catch (e, stack) {
-          print('❌ Erreur parsing trajet $i: $e');
-          print('❌ Stack: $stack');
+      final response = await _apiService.get('rides/my-rides', isProtected: true);
+      
+      print('📊 Type réponse: ${response.runtimeType}');
+      
+      if (response is Map && response.containsKey('rides')) {
+        final ridesList = response['rides'] as List;
+        print('📊 Nombre de trajets: ${ridesList.length}');
+        
+        final parsedRides = <RideModel>[];
+        for (var i = 0; i < ridesList.length; i++) {
+          try {
+            final rideJson = ridesList[i] as Map<String, dynamic>;
+            
+            // ✅ DEBUG DÉTAILLÉ
+            print('=' * 50);
+            print('🔍 Trajet $i - Champs disponibles:');
+            rideJson.forEach((key, value) {
+              print('   $key: $value (${value.runtimeType})');
+            });
+            
+            final ride = RideModel.fromJson(rideJson);
+            parsedRides.add(ride);
+            
+            // ✅ VÉRIFICATION
+            print('✅ Trajet parsé:');
+            print('   ID: ${ride.rideId}');
+            print('   Départ: ${ride.startPoint}');
+            print('   Arrivée: ${ride.endPoint}');
+            print('   Date: ${ride.departureTime}');
+            
+          } catch (e, stack) {
+            print('❌ Erreur parsing trajet $i: $e');
+            print('❌ Stack: $stack');
+          }
         }
+        return parsedRides;
+      } else {
+        print('❌ Format inattendu ou pas de trajets');
+        return [];
       }
-      return parsedRides;
-    } else {
-      print('❌ Format inattendu ou pas de trajets');
-      return [];
+    } catch (e) {
+      print('❌ ERREUR getMyPublishedRides: $e');
+      rethrow;
     }
-  } catch (e) {
-    print('❌ ERREUR getMyPublishedRides: $e');
-    rethrow;
   }
-}
+
+  // 5. Supprimer un trajet
   Future<void> deleteRide(String rideId) async {
     try {
       await _apiService.delete(
@@ -246,11 +246,12 @@ class RideService {
     }
   }
 
+  // 6. Mettre à jour un trajet
   Future<void> updateRide(RideModel ride) async {
     try {
       await _apiService.put(
         'rides/${ride.rideId}',
-        ride.toJson(),
+        ride.toApiJson(),
         isProtected: true,
       );
     } catch (e) {
@@ -259,6 +260,7 @@ class RideService {
     }
   }
 
+  // 7. Ajouter aux favoris
   Future<void> addToFavorites(String rideId) async {
     try {
       await _apiService.post(
@@ -272,6 +274,7 @@ class RideService {
     }
   }
 
+  // 8. Retirer des favoris
   Future<void> removeFromFavorites(String rideId) async {
     try {
       await _apiService.delete(
@@ -284,6 +287,7 @@ class RideService {
     }
   }
 
+  // 9. Charger les universités
   Future<List<UniversityModel>> getUniversities() async {
     try {
       final response = await _apiService.get(

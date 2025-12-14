@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:moovapp/core/providers/ride_provider.dart';
 import 'package:moovapp/core/providers/auth_provider.dart';
+import 'package:moovapp/core/providers/station_provider.dart';
 import 'package:moovapp/core/models/ride_model.dart';
+import 'package:moovapp/core/models/station_model.dart';
 
 class PublishRideScreen extends StatefulWidget {
   const PublishRideScreen({super.key});
@@ -15,8 +17,13 @@ class PublishRideScreen extends StatefulWidget {
 class _PublishRideScreenState extends State<PublishRideScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  String _startPoint = '';
-  String _endPoint = '';
+  // ✅ CORRECTION : Stocker les objets StationModel complets
+  StationModel? _departureStation;
+  StationModel? _arrivalStation;
+  
+  final TextEditingController _departureController = TextEditingController();
+  final TextEditingController _arrivalController = TextEditingController();
+
   DateTime _departureTime = DateTime.now();
   TimeOfDay _departureTimeOfDay = TimeOfDay.now();
   int _availableSeats = 1;
@@ -24,6 +31,37 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
   String? _vehicleInfo;
   String? _notes;
   bool _isRegularRide = false;
+
+  @override
+  void dispose() {
+    _departureController.dispose();
+    _arrivalController.dispose();
+    super.dispose();
+  }
+
+  // ✅ Méthode pour afficher la recherche de station
+  Future<void> _showStationSearch(BuildContext context, bool isDeparture) async {
+    final stationProvider = Provider.of<StationProvider>(context, listen: false);
+    
+    final station = await showSearch<StationModel?>(
+      context: context,
+      delegate: _StationSearchDelegate(stationProvider),
+    );
+    
+    if (station != null) {
+      setState(() {
+        if (isDeparture) {
+          _departureStation = station;
+          _departureController.text = station.displayName;
+          print('🔍 Station départ sélectionnée: ${station.name} (ID: ${station.id})');
+        } else {
+          _arrivalStation = station;
+          _arrivalController.text = station.displayName;
+          print('🔍 Station arrivée sélectionnée: ${station.name} (ID: ${station.id})');
+        }
+      });
+    }
+  }
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
@@ -65,11 +103,43 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
   }
 
   void _publishRide(BuildContext context) async {
+    // ✅ VALIDATION : Vérifier que les stations sont sélectionnées
+    if (_departureStation == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Veuillez sélectionner une station de départ'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    if (_arrivalStation == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Veuillez sélectionner une station d\'arrivée'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    // Validation des stations différentes
+    if (_departureStation!.id == _arrivalStation!.id) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Les stations de départ et d\'arrivée doivent être différentes'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
 
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final currentUser = authProvider.currentUser; // CORRECTION: .currentUser au lieu de .user
+      final currentUser = authProvider.currentUser;
 
       if (currentUser == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -81,14 +151,21 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
         return;
       }
 
+      print('📤 Début publication du trajet...');
+      print('   Départ: ${_departureStation!.displayName}');
+      print('   Arrivée: ${_arrivalStation!.displayName}');
+
+      // ✅ CORRECTION : Utiliser les IDs des stations
       final ride = RideModel(
-        rideId: '', // Généré par le backend
+        rideId: '',
         driverId: currentUser.uid,
         driverName: currentUser.fullName,
         driverRating: currentUser.averageRating,
         driverIsPremium: currentUser.isPremium,
-        startPoint: _startPoint,
-        endPoint: _endPoint,
+        startPoint: _departureStation!.name,  // Pour l'affichage
+        endPoint: _arrivalStation!.name,      // Pour l'affichage
+        departureStationId: _departureStation!.id,  // ✅ ID pour l'API
+        arrivalStationId: _arrivalStation!.id,      // ✅ ID pour l'API
         departureTime: _departureTime,
         availableSeats: _availableSeats,
         pricePerSeat: _pricePerSeat,
@@ -143,39 +220,53 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
               ),
               const SizedBox(height: 20),
 
-              // Point de départ
-              TextFormField(
-                decoration: const InputDecoration(
+              // ✅ CORRECTION : Point de départ avec recherche
+              TextField(
+                controller: _departureController,
+                decoration: InputDecoration(
                   labelText: 'Point de départ',
-                  prefixIcon: Icon(Icons.location_on, color: Colors.red),
-                  border: OutlineInputBorder(),
-                  hintText: 'Ex: UM6P Campus, Ben Guerir',
+                  prefixIcon: const Icon(Icons.location_on, color: Colors.red),
+                  border: const OutlineInputBorder(),
+                  hintText: 'Rechercher une station...',
+                  suffixIcon: _departureStation != null
+                      ? IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            setState(() {
+                              _departureStation = null;
+                              _departureController.clear();
+                            });
+                          },
+                        )
+                      : null,
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Veuillez saisir un point de départ';
-                  }
-                  return null;
-                },
-                onSaved: (value) => _startPoint = value!,
+                readOnly: true,
+                onTap: () => _showStationSearch(context, true),
               ),
               const SizedBox(height: 16),
 
-              // Point d'arrivée
-              TextFormField(
-                decoration: const InputDecoration(
+              // ✅ CORRECTION : Point d'arrivée avec recherche
+              TextField(
+                controller: _arrivalController,
+                decoration: InputDecoration(
                   labelText: 'Point d\'arrivée',
-                  prefixIcon: Icon(Icons.place, color: Colors.green),
-                  border: OutlineInputBorder(),
-                  hintText: 'Ex: Casablanca, Marrakech',
+                  prefixIcon: const Icon(Icons.place, color: Colors.green),
+                  border: const OutlineInputBorder(),
+                  hintText: 'Rechercher une station...',
+                  suffixIcon: _arrivalStation != null
+                      ? IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            setState(() {
+                              _arrivalStation = null;
+                              _arrivalController.clear();
+                            });
+                          },
+                        )
+                      : null,
                 ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Veuillez saisir un point d\'arrivée';
-                  }
-                  return null;
-                },
-                onSaved: (value) => _endPoint = value!,
+                readOnly: true,
+                onTap: () => _showStationSearch(context, false),
               ),
               const SizedBox(height: 16),
 
@@ -352,4 +443,123 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
       ),
     );
   }
+}
+
+// ✅ SearchDelegate pour la recherche de stations
+class _StationSearchDelegate extends SearchDelegate<StationModel?> {
+  final StationProvider stationProvider;
+
+  _StationSearchDelegate(this.stationProvider);
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      if (query.isNotEmpty)
+        IconButton(
+          icon: const Icon(Icons.clear),
+          onPressed: () {
+            query = '';
+          },
+        ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, null);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    return _buildSuggestionsWidget(context);
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return _buildSuggestionsWidget(context);
+  }
+
+  Widget _buildSuggestionsWidget(BuildContext context) {
+    if (query.isEmpty) {
+      return _buildPopularStationsList(context);
+    }
+
+    stationProvider.searchStations(query);
+
+    return Consumer<StationProvider>(
+      builder: (context, provider, child) {
+        if (provider.isLoading) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (provider.searchResults.isEmpty) {
+          return const Center(
+            child: Text('Aucune station trouvée'),
+          );
+        }
+
+        return ListView(
+          children: provider.searchResults
+              .map((station) => ListTile(
+                    leading: const Icon(Icons.location_on),
+                    title: Text(station.displayName),
+                    subtitle: Text(station.city),
+                    trailing: station.isPopular
+                        ? const Icon(Icons.star, color: Colors.amber, size: 16)
+                        : null,
+                    onTap: () {
+                      close(context, station);
+                    },
+                  ))
+              .toList(),
+        );
+      },
+    );
+  }
+
+  Widget _buildPopularStationsList(BuildContext context) {
+    final popularStations = stationProvider.popularStations;
+
+    if (popularStations.isEmpty) {
+      return const Center(child: Text('Chargement des stations populaires...'));
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Text(
+            'Stations populaires',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+        ),
+        Expanded(
+          child: ListView(
+            children: popularStations
+                .map((station) => ListTile(
+                      leading: const Icon(Icons.location_on),
+                      title: Text(station.displayName),
+                      subtitle: Text(station.city),
+                      trailing: station.isPopular
+                          ? const Icon(Icons.star, color: Colors.amber, size: 16)
+                          : null,
+                      onTap: () {
+                        close(context, station);
+                      },
+                    ))
+                .toList(),
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  String get searchFieldLabel => 'Rechercher une station...';
 }

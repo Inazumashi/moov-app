@@ -15,6 +15,7 @@ class RideProvider with ChangeNotifier {
   bool _isLoading = false;
   String _error = '';
   String _searchQuery = '';
+  bool _disposed = false;
 
   RideProvider() {
     final apiService = ApiService();
@@ -30,27 +31,43 @@ class RideProvider with ChangeNotifier {
   String get error => _error;
   String get searchQuery => _searchQuery;
 
-  // Recherche de trajets
+  // Méthode sécurisée pour notifier les listeners
+  void _safeNotifyListeners() {
+    if (!_disposed) {
+      notifyListeners();
+    }
+  }
+
+  @override
+  void dispose() {
+    _disposed = true;
+    super.dispose();
+  }
+
+  // 🚀 LOGIQUE MODIFIÉE : Recherche de trajets avec IDs de stations
   Future<void> searchRides({
-    required String from,
-    required String to,
+    required int departureId, // ⭐️ ID DE DÉPART
+    required int arrivalId,   // ⭐️ ID D'ARRIVÉE
     required DateTime date,
   }) async {
     _isLoading = true;
     _error = '';
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
       _searchResults = await _rideService.searchRides(
-        from: from,
-        to: to,
+        departureId: departureId,
+        arrivalId: arrivalId,
         date: date,
       );
+      if (_searchResults.isEmpty) {
+        _error = 'Aucun trajet trouvé pour cet itinéraire à cette date.';
+      }
     } catch (e) {
-      _error = 'Erreur lors de la recherche: $e';
+      _error = 'Erreur lors de la recherche des trajets: $e';
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
@@ -58,18 +75,18 @@ class RideProvider with ChangeNotifier {
   Future<bool> publishRide(RideModel ride) async {
     _isLoading = true;
     _error = '';
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
       await _rideService.publishRide(ride);
       await loadMyPublishedRides();
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
       return true;
     } catch (e) {
       _error = 'Erreur lors de la publication: $e';
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
       return false;
     }
   }
@@ -78,7 +95,7 @@ class RideProvider with ChangeNotifier {
   Future<void> loadMyPublishedRides() async {
     _isLoading = true;
     _error = '';
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
       _myPublishedRides = await _rideService.getMyPublishedRides();
@@ -86,7 +103,7 @@ class RideProvider with ChangeNotifier {
       _error = 'Erreur lors du chargement: $e';
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
@@ -94,38 +111,39 @@ class RideProvider with ChangeNotifier {
   Future<bool> deleteRide(String rideId) async {
     _isLoading = true;
     _error = '';
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
       await _rideService.deleteRide(rideId);
       await loadMyPublishedRides();
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
       return true;
     } catch (e) {
       _error = 'Erreur lors de la suppression: $e';
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
       return false;
     }
   }
 
-  // Mettre à jour un trajet
+  // ✅ CORRECTION : Mettre à jour un trajet avec toApiJson()
   Future<bool> updateRide(RideModel ride) async {
     _isLoading = true;
     _error = '';
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
+      // ✅ CORRECTION : Utilisez toApiJson() au lieu de toJson()
       await _rideService.updateRide(ride);
       await loadMyPublishedRides();
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
       return true;
     } catch (e) {
       _error = 'Erreur lors de la mise à jour: $e';
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
       return false;
     }
   }
@@ -134,7 +152,7 @@ class RideProvider with ChangeNotifier {
   Future<void> loadFavoriteRides() async {
     _isLoading = true;
     _error = '';
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
       _favoriteRides = await _rideService.getFavoriteRides();
@@ -142,7 +160,7 @@ class RideProvider with ChangeNotifier {
       _error = 'Erreur lors du chargement des favoris: $e';
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
@@ -150,7 +168,7 @@ class RideProvider with ChangeNotifier {
   Future<void> loadUniversities() async {
     _isLoading = true;
     _error = '';
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
       _universities = await _rideService.getUniversities();
@@ -158,7 +176,7 @@ class RideProvider with ChangeNotifier {
       _error = 'Erreur lors du chargement des universités: $e';
     } finally {
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
     }
   }
 
@@ -166,18 +184,18 @@ class RideProvider with ChangeNotifier {
   Future<bool> addToFavorites(String rideId) async {
     _isLoading = true;
     _error = '';
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
       await _rideService.addToFavorites(rideId);
       await loadFavoriteRides();
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
       return true;
     } catch (e) {
       _error = 'Erreur lors de l\'ajout aux favoris: $e';
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
       return false;
     }
   }
@@ -186,18 +204,18 @@ class RideProvider with ChangeNotifier {
   Future<bool> removeFromFavorites(String rideId) async {
     _isLoading = true;
     _error = '';
-    notifyListeners();
+    _safeNotifyListeners();
 
     try {
       await _rideService.removeFromFavorites(rideId);
       await loadFavoriteRides();
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
       return true;
     } catch (e) {
       _error = 'Erreur lors de la suppression des favoris: $e';
       _isLoading = false;
-      notifyListeners();
+      _safeNotifyListeners();
       return false;
     }
   }
@@ -205,13 +223,13 @@ class RideProvider with ChangeNotifier {
   // Mettre à jour la recherche
   void setSearchQuery(String query) {
     _searchQuery = query;
-    notifyListeners();
+    _safeNotifyListeners();
   }
 
   // Effacer les erreurs
   void clearError() {
     _error = '';
-    notifyListeners();
+    _safeNotifyListeners();
   }
 
   // Vérifier si un trajet est dans les favoris
@@ -257,9 +275,9 @@ class RideProvider with ChangeNotifier {
     ]);
   }
 
-  // Vider les résultats de recherche
+  // ✅ MÉTHODE AJOUTÉE : Pour le bouton "Effacer la recherche"
   void clearSearchResults() {
     _searchResults = [];
-    notifyListeners();
+    _safeNotifyListeners();
   }
 }

@@ -26,4 +26,8 @@ bool isValidEmail(String email) {
   // Autorise sous-domaines (ex: user@dept.univ.ac.ma)
   final regex = RegExp(r"^[\w\-.]+@([\w\-]+\.)+[a-zA-Z]{2,}");
   return regex.hasMatch(email);
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 048ffdf (Correction Recherche)

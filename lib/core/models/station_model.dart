@@ -14,6 +14,7 @@ class StationModel {
   final bool isFavorite;
   final int rideCount;
   final int searchCount;
+  final bool isPopular;
   final String label; // Pour l'affichage dans l'auto-complétion
 
   StationModel({
@@ -29,6 +30,7 @@ class StationModel {
     this.isFavorite = false,
     this.rideCount = 0,
     this.searchCount = 0,
+    this.isPopular = false,
     required this.label,
   });
 
@@ -46,6 +48,7 @@ class StationModel {
       isFavorite: json['is_favorite'] == true || json['is_favorite'] == 1,
       rideCount: json['ride_count'] ?? 0,
       searchCount: json['search_count'] ?? 0,
+      isPopular: json['is_popular'] as bool? ?? false,
       label: json['label'] ?? '${json['name']}, ${json['city']}',
     );
   }
