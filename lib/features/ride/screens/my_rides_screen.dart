@@ -4,6 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:moovapp/core/providers/ride_provider.dart';
 import 'package:moovapp/core/models/ride_model.dart';
 import 'package:moovapp/features/ride/screens/publish_ride_screen.dart';
+import 'package:moovapp/core/api/api_service.dart';
+import 'package:moovapp/core/service/reservation_service.dart';
+import 'package:moovapp/core/models/reservation.dart';
 
 class MyRidesScreen extends StatefulWidget {
   const MyRidesScreen({super.key});
@@ -76,12 +79,90 @@ Widget build(BuildContext context) {
             Text('Heure: ${firstRide.formattedTime}'),
             Text('Places: ${firstRide.availableSeats}'),
             Text('Prix: ${firstRide.pricePerSeat} DH'),
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.list),
+                label: const Text('Voir réservations'),
+                onPressed: () => _openReservationsModal(context, firstRide),
+              ),
+            ),
           ],
         ),
       ),
     ),
   );
 }
+
+  Future<void> _openReservationsModal(BuildContext context, RideModel ride) async {
+    final api = ApiService();
+    final service = ReservationService(api);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return FutureBuilder<Map<String, dynamic>>(
+          future: service.getReservationsForRide(int.tryParse(ride.rideId) ?? 0),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done) {
+              return const AlertDialog(content: SizedBox(height: 100, child: Center(child: CircularProgressIndicator())));
+            }
+
+            if (!snapshot.hasData || snapshot.data!['success'] != true) {
+              final error = snapshot.data?['error'] ?? 'Erreur chargement';
+              return AlertDialog(
+                title: const Text('Réservations'),
+                content: Text('Erreur: $error'),
+                actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Fermer'))],
+              );
+            }
+
+            final data = snapshot.data!['data'];
+            final List<dynamic> items = data['reservations'] ?? [];
+            final reservations = items.map((j) => Reservation.fromJson(j)).toList();
+
+            return AlertDialog(
+              title: Text('Réservations (${reservations.length})'),
+              content: SizedBox(
+                width: double.maxFinite,
+                child: reservations.isEmpty
+                    ? const Text('Aucune réservation')
+                    : ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: reservations.length,
+                        itemBuilder: (context, index) {
+                          final r = reservations[index];
+                          return ListTile(
+                            title: Text('Réservation #${r.id} - ${r.seatsReserved} place(s)'),
+                            subtitle: Text('${r.formattedDate} • ${r.formattedTime}'),
+                            trailing: r.status.toLowerCase() == 'completed'
+                                ? const Icon(Icons.check_circle, color: Colors.green)
+                                : ElevatedButton(
+                                    onPressed: () async {
+                                      Navigator.of(context).pop();
+                                      final res = await service.markCompleted(r.id);
+                                      if (res['success'] == true) {
+                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Marqué comme terminé'), backgroundColor: Colors.green));
+                                      } else {
+                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: ${res['error']}')));
+                                      }
+                                      // reopen to refresh
+                                      _openReservationsModal(context, ride);
+                                    },
+                                    child: const Text('Terminer'),
+                                  ),
+                          );
+                        },
+                      ),
+              ),
+              actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Fermer'))],
+            );
+          },
+        );
+      },
+    );
+  }
   Widget _buildRideCard(
       BuildContext context, RideModel ride, RideProvider provider) {
     return Card(

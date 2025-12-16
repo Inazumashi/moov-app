@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:moovapp/features/home/widgets/my_reservations_widget.dart';
+import 'package:moovapp/features/home/widgets/suggestions_section.dart';
 import 'package:moovapp/features/premium/screens/premium_screen.dart';
 import 'package:moovapp/features/ride/screens/my_rides_screen.dart';
 import 'package:moovapp/core/providers/auth_provider.dart';
@@ -240,6 +241,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 const SizedBox(width: 12),
                 _buildStatCard('0', 'MAD Économisés', cs.secondary),
               ],
+            ),
+            const SizedBox(height: 24),
+
+            // 🎯 Suggestions
+            SuggestionsSection(
+              onViewDetails: (rideId) {
+                // TODO: Naviguer vers RideDetailsScreen
+                print('Voir détails: $rideId');
+              },
+              onRideSelected: (ride) {
+                // TODO: Ouvrir ReservationFlowModal
+                print('Réserver: ${ride.rideId}');
+              },
             ),
             const SizedBox(height: 24),
 

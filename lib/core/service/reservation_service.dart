@@ -126,4 +126,38 @@ class ReservationService {
       };
     }
   }
+
+  // ✅ NOUVELLE MÉTHODE : Marquer une réservation comme complétée
+  Future<Map<String, dynamic>> markCompleted(int reservationId) async {
+    try {
+      print('✅ Marquer réservation $reservationId comme complétée');
+      await _apiService.put('reservations/$reservationId/complete', {});
+      return {
+        'success': true,
+      };
+    } catch (e) {
+      print('❌ Erreur markCompleted: $e');
+      return {
+        'success': false,
+        'error': e.toString(),
+      };
+    }
+  }
+
+  // Récupérer les réservations pour un trajet (par rideId)
+  Future<Map<String, dynamic>> getReservationsForRide(int rideId) async {
+    try {
+      final response = await _apiService.get('reservations/for-ride/$rideId');
+      return {
+        'success': true,
+        'data': response,
+      };
+    } catch (e) {
+      print('❌ Erreur getReservationsForRide: $e');
+      return {
+        'success': false,
+        'error': e.toString(),
+      };
+    }
+  }
 }

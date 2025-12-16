@@ -5,6 +5,7 @@ class Reservation {
   final int id;
   final String rideId;
   final int passengerId;
+  final int? driverId;
   final int seatsReserved;
   final double totalPrice;
   final String status;
@@ -24,6 +25,7 @@ class Reservation {
     this.ride,
     this.driverFirstName,
     this.driverLastName,
+    this.driverId,
   });
 
   factory Reservation.fromJson(Map<String, dynamic> json) {
@@ -31,6 +33,12 @@ class Reservation {
       id: json['id'] ?? 0,
       rideId: json['ride_id']?.toString() ?? '',
       passengerId: json['passenger_id'] ?? 0,
+        driverId: json['driver_id'] is int
+          ? json['driver_id'] as int
+          : (json['driver_id'] != null ? int.tryParse(json['driver_id'].toString()) : null) ??
+            (json['ride'] != null && json['ride']['driver_id'] != null
+              ? (int.tryParse(json['ride']['driver_id'].toString()) ?? null)
+              : null),
       seatsReserved: json['seats_reserved'] ?? json['seats_booked'] ?? 1,
       totalPrice: (json['total_price'] is int) 
           ? (json['total_price'] as int).toDouble() 

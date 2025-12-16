@@ -11,10 +11,12 @@ class RideProvider with ChangeNotifier {
   List<RideModel> _searchResults = [];
   List<RideModel> _myPublishedRides = [];
   List<RideModel> _favoriteRides = [];
+  List<RideModel> _suggestions = [];
   List<UniversityModel> _universities = [];
   bool _isLoading = false;
   String _error = '';
   String _searchQuery = '';
+  Map<String, dynamic> _appliedFilters = {};
   bool _disposed = false;
 
   RideProvider() {
@@ -26,10 +28,12 @@ class RideProvider with ChangeNotifier {
   List<RideModel> get searchResults => _searchResults;
   List<RideModel> get myPublishedRides => _myPublishedRides;
   List<RideModel> get favoriteRides => _favoriteRides;
+  List<RideModel> get suggestions => _suggestions;
   List<UniversityModel> get universities => _universities;
   bool get isLoading => _isLoading;
   String get error => _error;
   String get searchQuery => _searchQuery;
+  Map<String, dynamic> get appliedFilters => _appliedFilters;
 
   // Méthode sécurisée pour notifier les listeners
   void _safeNotifyListeners() {
@@ -44,14 +48,38 @@ class RideProvider with ChangeNotifier {
     super.dispose();
   }
 
-  // 🚀 LOGIQUE MODIFIÉE : Recherche de trajets avec IDs de stations
+  // 🚀 LOGIQUE MODIFIÉE : Recherche avancée avec filtres
   Future<void> searchRides({
-    required int departureId, // ⭐️ ID DE DÉPART
-    required int arrivalId,   // ⭐️ ID D'ARRIVÉE
+    required int departureId,
+    required int arrivalId,
     required DateTime date,
+    double? minPrice,
+    double? maxPrice,
+    double? minRating,
+    bool? verifiedOnly,
+    String? departureTimeStart,
+    String? departureTimeEnd,
+    int page = 1,
+    int limit = 20,
   }) async {
     _isLoading = true;
     _error = '';
+    
+    // Sauvegarder les filtres appliqués
+    _appliedFilters = {
+      'departureId': departureId,
+      'arrivalId': arrivalId,
+      'date': date,
+      'minPrice': minPrice,
+      'maxPrice': maxPrice,
+      'minRating': minRating,
+      'verifiedOnly': verifiedOnly,
+      'departureTimeStart': departureTimeStart,
+      'departureTimeEnd': departureTimeEnd,
+      'page': page,
+      'limit': limit,
+    };
+    
     _safeNotifyListeners();
 
     try {
@@ -59,12 +87,37 @@ class RideProvider with ChangeNotifier {
         departureId: departureId,
         arrivalId: arrivalId,
         date: date,
+        minPrice: minPrice,
+        maxPrice: maxPrice,
+        minRating: minRating,
+        verifiedOnly: verifiedOnly,
+        departureTimeStart: departureTimeStart,
+        departureTimeEnd: departureTimeEnd,
+        page: page,
+        limit: limit,
       );
       if (_searchResults.isEmpty) {
-        _error = 'Aucun trajet trouvé pour cet itinéraire à cette date.';
+        _error = 'Aucun trajet ne correspond à vos critères.';
       }
     } catch (e) {
-      _error = 'Erreur lors de la recherche des trajets: $e';
+      _error = 'Erreur lors de la recherche: $e';
+    } finally {
+      _isLoading = false;
+      _safeNotifyListeners();
+    }
+  }
+
+  // 📌 NOUVEAU : Charger les suggestions
+  Future<void> loadSuggestions() async {
+    _isLoading = true;
+    _error = '';
+    _safeNotifyListeners();
+
+    try {
+      _suggestions = await _rideService.getSuggestions();
+    } catch (e) {
+      _error = 'Erreur chargement suggestions: $e';
+      _suggestions = [];
     } finally {
       _isLoading = false;
       _safeNotifyListeners();

@@ -19,19 +19,45 @@ class RideService {
         .toList();
   }
 
-  // 🚀 LOGIQUE MODIFIÉE : Recherche de trajets par IDs (NOUVELLE SIGNATURE)
+  // 🚀 LOGIQUE MODIFIÉE : Recherche de trajets par IDs avec filtres avancés
   Future<List<RideModel>> searchRides({
-    required int departureId, // ⭐️ ID DE DÉPART
-    required int arrivalId,   // ⭐️ ID D'ARRIVÉE
+    required int departureId,
+    required int arrivalId,
     required DateTime date,
+    double? minPrice,
+    double? maxPrice,
+    double? minRating,
+    bool? verifiedOnly,
+    String? departureTimeStart,
+    String? departureTimeEnd,
+    int page = 1,
+    int limit = 20,
   }) async {
     try {
       final String formattedDate = DateFormat('yyyy-MM-dd').format(date);
-
-      // 1. Logique de l'URL direct avec les IDs (ce que nous avons testé avec succès)
-      final url = 'rides/search?departure_station_id=$departureId&arrival_station_id=$arrivalId&departure_date=$formattedDate';
       
-      print('🔍 Requête API: $url'); // 💡 AFFICHEZ LA REQUÊTE POUR LE DÉBOGAGE
+      // Construire URL avec queryParameters
+      Map<String, String> queryParams = {
+        'departure_station_id': departureId.toString(),
+        'arrival_station_id': arrivalId.toString(),
+        'departure_date': formattedDate,
+        'page': page.toString(),
+        'limit': limit.toString(),
+      };
+      
+      if (minPrice != null) queryParams['min_price'] = minPrice.toString();
+      if (maxPrice != null) queryParams['max_price'] = maxPrice.toString();
+      if (minRating != null) queryParams['min_rating'] = minRating.toString();
+      if (verifiedOnly != null) queryParams['verified_only'] = verifiedOnly.toString();
+      if (departureTimeStart != null) queryParams['departure_time_start'] = departureTimeStart;
+      if (departureTimeEnd != null) queryParams['departure_time_end'] = departureTimeEnd;
+
+      final queryString = queryParams.entries
+          .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
+          .join('&');
+      final url = 'rides/search?$queryString';
+      
+      print('🔍 Requête API: $url');
 
       final response = await _apiService.get(
         url,
@@ -50,7 +76,6 @@ class RideService {
                   _convertMap(json as Map<dynamic, dynamic>)))
               .toList();
         } else if (convertedResponse.containsKey('data')) {
-          // Gérer le format 'data' si l'API est incohérente
           final List<dynamic> data = convertedResponse['data'] ?? [];
           return data
               .map((json) => RideModel.fromJson(
@@ -60,8 +85,38 @@ class RideService {
       }
       return [];
     } catch (e) {
-      print('❌ Erreur recherche trajets par ID: $e');
+      print('❌ Erreur recherche trajets: $e');
       rethrow;
+    }
+  }
+
+  // 🎯 NOUVEAU : Suggestions personnalisées pour l'utilisateur
+  Future<List<RideModel>> getSuggestions() async {
+    try {
+      print('📌 Chargement suggestions...');
+      
+      final response = await _apiService.get(
+        'search/rides/suggestions',
+        isProtected: true,
+      );
+
+      if (response is Map) {
+        final Map<String, dynamic> convertedResponse =
+            _convertMap(response as Map<dynamic, dynamic>);
+
+        if (convertedResponse.containsKey('suggestions')) {
+          final List<dynamic> data = convertedResponse['suggestions'] ?? [];
+          print('✅ ${data.length} suggestions chargées.');
+          return data
+              .map((json) => RideModel.fromJson(
+                  _convertMap(json as Map<dynamic, dynamic>)))
+              .toList();
+        }
+      }
+      return [];
+    } catch (e) {
+      print('❌ Erreur chargement suggestions: $e');
+      return [];
     }
   }
 

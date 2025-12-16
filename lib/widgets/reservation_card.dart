@@ -1,7 +1,13 @@
 // lib/features/reservations/widgets/reservation_card.dart - VERSION COMPLÈTE
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:moovapp/core/models/reservation.dart';
 import 'package:moovapp/core/models/ride_model.dart';
+import 'package:moovapp/core/providers/rating_provider.dart';
+import 'package:moovapp/core/providers/auth_provider.dart';
+import 'package:moovapp/core/providers/reservation_provider.dart';
+import 'package:moovapp/features/ratings/screens/rate_driver_screen.dart';
+import 'package:moovapp/widgets/star_rating.dart';
 
 class ReservationCard extends StatelessWidget {
   final Reservation reservation;
@@ -165,6 +171,39 @@ class ReservationCard extends StatelessWidget {
                 ),
               ],
               
+              // ✅ BOUTON CONDUCTEUR : Marquer comme terminé (visible seulement au conducteur)
+              Builder(builder: (context) {
+                final auth = Provider.of<AuthProvider>(context, listen: false);
+                final reservationProv = Provider.of<ReservationProvider>(context, listen: false);
+                final isDriver = auth.currentUser != null && reservation.ride?.driverId == auth.currentUser!.uid;
+
+                if (reservation.status.toLowerCase() != 'completed' && isDriver) {
+                  return Column(
+                    children: [
+                      const SizedBox(height: 12),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: () => _confirmMarkCompleted(context, reservation, reservationProv),
+                          icon: const Icon(Icons.check_circle, size: 20),
+                          label: const Text('Marquer comme terminé'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blue,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }
+
+                return const SizedBox.shrink();
+              }),
+
               // ✅ Message pour réservations annulées
               if (reservation.status == 'cancelled') ...[
                 const SizedBox(height: 12),
@@ -222,6 +261,9 @@ class ReservationCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                const SizedBox(height: 12),
+                // ✅ NOUVEAU : Bouton pour noter le conducteur
+                _buildRatingButton(context, reservation, colors),
               ],
             ],
           ),
@@ -354,6 +396,64 @@ class ReservationCard extends StatelessWidget {
     ];
   }
 
+  // ✅ NOUVEAU : Bouton pour noter le conducteur
+  Widget _buildRatingButton(BuildContext context, Reservation reservation, ColorScheme colors) {
+    return SizedBox(
+      width: double.infinity,
+      child: ElevatedButton.icon(
+        onPressed: () async {
+          final ratingProvider = Provider.of<RatingProvider>(context, listen: false);
+          
+          // Vérifier si peut noter
+          final canRate = await ratingProvider.canRate(reservation.id);
+          
+          if (!context.mounted) return;
+          
+          if (canRate) {
+            // Naviguer vers l'écran de notation
+            final result = await Navigator.push<bool>(
+              context,
+              MaterialPageRoute(
+                builder: (context) => RateDriverScreen(
+                  reservation: reservation,
+                ),
+              ),
+            );
+            
+            // Optionnel : Actualiser les données après notation
+            if (result == true && context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Merci pour votre avis !'),
+                  backgroundColor: Colors.green,
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            }
+          } else {
+            if (!context.mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Vous avez déjà noté ce trajet'),
+                backgroundColor: Colors.orange,
+              ),
+            );
+          }
+        },
+        icon: const Icon(Icons.star_rate, size: 20),
+        label: const Text('Noter le conducteur'),
+        style: ElevatedButton.styleFrom(
+          backgroundColor: colors.primary,
+          foregroundColor: colors.onPrimary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+        ),
+      ),
+    );
+  }
+
   // ✅ NOUVEAU : Avertissement sur les conditions d'annulation
   Widget _buildCancellationWarning(Reservation reservation, ColorScheme colors) {
     // Calculer le temps restant avant le départ
@@ -464,6 +564,53 @@ class ReservationCard extends StatelessWidget {
               foregroundColor: Colors.white,
             ),
             child: const Text('Oui, annuler'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmMarkCompleted(BuildContext context, Reservation reservation, ReservationProvider reservationProv) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Row(
+          children: [
+            Icon(Icons.check_circle, color: Colors.blue, size: 28),
+            SizedBox(width: 12),
+            Text('Marquer comme terminé ?'),
+          ],
+        ),
+        content: const Text('Confirmez-vous que le trajet est bien terminé ?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Non'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(context).pop();
+              final scaffold = ScaffoldMessenger.of(context);
+              try {
+                final success = await reservationProv.markCompleted(reservation.id);
+                if (success) {
+                  scaffold.showSnackBar(const SnackBar(
+                    content: Text('Trajet marqué comme terminé'),
+                    backgroundColor: Colors.green,
+                  ));
+                } else {
+                  scaffold.showSnackBar(const SnackBar(
+                    content: Text('Impossible de marquer le trajet'),
+                    backgroundColor: Colors.red,
+                  ));
+                }
+              } catch (e) {
+                scaffold.showSnackBar(SnackBar(
+                  content: Text('Erreur: $e'),
+                ));
+              }
+            },
+            child: const Text('Oui, terminer'),
           ),
         ],
       ),

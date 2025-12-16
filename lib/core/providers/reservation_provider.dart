@@ -122,6 +122,27 @@ class ReservationProvider with ChangeNotifier {
     }
   }
 
+  // ✅ NOUVELLE MÉTHODE - Marquer réservation comme complétée
+  Future<bool> markCompleted(int reservationId) async {
+    _isLoading = true;
+    _error = '';
+    notifyListeners();
+
+    final result = await _reservationService.markCompleted(reservationId);
+
+    _isLoading = false;
+
+    if (result['success'] == true) {
+      await loadReservations();
+      notifyListeners();
+      return true;
+    } else {
+      _error = result['error'] ?? 'Erreur lors du marquage';
+      notifyListeners();
+      return false;
+    }
+  }
+
   void setFilter(String status) {
     if (_filterStatus != status) {
       _filterStatus = status;
