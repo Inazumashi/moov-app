@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 
-class AuthTextField extends StatelessWidget {
+class AuthTextField extends StatefulWidget {
   final String hintText;
   final IconData icon;
   final TextEditingController controller;
   final bool isPassword;
   final TextInputType keyboardType;
-  
-  // 1. NOUVEAU : La variable pour activer la lecture seule
   final bool isReadOnly;
 
   const AuthTextField({
@@ -17,28 +15,50 @@ class AuthTextField extends StatelessWidget {
     required this.controller,
     this.isPassword = false,
     this.keyboardType = TextInputType.text,
-    // 2. NOUVEAU : On l'initialise à 'false' par défaut
-    // (Comme ça, ça ne casse pas l'écran de login)
     this.isReadOnly = false,
   });
 
   @override
+  State<AuthTextField> createState() => _AuthTextFieldState();
+}
+
+class _AuthTextFieldState extends State<AuthTextField> {
+  late bool _obscurePassword;
+
+  @override
+  void initState() {
+    super.initState();
+    _obscurePassword = widget.isPassword;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return TextField(
-      controller: controller,
-      obscureText: isPassword,
-      keyboardType: keyboardType,
-      
-      // 3. NOUVEAU : On connecte la variable au TextField
-      readOnly: isReadOnly,
-      
+      controller: widget.controller,
+      obscureText: _obscurePassword,
+      keyboardType: widget.keyboardType,
+      readOnly: widget.isReadOnly,
       decoration: InputDecoration(
-        hintText: hintText,
-        prefixIcon: Icon(icon, color: Colors.grey[600]),
-        
-        // 4. STYLE : Si c'est en lecture seule, on met un fond gris clair
+        hintText: widget.hintText,
+        prefixIcon: Icon(widget.icon, color: Colors.grey[600]),
+
+        // ✅ NOUVEAU: Ajouter un suffixIcon pour toggle la visibilité du mot de passe
+        suffixIcon: widget.isPassword
+            ? IconButton(
+                icon: Icon(
+                  _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                  color: Colors.grey[600],
+                ),
+                onPressed: () {
+                  setState(() {
+                    _obscurePassword = !_obscurePassword;
+                  });
+                },
+              )
+            : null,
+
         filled: true,
-        fillColor: isReadOnly ? Colors.grey.shade200 : Colors.white,
+        fillColor: widget.isReadOnly ? Colors.grey.shade200 : Colors.white,
 
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12.0),

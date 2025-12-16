@@ -7,14 +7,14 @@ import 'package:moovapp/core/api/api_service.dart';
 
 class StationProvider with ChangeNotifier {
   late final StationService _stationService;
-  
+
   List<StationModel> _searchResults = [];
   List<StationModel> _favoriteStations = [];
   List<StationModel> _recentStations = [];
   List<StationModel> _popularStations = [];
   List<StationModel> _nearbyStations = [];
   List<Map<String, dynamic>> _popularRoutes = [];
-  
+
   bool _isLoading = false;
   String _error = '';
   String _searchQuery = '';
@@ -39,11 +39,13 @@ class StationProvider with ChangeNotifier {
 
   // Getters
   List<StationModel> get searchResults => List.unmodifiable(_searchResults);
-  List<StationModel> get favoriteStations => List.unmodifiable(_favoriteStations);
+  List<StationModel> get favoriteStations =>
+      List.unmodifiable(_favoriteStations);
   List<StationModel> get recentStations => List.unmodifiable(_recentStations);
   List<StationModel> get popularStations => List.unmodifiable(_popularStations);
   List<StationModel> get nearbyStations => List.unmodifiable(_nearbyStations);
-  List<Map<String, dynamic>> get popularRoutes => List.unmodifiable(_popularRoutes);
+  List<Map<String, dynamic>> get popularRoutes =>
+      List.unmodifiable(_popularRoutes);
   bool get isLoading => _isLoading;
   String get error => _error;
   String get searchQuery => _searchQuery;
@@ -56,7 +58,7 @@ class StationProvider with ChangeNotifier {
   }
 
   bool _isDisposed = false;
-  
+
   @override
   void dispose() {
     _isDisposed = true;
@@ -75,12 +77,22 @@ class StationProvider with ChangeNotifier {
     _isLoading = true;
     _error = '';
     _searchQuery = query;
-    
+
     // ✅ SOLUTION: Délai pour éviter setState pendant build
     Future.microtask(() => notifyListeners());
 
     try {
-      _searchResults = await _stationService.autocomplete(query, limit: limit);
+      final results = await _stationService.autocomplete(query, limit: limit);
+
+      // ✅ CORRECTION: Supprimer les doublons par ID
+      final Map<int, StationModel> uniqueStations = {};
+      for (final station in results) {
+        if (!uniqueStations.containsKey(station.id)) {
+          uniqueStations[station.id] = station;
+        }
+      }
+
+      _searchResults = uniqueStations.values.toList();
     } catch (e) {
       _error = 'Erreur lors de la recherche: $e';
     } finally {
@@ -88,14 +100,17 @@ class StationProvider with ChangeNotifier {
       Future.microtask(() => notifyListeners());
     }
   }
+
   // Stations proches
-  Future<void> loadNearbyStations(double lat, double lng, {double radius = 10, int limit = 20}) async {
+  Future<void> loadNearbyStations(double lat, double lng,
+      {double radius = 10, int limit = 20}) async {
     _isLoading = true;
     _error = '';
     _safeNotifyListeners();
 
     try {
-      _nearbyStations = await _stationService.nearby(lat, lng, radius: radius, limit: limit);
+      _nearbyStations =
+          await _stationService.nearby(lat, lng, radius: radius, limit: limit);
     } catch (e) {
       _error = 'Erreur stations proches: $e';
       _nearbyStations = [];
@@ -146,7 +161,17 @@ class StationProvider with ChangeNotifier {
     _safeNotifyListeners();
 
     try {
-      _popularStations = await _stationService.popular(limit: limit);
+      final results = await _stationService.popular(limit: limit);
+
+      // ✅ CORRECTION: Supprimer les doublons par ID
+      final Map<int, StationModel> uniqueStations = {};
+      for (final station in results) {
+        if (!uniqueStations.containsKey(station.id)) {
+          uniqueStations[station.id] = station;
+        }
+      }
+
+      _popularStations = uniqueStations.values.toList();
     } catch (e) {
       _error = 'Erreur stations populaires: $e';
       _popularStations = [];
@@ -174,13 +199,15 @@ class StationProvider with ChangeNotifier {
   }
 
   // Ajouter aux favoris
-  Future<bool> addToFavorites(StationModel station, {String type = 'both'}) async {
+  Future<bool> addToFavorites(StationModel station,
+      {String type = 'both'}) async {
     _isLoading = true;
     _error = '';
     _safeNotifyListeners();
 
     try {
-      final success = await _stationService.addToFavorites(station.id, type: type);
+      final success =
+          await _stationService.addToFavorites(station.id, type: type);
       if (success) {
         await loadFavoriteStations();
       }
@@ -201,7 +228,8 @@ class StationProvider with ChangeNotifier {
     _safeNotifyListeners();
 
     try {
-      final success = await _stationService.removeFromFavorites(station.id, type: type);
+      final success =
+          await _stationService.removeFromFavorites(station.id, type: type);
       if (success) {
         await loadFavoriteStations();
       }
@@ -216,9 +244,11 @@ class StationProvider with ChangeNotifier {
   }
 
   // Basculer favori
-  Future<void> toggleFavorite(StationModel station, {String type = 'both'}) async {
-    final isCurrentlyFavorite = _favoriteStations.any((s) => s.id == station.id);
-    
+  Future<void> toggleFavorite(StationModel station,
+      {String type = 'both'}) async {
+    final isCurrentlyFavorite =
+        _favoriteStations.any((s) => s.id == station.id);
+
     if (isCurrentlyFavorite) {
       await removeFromFavorites(station, type: type);
     } else {
@@ -250,7 +280,11 @@ class StationProvider with ChangeNotifier {
       return result;
     } catch (e) {
       _error = 'Erreur recherche rapide: $e';
-      return {'rides': [], 'suggested_departures': [], 'suggested_arrivals': []};
+      return {
+        'rides': [],
+        'suggested_departures': [],
+        'suggested_arrivals': []
+      };
     } finally {
       _isLoading = false;
       _safeNotifyListeners();
@@ -280,7 +314,7 @@ class StationProvider with ChangeNotifier {
       ..._popularStations,
       ..._nearbyStations,
     ];
-    
+
     return allStations.firstWhere(
       (station) => station.id == id,
       orElse: () => StationModel(
@@ -297,7 +331,8 @@ class StationProvider with ChangeNotifier {
   }
 
   // Recherche améliorée pour l'autocomplétion
-  Future<List<StationModel>> enhancedSearch(String query, {int limit = 15}) async {
+  Future<List<StationModel>> enhancedSearch(String query,
+      {int limit = 15}) async {
     if (query.isEmpty) {
       return [];
     }
@@ -324,7 +359,8 @@ class StationProvider with ChangeNotifier {
       };
 
       for (final entry in keywordMap.entries) {
-        if (entry.value.any((keyword) => query.toLowerCase().contains(keyword))) {
+        if (entry.value
+            .any((keyword) => query.toLowerCase().contains(keyword))) {
           return _searchResults
               .where((station) =>
                   station.type.contains(entry.key) ||
@@ -365,7 +401,8 @@ class StationProvider with ChangeNotifier {
     _safeNotifyListeners();
 
     try {
-      final stations = await _stationService.getStationsByUniversity(universityId);
+      final stations =
+          await _stationService.getStationsByUniversity(universityId);
       return stations;
     } catch (e) {
       _error = 'Erreur chargement stations université: $e';

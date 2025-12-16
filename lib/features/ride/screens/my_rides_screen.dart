@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:moovapp/core/providers/ride_provider.dart';
 import 'package:moovapp/core/models/ride_model.dart';
-import 'package:moovapp/features/ride/screens/publish_ride_screen.dart';
 import 'package:moovapp/core/api/api_service.dart';
 import 'package:moovapp/core/service/reservation_service.dart';
 import 'package:moovapp/core/models/reservation.dart';
@@ -25,77 +24,79 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
   }
 
   @override
-Widget build(BuildContext context) {
-  final rideProvider = Provider.of<RideProvider>(context);
-  
-  if (rideProvider.isLoading) {
-    return Center(child: CircularProgressIndicator());
-  }
-  
-  if (rideProvider.error.isNotEmpty) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text('Erreur: ${rideProvider.error}'),
-          ElevatedButton(
-            onPressed: () => rideProvider.loadMyPublishedRides(),
-            child: Text('Réessayer'),
-          ),
-        ],
-      ),
-    );
-  }
-  
-  if (rideProvider.myPublishedRides.isEmpty) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.directions_car, size: 64, color: Colors.grey),
-          SizedBox(height: 16),
-          Text('Aucun trajet publié'),
-          Text('Publiez votre premier trajet !', style: TextStyle(color: Colors.grey)),
-        ],
-      ),
-    );
-  }
-  
-  // 🔥 ESSAIE D'ABORD UN SEUL TRAJET SIMPLE
-  final firstRide = rideProvider.myPublishedRides.first;
-  return Scaffold(
-    appBar: AppBar(title: Text('Test - 1er trajet')),
-    body: Card(
-      margin: EdgeInsets.all(16),
-      child: Padding(
-        padding: EdgeInsets.all(16),
+  Widget build(BuildContext context) {
+    final rideProvider = Provider.of<RideProvider>(context);
+
+    if (rideProvider.isLoading) {
+      return Center(child: CircularProgressIndicator());
+    }
+
+    if (rideProvider.error.isNotEmpty) {
+      return Center(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('ID: ${firstRide.rideId}'),
-            Text('Départ: ${firstRide.startPoint}'),
-            Text('Arrivée: ${firstRide.endPoint}'),
-            Text('Date: ${firstRide.formattedDate}'),
-            Text('Heure: ${firstRide.formattedTime}'),
-            Text('Places: ${firstRide.availableSeats}'),
-            Text('Prix: ${firstRide.pricePerSeat} DH'),
-            const SizedBox(height: 12),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.list),
-                label: const Text('Voir réservations'),
-                onPressed: () => _openReservationsModal(context, firstRide),
-              ),
+            Text('Erreur: ${rideProvider.error}'),
+            ElevatedButton(
+              onPressed: () => rideProvider.loadMyPublishedRides(),
+              child: Text('Réessayer'),
             ),
           ],
         ),
-      ),
-    ),
-  );
-}
+      );
+    }
 
-  Future<void> _openReservationsModal(BuildContext context, RideModel ride) async {
+    if (rideProvider.myPublishedRides.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.directions_car, size: 64, color: Colors.grey),
+            SizedBox(height: 16),
+            Text('Aucun trajet publié'),
+            Text('Publiez votre premier trajet !',
+                style: TextStyle(color: Colors.grey)),
+          ],
+        ),
+      );
+    }
+
+    // 🔥 ESSAIE D'ABORD UN SEUL TRAJET SIMPLE
+    final firstRide = rideProvider.myPublishedRides.first;
+    return Scaffold(
+      appBar: AppBar(title: Text('Test - 1er trajet')),
+      body: Card(
+        margin: EdgeInsets.all(16),
+        child: Padding(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('ID: ${firstRide.rideId}'),
+              Text('Départ: ${firstRide.startPoint}'),
+              Text('Arrivée: ${firstRide.endPoint}'),
+              Text('Date: ${firstRide.formattedDate}'),
+              Text('Heure: ${firstRide.formattedTime}'),
+              Text('Places: ${firstRide.availableSeats}'),
+              Text('Prix: ${firstRide.pricePerSeat} DH'),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.list),
+                  label: const Text('Voir réservations'),
+                  onPressed: () => _openReservationsModal(context, firstRide),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openReservationsModal(
+      BuildContext context, RideModel ride) async {
     final api = ApiService();
     final service = ReservationService(api);
 
@@ -103,10 +104,14 @@ Widget build(BuildContext context) {
       context: context,
       builder: (context) {
         return FutureBuilder<Map<String, dynamic>>(
-          future: service.getReservationsForRide(int.tryParse(ride.rideId) ?? 0),
+          future:
+              service.getReservationsForRide(int.tryParse(ride.rideId) ?? 0),
           builder: (context, snapshot) {
             if (snapshot.connectionState != ConnectionState.done) {
-              return const AlertDialog(content: SizedBox(height: 100, child: Center(child: CircularProgressIndicator())));
+              return const AlertDialog(
+                  content: SizedBox(
+                      height: 100,
+                      child: Center(child: CircularProgressIndicator())));
             }
 
             if (!snapshot.hasData || snapshot.data!['success'] != true) {
@@ -114,13 +119,18 @@ Widget build(BuildContext context) {
               return AlertDialog(
                 title: const Text('Réservations'),
                 content: Text('Erreur: $error'),
-                actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Fermer'))],
+                actions: [
+                  TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Fermer'))
+                ],
               );
             }
 
             final data = snapshot.data!['data'];
             final List<dynamic> items = data['reservations'] ?? [];
-            final reservations = items.map((j) => Reservation.fromJson(j)).toList();
+            final reservations =
+                items.map((j) => Reservation.fromJson(j)).toList();
 
             return AlertDialog(
               title: Text('Réservations (${reservations.length})'),
@@ -134,18 +144,29 @@ Widget build(BuildContext context) {
                         itemBuilder: (context, index) {
                           final r = reservations[index];
                           return ListTile(
-                            title: Text('Réservation #${r.id} - ${r.seatsReserved} place(s)'),
-                            subtitle: Text('${r.formattedDate} • ${r.formattedTime}'),
+                            title: Text(
+                                'Réservation #${r.id} - ${r.seatsReserved} place(s)'),
+                            subtitle:
+                                Text('${r.formattedDate} • ${r.formattedTime}'),
                             trailing: r.status.toLowerCase() == 'completed'
-                                ? const Icon(Icons.check_circle, color: Colors.green)
+                                ? const Icon(Icons.check_circle,
+                                    color: Colors.green)
                                 : ElevatedButton(
                                     onPressed: () async {
                                       Navigator.of(context).pop();
-                                      final res = await service.markCompleted(r.id);
+                                      final res =
+                                          await service.markCompleted(r.id);
                                       if (res['success'] == true) {
-                                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Marqué comme terminé'), backgroundColor: Colors.green));
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(const SnackBar(
+                                                content: Text(
+                                                    'Marqué comme terminé'),
+                                                backgroundColor: Colors.green));
                                       } else {
-                                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: ${res['error']}')));
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(SnackBar(
+                                                content: Text(
+                                                    'Erreur: ${res['error']}')));
                                       }
                                       // reopen to refresh
                                       _openReservationsModal(context, ride);
@@ -156,13 +177,18 @@ Widget build(BuildContext context) {
                         },
                       ),
               ),
-              actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Fermer'))],
+              actions: [
+                TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Fermer'))
+              ],
             );
           },
         );
       },
     );
   }
+
   Widget _buildRideCard(
       BuildContext context, RideModel ride, RideProvider provider) {
     return Card(
@@ -215,6 +241,7 @@ Widget build(BuildContext context) {
                   ),
                 ),
                 PopupMenuButton<String>(
+                  icon: const Icon(Icons.more_vert),
                   onSelected: (value) {
                     if (value == 'edit') {
                       _editRide(context, ride);
@@ -250,30 +277,32 @@ Widget build(BuildContext context) {
             const SizedBox(height: 12),
             const Divider(),
             const SizedBox(height: 8),
-            
+
             // Affichage des informations de date/heure avec gestion du null
             Row(
               children: [
                 const Icon(Icons.event, size: 16, color: Colors.blue),
                 const SizedBox(width: 8),
                 Text(
-                  ride.departureTime != null 
-                    ? _formatDate(ride.departureTime!) 
-                    : 'Date non définie',
+                  ride.departureTime != null
+                      ? _formatDate(ride.departureTime!)
+                      : 'Date non définie',
                 ),
                 const SizedBox(width: 16),
                 const Icon(Icons.access_time, size: 16, color: Colors.orange),
                 const SizedBox(width: 8),
                 Text(
-                  ride.departureTime != null 
-                    ? _formatTime(ride.departureTime!) 
-                    : 'Heure non définie',
+                  ride.departureTime != null
+                      ? _formatTime(ride.departureTime!)
+                      : 'Heure non définie',
                 ),
               ],
             ),
-            
+
             // Affichage pour les trajets réguliers (scheduleDays)
-            if (ride.isRegularRide && ride.scheduleDays != null && ride.scheduleDays!.isNotEmpty)
+            if (ride.isRegularRide &&
+                ride.scheduleDays != null &&
+                ride.scheduleDays!.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: Row(
@@ -287,7 +316,7 @@ Widget build(BuildContext context) {
                   ],
                 ),
               ),
-            
+
             // Si timeSlot est disponible pour les trajets réguliers
             if (ride.isRegularRide && ride.timeSlot != null)
               Padding(
@@ -300,7 +329,7 @@ Widget build(BuildContext context) {
                   ],
                 ),
               ),
-            
+
             const SizedBox(height: 8),
             Row(
               children: [
