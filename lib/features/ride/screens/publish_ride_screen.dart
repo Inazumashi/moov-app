@@ -20,7 +20,7 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
   // ✅ CORRECTION : Stocker les objets StationModel complets
   StationModel? _departureStation;
   StationModel? _arrivalStation;
-  
+
   final TextEditingController _departureController = TextEditingController();
   final TextEditingController _arrivalController = TextEditingController();
 
@@ -40,24 +40,28 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
   }
 
   // ✅ Méthode pour afficher la recherche de station
-  Future<void> _showStationSearch(BuildContext context, bool isDeparture) async {
-    final stationProvider = Provider.of<StationProvider>(context, listen: false);
-    
+  Future<void> _showStationSearch(
+      BuildContext context, bool isDeparture) async {
+    final stationProvider =
+        Provider.of<StationProvider>(context, listen: false);
+
     final station = await showSearch<StationModel?>(
       context: context,
       delegate: _StationSearchDelegate(stationProvider),
     );
-    
+
     if (station != null) {
       setState(() {
         if (isDeparture) {
           _departureStation = station;
           _departureController.text = station.displayName;
-          print('🔍 Station départ sélectionnée: ${station.name} (ID: ${station.id})');
+          print(
+              '🔍 Station départ sélectionnée: ${station.name} (ID: ${station.id})');
         } else {
           _arrivalStation = station;
           _arrivalController.text = station.displayName;
-          print('🔍 Station arrivée sélectionnée: ${station.name} (ID: ${station.id})');
+          print(
+              '🔍 Station arrivée sélectionnée: ${station.name} (ID: ${station.id})');
         }
       });
     }
@@ -128,7 +132,8 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
     if (_departureStation!.id == _arrivalStation!.id) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Les stations de départ et d\'arrivée doivent être différentes'),
+          content: Text(
+              'Les stations de départ et d\'arrivée doivent être différentes'),
           backgroundColor: Colors.orange,
         ),
       );
@@ -155,17 +160,19 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
       print('   Départ: ${_departureStation!.displayName}');
       print('   Arrivée: ${_arrivalStation!.displayName}');
 
-      // ✅ CORRECTION : Utiliser les IDs des stations
+      // ✅ CORRECTION : Utiliser les IDs des stations et displayName (qui retourne label de la BD)
       final ride = RideModel(
         rideId: '',
         driverId: currentUser.uid,
         driverName: currentUser.fullName,
         driverRating: currentUser.averageRating,
         driverIsPremium: currentUser.isPremium,
-        startPoint: _departureStation!.name,  // Pour l'affichage
-        endPoint: _arrivalStation!.name,      // Pour l'affichage
-        departureStationId: _departureStation!.id,  // ✅ ID pour l'API
-        arrivalStationId: _arrivalStation!.id,      // ✅ ID pour l'API
+        startPoint:
+            _departureStation!.displayName, // ✅ Affichage clean depuis la BD
+        endPoint:
+            _arrivalStation!.displayName, // ✅ Affichage clean depuis la BD
+        departureStationId: _departureStation!.id, // ✅ ID pour l'API
+        arrivalStationId: _arrivalStation!.id, // ✅ ID pour l'API
         departureTime: _departureTime,
         availableSeats: _availableSeats,
         pricePerSeat: _pricePerSeat,
@@ -547,7 +554,8 @@ class _StationSearchDelegate extends SearchDelegate<StationModel?> {
                       title: Text(station.displayName),
                       subtitle: Text(station.city),
                       trailing: station.isPopular
-                          ? const Icon(Icons.star, color: Colors.amber, size: 16)
+                          ? const Icon(Icons.star,
+                              color: Colors.amber, size: 16)
                           : null,
                       onTap: () {
                         close(context, station);

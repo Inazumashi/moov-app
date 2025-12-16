@@ -5,6 +5,7 @@ import 'package:moovapp/features/inscription/screens/routes_config_screen.dart';
 
 // Import du service d'authentification
 import 'package:moovapp/core/service/auth_service.dart';
+import 'package:moovapp/utils/password_utils.dart';
 import 'dart:convert';
 
 class CreateAccountScreen extends StatefulWidget {
@@ -114,6 +115,9 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                 icon: Icons.lock_outline,
                 isPassword: true,
               ),
+              const SizedBox(height: 12),
+              // ✅ NOUVEAU: Afficher les critères de force du mot de passe
+              _buildPasswordStrengthIndicator(),
               const SizedBox(height: 16),
               _buildSectionTitle('Confirmer le mot de passe'),
               AuthTextField(
@@ -170,6 +174,13 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       _showError('Veuillez remplir tous les champs obligatoires');
       return;
     }
+
+    // ✅ NOUVELLE VALIDATION: Vérifier la force du mot de passe
+    if (!PasswordValidator.isPasswordValid(_passwordController.text)) {
+      _showError(PasswordValidator.getPasswordError(_passwordController.text));
+      return;
+    }
+
     if (_passwordController.text != _confirmPasswordController.text) {
       _showError('Les mots de passe ne correspondent pas');
       return;
@@ -265,6 +276,80 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
       child: Text(
         title,
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+      ),
+    );
+  }
+
+  // ✅ NOUVEAU: Widget pour afficher les critères du mot de passe
+  Widget _buildPasswordStrengthIndicator() {
+    final password = _passwordController.text;
+    final isValid = PasswordValidator.isPasswordValid(password);
+
+    // Critères individuels
+    final hasMinLength = password.length >= 8;
+    final hasDigit = password.contains(RegExp(r'\d'));
+    final hasUpperCase = password.contains(RegExp(r'[A-Z]'));
+    final hasSpecialChar =
+        RegExp(r'[!@#$%^&*\(\)_+\-=\[\]{};:,./<>?\\|]').hasMatch(password);
+
+    return StatefulBuilder(
+      builder: (context, setState) {
+        // Mettre à jour quand le texte change
+        _passwordController.addListener(() => setState(() {}));
+
+        return Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isValid ? Colors.green.shade50 : Colors.orange.shade50,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isValid ? Colors.green.shade300 : Colors.orange.shade300,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Critères du mot de passe:',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey[700],
+                ),
+              ),
+              const SizedBox(height: 8),
+              _buildCriterion('Au minimum 8 caractères', hasMinLength),
+              _buildCriterion('Au moins 1 chiffre (0-9)', hasDigit),
+              _buildCriterion('Au moins 1 majuscule (A-Z)', hasUpperCase),
+              _buildCriterion(
+                  'Au moins 1 symbole (!@#\$%^&*...)', hasSpecialChar),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // Helper pour afficher chaque critère
+  Widget _buildCriterion(String text, bool isMet) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        children: [
+          Icon(
+            isMet ? Icons.check_circle : Icons.circle_outlined,
+            size: 16,
+            color: isMet ? Colors.green : Colors.grey,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 13,
+              color: isMet ? Colors.green : Colors.grey[600],
+            ),
+          ),
+        ],
       ),
     );
   }

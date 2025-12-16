@@ -4,7 +4,8 @@ import 'dart:math';
 class StationModel {
   final int id;
   final String name;
-  final String type; // 'university', 'train_station', 'bus_station', 'landmark', 'city'
+  final String
+      type; // 'university', 'train_station', 'bus_station', 'landmark', 'city'
   final String city;
   final String? address;
   final double? latitude;
@@ -41,8 +42,12 @@ class StationModel {
       type: json['type'] ?? 'landmark',
       city: json['city'] ?? '',
       address: json['address'],
-      latitude: json['latitude'] != null ? double.tryParse(json['latitude'].toString()) : null,
-      longitude: json['longitude'] != null ? double.tryParse(json['longitude'].toString()) : null,
+      latitude: json['latitude'] != null
+          ? double.tryParse(json['latitude'].toString())
+          : null,
+      longitude: json['longitude'] != null
+          ? double.tryParse(json['longitude'].toString())
+          : null,
       universityId: json['university_id'],
       universityName: json['university_name'],
       isFavorite: json['is_favorite'] == true || json['is_favorite'] == 1,
@@ -71,12 +76,11 @@ class StationModel {
     };
   }
 
-  // Pour l'affichage
+  // Pour l'affichage - utilise toujours le label de la base de données
   String get displayName {
-    if (universityName != null && universityName!.isNotEmpty) {
-      return '$name ($universityName)';
-    }
-    return name;
+    // ✅ CORRECTION: Afficher uniquement le label depuis la BD
+    // Ne pas construire de label personnalisé (ex: "University(Ensemble)")
+    return label;
   }
 
   // Vérifie si c'est une station d'université
@@ -91,20 +95,22 @@ class StationModel {
   // Pour les distances (si on a les coordonnées)
   double? distanceTo(double lat, double lng) {
     if (latitude == null || longitude == null) return null;
-    
+
     // Formule haversine simplifiée
     const R = 6371.0; // Rayon de la Terre en km
-    
+
     // Convertir les degrés en radians
     double toRadians(double degree) => degree * pi / 180;
-    
+
     final dLat = toRadians(latitude! - lat);
     final dLon = toRadians(longitude! - lng);
-    
+
     final a = sin(dLat / 2) * sin(dLat / 2) +
-        cos(toRadians(latitude!)) * cos(toRadians(lat)) *
-        sin(dLon / 2) * sin(dLon / 2);
-    
+        cos(toRadians(latitude!)) *
+            cos(toRadians(lat)) *
+            sin(dLon / 2) *
+            sin(dLon / 2);
+
     final c = 2 * atan2(sqrt(a), sqrt(1 - a));
     return R * c;
   }
@@ -127,15 +133,16 @@ class StationModel {
   }
 
   // Pour le tri
-  static int sortByDistance(StationModel a, StationModel b, double userLat, double userLng) {
+  static int sortByDistance(
+      StationModel a, StationModel b, double userLat, double userLng) {
     final distA = a.distanceTo(userLat, userLng) ?? double.infinity;
     final distB = b.distanceTo(userLat, userLng) ?? double.infinity;
     return distA.compareTo(distB);
   }
 
-  static int sortByName(StationModel a, StationModel b) => 
+  static int sortByName(StationModel a, StationModel b) =>
       a.name.toLowerCase().compareTo(b.name.toLowerCase());
 
-  static int sortByPopularity(StationModel a, StationModel b) => 
+  static int sortByPopularity(StationModel a, StationModel b) =>
       (b.rideCount + b.searchCount).compareTo(a.rideCount + a.searchCount);
 }
