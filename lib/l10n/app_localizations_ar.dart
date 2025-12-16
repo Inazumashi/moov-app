@@ -220,4 +220,166 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get msgRidesToRate => 'رحلات للتقييم';
+
+  @override
+  String get editProfile => 'تعديل الملف الشخصي';
+
+  @override
+  String get paymentMethods => 'طرق الدفع';
+
+  @override
+  String get darkMode => 'الوضع المظلم';
+
+  @override
+  String get changePassword => 'تغيير كلمة المرور';
+
+  @override
+  String get help => 'المساعدة';
+
+  @override
+  String get contactUs => 'اتصل بنا';
+
+  @override
+  String get termsOfService => 'شروط الخدمة';
+
+  @override
+  String get privacyPolicy => 'سياسة الخصوصية';
+
+  @override
+  String get logout => 'تسجيل الخروج';
+
+  @override
+  String get communities => 'المجتمعات';
+
+  @override
+  String get helpSupport => 'المساعدة والدعم';
+
+  @override
+  String get phoneAdditionOptional => 'إضافة الهاتف اختيارية';
+
+  @override
+  String get noRecentActivity => 'لا توجد أنشطة حديثة';
+
+  @override
+  String greetingWithName(Object name) {
+    return 'مرحبا، $name 👋';
+  }
+
+  @override
+  String get greeting => 'مرحبا 👋';
+
+  @override
+  String get student => 'طالب';
+
+  @override
+  String get availableRidesMap => 'خريطة الرحلات المتاحة';
+
+  @override
+  String get rides => 'الرحلات';
+
+  @override
+  String get rating => 'التقييم';
+
+  @override
+  String get madSaved => 'درهم موروكو محفوظ';
+
+  @override
+  String get myReservations => 'حجوزاتي';
+
+  @override
+  String get myPublishedRides => 'رحلاتي المنشورة';
+
+  @override
+  String get noPublishedRides => 'لم يتم نشر أي رحلات بعد.';
+
+  @override
+  String get publish => 'نشر';
+
+  @override
+  String availableSeats(Object seats) {
+    return '$seats مقاعد';
+  }
+
+  @override
+  String pricePerSeat(Object price) {
+    return '$price درهم';
+  }
+
+  @override
+  String get markAsCompleted => 'وضع علامة كمكتمل';
+
+  @override
+  String get thankYouForReview => 'شكرا لتقييمك!';
+
+  @override
+  String get alreadyRated => 'لقد قمت بالفعل بتقييم هذه الرحلة';
+
+  @override
+  String get rateDriver => 'تقييم السائق';
+
+  @override
+  String get cancelReservation => 'إلغاء الحجز؟';
+
+  @override
+  String get noKeep => 'لا، احتفظ';
+
+  @override
+  String get yesCancel => 'نعم، إلغاء';
+
+  @override
+  String get markAsCompletedQuestion => 'وضع علامة كمكتمل؟';
+
+  @override
+  String get confirmRideCompleted => 'هل تؤكد أن الرحلة مكتملة؟';
+
+  @override
+  String get no => 'لا';
+
+  @override
+  String get yesComplete => 'نعم، أكمل';
+
+  @override
+  String get rideMarkedCompleted => 'تم وضع علامة على الرحلة كمكتملة';
+
+  @override
+  String get cannotMarkRide => 'لا يمكن وضع علامة على الرحلة';
+
+  @override
+  String error(Object error) {
+    return 'خطأ: $error';
+  }
+
+  @override
+  String get addPaymentMethod => 'يرجى إضافة طريقة دفع في الإعدادات';
+
+  @override
+  String get paymentSuccessful => 'الدفع ناجح! مرحبا بك في Premium!';
+
+  @override
+  String paymentError(Object error) {
+    return 'خطأ في الدفع: $error';
+  }
+
+  @override
+  String get cancelAnytime => 'إلغاء في أي وقت';
+
+  @override
+  String get premiumActive => 'Premium نشط';
+
+  @override
+  String premiumExpiresIn(Object time) {
+    return 'انتهاء اشتراكك في $time';
+  }
+
+  @override
+  String get premium => 'Premium';
+
+  @override
+  String get fullExperience => 'استمتع بتجربة كاملة بدون انقطاع';
+
+  @override
+  String get currentPlan => 'الخطة الحالية';
+
+  @override
+  String get freePrice => '0 درهم';
 }

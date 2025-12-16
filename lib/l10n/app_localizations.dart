@@ -522,6 +522,306 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Trips to Rate'**
   String get msgRidesToRate;
+
+  /// No description provided for @editProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Profile'**
+  String get editProfile;
+
+  /// No description provided for @paymentMethods.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Methods'**
+  String get paymentMethods;
+
+  /// No description provided for @darkMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Mode'**
+  String get darkMode;
+
+  /// No description provided for @changePassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Password'**
+  String get changePassword;
+
+  /// No description provided for @help.
+  ///
+  /// In en, this message translates to:
+  /// **'Help'**
+  String get help;
+
+  /// No description provided for @contactUs.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact Us'**
+  String get contactUs;
+
+  /// No description provided for @termsOfService.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms of Service'**
+  String get termsOfService;
+
+  /// No description provided for @privacyPolicy.
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get privacyPolicy;
+
+  /// No description provided for @logout.
+  ///
+  /// In en, this message translates to:
+  /// **'Logout'**
+  String get logout;
+
+  /// No description provided for @communities.
+  ///
+  /// In en, this message translates to:
+  /// **'Communities'**
+  String get communities;
+
+  /// No description provided for @helpSupport.
+  ///
+  /// In en, this message translates to:
+  /// **'Help & Support'**
+  String get helpSupport;
+
+  /// No description provided for @phoneAdditionOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone addition is optional'**
+  String get phoneAdditionOptional;
+
+  /// No description provided for @noRecentActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'No recent activity'**
+  String get noRecentActivity;
+
+  /// No description provided for @greetingWithName.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello, {name} 👋'**
+  String greetingWithName(Object name);
+
+  /// No description provided for @greeting.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello 👋'**
+  String get greeting;
+
+  /// No description provided for @student.
+  ///
+  /// In en, this message translates to:
+  /// **'Student'**
+  String get student;
+
+  /// No description provided for @availableRidesMap.
+  ///
+  /// In en, this message translates to:
+  /// **'Map of available rides'**
+  String get availableRidesMap;
+
+  /// No description provided for @rides.
+  ///
+  /// In en, this message translates to:
+  /// **'Rides'**
+  String get rides;
+
+  /// No description provided for @rating.
+  ///
+  /// In en, this message translates to:
+  /// **'Rating'**
+  String get rating;
+
+  /// No description provided for @madSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'MAD Saved'**
+  String get madSaved;
+
+  /// No description provided for @myReservations.
+  ///
+  /// In en, this message translates to:
+  /// **'My reservations'**
+  String get myReservations;
+
+  /// No description provided for @myPublishedRides.
+  ///
+  /// In en, this message translates to:
+  /// **'My published rides'**
+  String get myPublishedRides;
+
+  /// No description provided for @noPublishedRides.
+  ///
+  /// In en, this message translates to:
+  /// **'No rides published yet.'**
+  String get noPublishedRides;
+
+  /// No description provided for @publish.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish'**
+  String get publish;
+
+  /// No description provided for @availableSeats.
+  ///
+  /// In en, this message translates to:
+  /// **'{seats} seats'**
+  String availableSeats(Object seats);
+
+  /// No description provided for @pricePerSeat.
+  ///
+  /// In en, this message translates to:
+  /// **'{price} DH'**
+  String pricePerSeat(Object price);
+
+  /// No description provided for @markAsCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as completed'**
+  String get markAsCompleted;
+
+  /// No description provided for @thankYouForReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for your review!'**
+  String get thankYouForReview;
+
+  /// No description provided for @alreadyRated.
+  ///
+  /// In en, this message translates to:
+  /// **'You have already rated this ride'**
+  String get alreadyRated;
+
+  /// No description provided for @rateDriver.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate the driver'**
+  String get rateDriver;
+
+  /// No description provided for @cancelReservation.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel reservation?'**
+  String get cancelReservation;
+
+  /// No description provided for @noKeep.
+  ///
+  /// In en, this message translates to:
+  /// **'No, keep'**
+  String get noKeep;
+
+  /// No description provided for @yesCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, cancel'**
+  String get yesCancel;
+
+  /// No description provided for @markAsCompletedQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as completed?'**
+  String get markAsCompletedQuestion;
+
+  /// No description provided for @confirmRideCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you confirm that the ride is completed?'**
+  String get confirmRideCompleted;
+
+  /// No description provided for @no.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get no;
+
+  /// No description provided for @yesComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes, complete'**
+  String get yesComplete;
+
+  /// No description provided for @rideMarkedCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Ride marked as completed'**
+  String get rideMarkedCompleted;
+
+  /// No description provided for @cannotMarkRide.
+  ///
+  /// In en, this message translates to:
+  /// **'Cannot mark the ride'**
+  String get cannotMarkRide;
+
+  /// No description provided for @error.
+  ///
+  /// In en, this message translates to:
+  /// **'Error: {error}'**
+  String error(Object error);
+
+  /// No description provided for @addPaymentMethod.
+  ///
+  /// In en, this message translates to:
+  /// **'Please add a payment method in settings'**
+  String get addPaymentMethod;
+
+  /// No description provided for @paymentSuccessful.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment successful! Welcome to Premium!'**
+  String get paymentSuccessful;
+
+  /// No description provided for @paymentError.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment error: {error}'**
+  String paymentError(Object error);
+
+  /// No description provided for @cancelAnytime.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel anytime'**
+  String get cancelAnytime;
+
+  /// No description provided for @premiumActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium Active'**
+  String get premiumActive;
+
+  /// No description provided for @premiumExpiresIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Your subscription expires in {time}'**
+  String premiumExpiresIn(Object time);
+
+  /// No description provided for @premium.
+  ///
+  /// In en, this message translates to:
+  /// **'Premium'**
+  String get premium;
+
+  /// No description provided for @fullExperience.
+  ///
+  /// In en, this message translates to:
+  /// **'Enjoy a full experience without interruption'**
+  String get fullExperience;
+
+  /// No description provided for @currentPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Current plan'**
+  String get currentPlan;
+
+  /// No description provided for @freePrice.
+  ///
+  /// In en, this message translates to:
+  /// **'0 MAD'**
+  String get freePrice;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

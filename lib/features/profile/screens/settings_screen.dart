@@ -4,6 +4,8 @@ import 'package:moovapp/features/profile/screens/payment_methods_screen.dart';
 import 'package:moovapp/features/profile/screens/language_selection_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:moovapp/core/providers/theme_provider.dart';
+import 'package:moovapp/core/providers/language_provider.dart';
+import 'package:moovapp/l10n/app_localizations.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -16,16 +18,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool _pushNotifications = true;
   bool _emailNotifications = false;
 
+  String _getLanguageName(String code) {
+    switch (code) {
+      case 'fr':
+        return 'Français';
+      case 'en':
+        return 'English';
+      case 'ar':
+        return 'العربية';
+      default:
+        return 'Français';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final languageProvider = Provider.of<LanguageProvider>(context);
     final colorScheme = Theme.of(context).colorScheme;
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
-          'Paramètres',
+          AppLocalizations.of(context)!.pageTitleSettings,
           style: TextStyle(
             color: colorScheme.onPrimary,
             fontWeight: FontWeight.bold,
@@ -36,7 +52,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       body: ListView(
         children: [
-          _buildSectionTitle(context, 'Compte'),
+          _buildSectionTitle(context, AppLocalizations.of(context)!.sectionAccount),
           Container(
             color: Theme.of(context).cardColor,
             child: Column(
@@ -44,7 +60,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ListTile(
                   leading:
                       Icon(Icons.person_outline, color: colorScheme.onSurface),
-                  title: Text('Modifier le profil',
+                  title: Text(AppLocalizations.of(context)!.editProfile,
                       style: TextStyle(color: colorScheme.onSurface)),
                   trailing: Icon(Icons.arrow_forward_ios,
                       size: 16, color: colorScheme.onSurface),
@@ -57,7 +73,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ListTile(
                   leading: Icon(Icons.payment_outlined,
                       color: colorScheme.onSurface),
-                  title: Text('Moyens de paiement',
+                  title: Text(AppLocalizations.of(context)!.paymentMethods,
                       style: TextStyle(color: colorScheme.onSurface)),
                   trailing: Icon(Icons.arrow_forward_ios,
                       size: 16, color: colorScheme.onSurface),
@@ -70,7 +86,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
           ),
-          _buildSectionTitle(context, 'Notifications'),
+          _buildSectionTitle(context, AppLocalizations.of(context)!.sectionNotifications),
           Container(
             color: Theme.of(context).cardColor,
             child: Column(
@@ -105,7 +121,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ),
           ),
-          _buildSectionTitle(context, 'Apparence'),
+          _buildSectionTitle(context, AppLocalizations.of(context)!.sectionAppearance),
           Container(
             color: Theme.of(context).cardColor,
             child: Column(
@@ -113,13 +129,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ListTile(
                   leading: Icon(Icons.language_outlined,
                       color: colorScheme.onSurface),
-                  title: Text('Langue',
+                  title: Text(AppLocalizations.of(context)!.pageTitleLanguage,
                       style: TextStyle(color: colorScheme.onSurface)),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        'Français',
+                        _getLanguageName(languageProvider.locale.languageCode),
                         style: TextStyle(
                             color: colorScheme.onSurface.withOpacity(0.7)),
                       ),
@@ -137,7 +153,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 SwitchListTile(
                   secondary: Icon(Icons.dark_mode_outlined,
                       color: colorScheme.onSurface),
-                  title: Text('Mode sombre',
+                  title: Text(AppLocalizations.of(context)!.menuDarkMode,
                       style: TextStyle(color: colorScheme.onSurface)),
                   value: themeProvider.isDarkMode,
                   onChanged: themeProvider.toggleTheme,

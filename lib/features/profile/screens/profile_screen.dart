@@ -13,6 +13,7 @@ import 'notifications_screen.dart';
 import 'security_screen.dart';
 import 'settings_screen.dart';
 import 'support_screen.dart';
+import 'package:moovapp/l10n/app_localizations.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -32,7 +33,7 @@ class ProfileScreen extends StatelessWidget {
             pinned: true,
             elevation: 0,
             title: Text(
-              'Mon Profil',
+              AppLocalizations.of(context)!.pageTitleProfile,
               style: TextStyle(
                 color: colors.onPrimary,
                 fontWeight: FontWeight.bold,

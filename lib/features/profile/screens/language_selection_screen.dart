@@ -54,6 +54,8 @@ class LanguageSelectionScreen extends StatelessWidget {
                   onTap: () {
                     // Mise à jour de la langue via le provider
                     languageProvider.setLocale(Locale(lang['code']!));
+                    // Retour à l'écran précédent
+                    Navigator.of(context).pop();
                   },
                 ),
                 if (index < languages.length - 1)

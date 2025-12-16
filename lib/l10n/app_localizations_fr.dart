@@ -220,4 +220,166 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get msgRidesToRate => 'Trajets à noter';
+
+  @override
+  String get editProfile => 'Modifier le profil';
+
+  @override
+  String get paymentMethods => 'Moyens de paiement';
+
+  @override
+  String get darkMode => 'Mode sombre';
+
+  @override
+  String get changePassword => 'Modifier le mot de passe';
+
+  @override
+  String get help => 'Aide';
+
+  @override
+  String get contactUs => 'Contactez-nous';
+
+  @override
+  String get termsOfService => 'Conditions d\'utilisation';
+
+  @override
+  String get privacyPolicy => 'Politique de confidentialité';
+
+  @override
+  String get logout => 'Se déconnecter';
+
+  @override
+  String get communities => 'Communautés';
+
+  @override
+  String get helpSupport => 'Aide & Support';
+
+  @override
+  String get phoneAdditionOptional => 'L\'ajout de téléphone est optionnel';
+
+  @override
+  String get noRecentActivity => 'Aucune activité récente';
+
+  @override
+  String greetingWithName(Object name) {
+    return 'Bonjour, $name 👋';
+  }
+
+  @override
+  String get greeting => 'Bonjour 👋';
+
+  @override
+  String get student => 'Étudiant';
+
+  @override
+  String get availableRidesMap => 'Carte des trajets disponibles';
+
+  @override
+  String get rides => 'Trajets';
+
+  @override
+  String get rating => 'Note';
+
+  @override
+  String get madSaved => 'MAD Économisés';
+
+  @override
+  String get myReservations => 'Mes réservations';
+
+  @override
+  String get myPublishedRides => 'Mes trajets publiés';
+
+  @override
+  String get noPublishedRides => 'Aucun trajet publié pour le moment.';
+
+  @override
+  String get publish => 'Publier';
+
+  @override
+  String availableSeats(Object seats) {
+    return '$seats places';
+  }
+
+  @override
+  String pricePerSeat(Object price) {
+    return '$price DH';
+  }
+
+  @override
+  String get markAsCompleted => 'Marquer comme terminé';
+
+  @override
+  String get thankYouForReview => 'Merci pour votre avis !';
+
+  @override
+  String get alreadyRated => 'Vous avez déjà noté ce trajet';
+
+  @override
+  String get rateDriver => 'Noter le conducteur';
+
+  @override
+  String get cancelReservation => 'Annuler la réservation ?';
+
+  @override
+  String get noKeep => 'Non, garder';
+
+  @override
+  String get yesCancel => 'Oui, annuler';
+
+  @override
+  String get markAsCompletedQuestion => 'Marquer comme terminé ?';
+
+  @override
+  String get confirmRideCompleted => 'Confirmez-vous que le trajet est bien terminé ?';
+
+  @override
+  String get no => 'Non';
+
+  @override
+  String get yesComplete => 'Oui, terminer';
+
+  @override
+  String get rideMarkedCompleted => 'Trajet marqué comme terminé';
+
+  @override
+  String get cannotMarkRide => 'Impossible de marquer le trajet';
+
+  @override
+  String error(Object error) {
+    return 'Erreur: $error';
+  }
+
+  @override
+  String get addPaymentMethod => 'Veuillez ajouter un moyen de paiement dans les paramètres';
+
+  @override
+  String get paymentSuccessful => 'Paiement réussi ! Bienvenue dans Premium !';
+
+  @override
+  String paymentError(Object error) {
+    return 'Erreur de paiement: $error';
+  }
+
+  @override
+  String get cancelAnytime => 'Annulez à tout moment';
+
+  @override
+  String get premiumActive => 'Premium Actif';
+
+  @override
+  String premiumExpiresIn(Object time) {
+    return 'Votre abonnement expire dans $time';
+  }
+
+  @override
+  String get premium => 'Premium';
+
+  @override
+  String get fullExperience => 'Profitez d\'une expérience complète sans interruption';
+
+  @override
+  String get currentPlan => 'Plan actuel';
+
+  @override
+  String get freePrice => '0 MAD';
 }

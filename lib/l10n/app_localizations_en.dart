@@ -220,4 +220,166 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get msgRidesToRate => 'Trips to Rate';
+
+  @override
+  String get editProfile => 'Edit Profile';
+
+  @override
+  String get paymentMethods => 'Payment Methods';
+
+  @override
+  String get darkMode => 'Dark Mode';
+
+  @override
+  String get changePassword => 'Change Password';
+
+  @override
+  String get help => 'Help';
+
+  @override
+  String get contactUs => 'Contact Us';
+
+  @override
+  String get termsOfService => 'Terms of Service';
+
+  @override
+  String get privacyPolicy => 'Privacy Policy';
+
+  @override
+  String get logout => 'Logout';
+
+  @override
+  String get communities => 'Communities';
+
+  @override
+  String get helpSupport => 'Help & Support';
+
+  @override
+  String get phoneAdditionOptional => 'Phone addition is optional';
+
+  @override
+  String get noRecentActivity => 'No recent activity';
+
+  @override
+  String greetingWithName(Object name) {
+    return 'Hello, $name 👋';
+  }
+
+  @override
+  String get greeting => 'Hello 👋';
+
+  @override
+  String get student => 'Student';
+
+  @override
+  String get availableRidesMap => 'Map of available rides';
+
+  @override
+  String get rides => 'Rides';
+
+  @override
+  String get rating => 'Rating';
+
+  @override
+  String get madSaved => 'MAD Saved';
+
+  @override
+  String get myReservations => 'My reservations';
+
+  @override
+  String get myPublishedRides => 'My published rides';
+
+  @override
+  String get noPublishedRides => 'No rides published yet.';
+
+  @override
+  String get publish => 'Publish';
+
+  @override
+  String availableSeats(Object seats) {
+    return '$seats seats';
+  }
+
+  @override
+  String pricePerSeat(Object price) {
+    return '$price DH';
+  }
+
+  @override
+  String get markAsCompleted => 'Mark as completed';
+
+  @override
+  String get thankYouForReview => 'Thank you for your review!';
+
+  @override
+  String get alreadyRated => 'You have already rated this ride';
+
+  @override
+  String get rateDriver => 'Rate the driver';
+
+  @override
+  String get cancelReservation => 'Cancel reservation?';
+
+  @override
+  String get noKeep => 'No, keep';
+
+  @override
+  String get yesCancel => 'Yes, cancel';
+
+  @override
+  String get markAsCompletedQuestion => 'Mark as completed?';
+
+  @override
+  String get confirmRideCompleted => 'Do you confirm that the ride is completed?';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get yesComplete => 'Yes, complete';
+
+  @override
+  String get rideMarkedCompleted => 'Ride marked as completed';
+
+  @override
+  String get cannotMarkRide => 'Cannot mark the ride';
+
+  @override
+  String error(Object error) {
+    return 'Error: $error';
+  }
+
+  @override
+  String get addPaymentMethod => 'Please add a payment method in settings';
+
+  @override
+  String get paymentSuccessful => 'Payment successful! Welcome to Premium!';
+
+  @override
+  String paymentError(Object error) {
+    return 'Payment error: $error';
+  }
+
+  @override
+  String get cancelAnytime => 'Cancel anytime';
+
+  @override
+  String get premiumActive => 'Premium Active';
+
+  @override
+  String premiumExpiresIn(Object time) {
+    return 'Your subscription expires in $time';
+  }
+
+  @override
+  String get premium => 'Premium';
+
+  @override
+  String get fullExperience => 'Enjoy a full experience without interruption';
+
+  @override
+  String get currentPlan => 'Current plan';
+
+  @override
+  String get freePrice => '0 MAD';
 }

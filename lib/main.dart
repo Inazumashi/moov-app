@@ -51,32 +51,35 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final languageProvider = Provider.of<LanguageProvider>(context);
 
-    return MaterialApp(
-      title: 'Moov',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
-      themeMode: themeProvider.themeMode,
+    return Consumer<LanguageProvider>(
+      builder: (context, languageProvider, child) {
+        return MaterialApp(
+          title: 'Moov',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeProvider.themeMode,
 
-      // --- LOCALISATIONS ---
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('fr'),
-        Locale('en'),
-        Locale('ar'),
-      ],
-      locale: languageProvider.locale,
+          // --- LOCALISATIONS ---
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('fr'),
+            Locale('en'),
+            Locale('ar'),
+          ],
+          locale: languageProvider.locale,
 
-      // --- ROUTING ---
-      onGenerateRoute: AppRouter.generateRoute,
-      initialRoute: AppRouter.welcome,
+          // --- ROUTING ---
+          onGenerateRoute: AppRouter.generateRoute,
+          initialRoute: AppRouter.welcome,
+        );
+      },
     );
   }
 }
