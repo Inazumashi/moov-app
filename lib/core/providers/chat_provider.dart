@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:moovapp/core/services/chat_service.dart';
+import 'package:moovapp/core/service/chat_service.dart';
 import 'package:moovapp/core/api/api_service.dart';
 
 class ChatProvider with ChangeNotifier {

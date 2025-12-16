@@ -1,11 +1,84 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:moovapp/core/providers/payment_provider.dart';
+import 'package:moovapp/core/providers/premium_provider.dart';
 
-class PremiumScreen extends StatelessWidget {
+class PremiumScreen extends StatefulWidget {
   const PremiumScreen({super.key});
+
+  @override
+  State<PremiumScreen> createState() => _PremiumScreenState();
+}
+
+class _PremiumScreenState extends State<PremiumScreen> {
+  bool _isProcessingPayment = false;
+
+  Future<void> _handlePremiumPurchase() async {
+    final paymentProvider = context.read<PaymentProvider>();
+    final defaultMethod = await paymentProvider.getDefaultPaymentMethod();
+
+    if (defaultMethod == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Veuillez ajouter un moyen de paiement dans les paramètres'),
+          action: SnackBarAction(
+            label: 'Aller aux paramètres',
+            onPressed: () {
+              // Navigation vers l'écran des moyens de paiement
+              Navigator.of(context).pushNamed('/payment-methods');
+            },
+          ),
+        ),
+      );
+      return;
+    }
+
+    setState(() => _isProcessingPayment = true);
+
+    try {
+      await paymentProvider.initiatePayPalPayment(
+        context: context,
+        amount: 49.0,
+        currency: 'MAD',
+        description: 'Abonnement Premium Moov - 1 mois',
+        onSuccess: (paymentId) async {
+          // Activer le statut premium
+          await context.read<PremiumProvider>().activatePremium();
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Paiement réussi ! Bienvenue dans Premium !')),
+          );
+          // Retourner à l'écran précédent
+          Navigator.of(context).pop();
+        },
+        onError: (error) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Erreur de paiement: $error')),
+          );
+        },
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur: ${e.toString()}')),
+      );
+    } finally {
+      setState(() => _isProcessingPayment = false);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<PremiumProvider>().loadPremiumStatus();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    final premiumProvider = context.watch<PremiumProvider>();
+    final isAlreadyPremium = premiumProvider.isPremium;
 
     return Scaffold(
       backgroundColor: cs.surface,
@@ -18,13 +91,15 @@ class PremiumScreen extends StatelessWidget {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Premium',
+            Text(
+              isAlreadyPremium ? 'Premium Actif' : 'Premium',
               style:
                   TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
             Text(
-              'Profitez d\'une expérience complète sans interruption',
+              isAlreadyPremium
+                  ? 'Votre abonnement expire dans ${premiumProvider.getRemainingTime()}'
+                  : 'Profitez d\'une expérience complète sans interruption',
               style:
                   TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 13),
             ),
@@ -144,7 +219,7 @@ class PremiumScreen extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: _isProcessingPayment || context.watch<PremiumProvider>().isPremium ? null : _handlePremiumPurchase,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange[400],
                 foregroundColor: Colors.black87,
@@ -152,10 +227,19 @@ class PremiumScreen extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
               ),
-              child: const Text(
-                'Commencer Premium',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
+              child: _isProcessingPayment
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.black87),
+                      ),
+                    )
+                  : Text(
+                      context.watch<PremiumProvider>().isPremium ? 'Premium Actif' : 'Commencer Premium',
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
             ),
           ),
         ],

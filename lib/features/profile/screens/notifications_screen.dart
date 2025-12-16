@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:moovapp/core/providers/notification_provider.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -8,10 +10,14 @@ class NotificationsScreen extends StatefulWidget {
 }
 
 class _NotificationsScreenState extends State<NotificationsScreen> {
-  bool _newRides = true;
-  bool _newMessages = true;
-  bool _bookingUpdates = true;
-  bool _promotions = false;
+  @override
+  void initState() {
+    super.initState();
+    // Charger les préférences au démarrage
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<NotificationProvider>().loadNotificationPreferences();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,64 +37,68 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
         backgroundColor: colors.primary,
         iconTheme: IconThemeData(color: colors.onPrimary),
       ),
-      body: ListView(
-        children: <Widget>[
-          // --- Section Notifications Push ---
-          _buildSectionTitle(context, 'Notifications Push'),
+      body: Consumer<NotificationProvider>(
+        builder: (context, notificationProvider, child) {
+          return ListView(
+            children: <Widget>[
+              // --- Section Notifications Push ---
+              _buildSectionTitle(context, 'Notifications Push'),
 
-          Container(
-            color: theme.cardColor,
-            child: Column(
-              children: <Widget>[
-                _buildSwitch(
-                  context,
-                  icon: Icons.directions_car_outlined,
-                  title: 'Nouveaux trajets publiés',
-                  subtitle:
-                      'Recevoir une alerte pour les nouveaux trajets sur vos routes favorites.',
-                  value: _newRides,
-                  onChanged: (v) => setState(() => _newRides = v),
+              Container(
+                color: theme.cardColor,
+                child: Column(
+                  children: <Widget>[
+                    _buildSwitch(
+                      context,
+                      icon: Icons.directions_car_outlined,
+                      title: 'Nouveaux trajets publiés',
+                      subtitle:
+                          'Recevoir une alerte pour les nouveaux trajets sur vos routes favorites.',
+                      value: notificationProvider.newRidesEnabled,
+                      onChanged: (v) => notificationProvider.setNewRidesEnabled(v),
+                    ),
+                    _buildSwitch(
+                      context,
+                      icon: Icons.message_outlined,
+                      title: 'Nouveaux messages',
+                      subtitle:
+                          'Recevoir une alerte pour les nouveaux messages de conducteurs/passagers.',
+                      value: notificationProvider.newMessagesEnabled,
+                      onChanged: (v) => notificationProvider.setNewMessagesEnabled(v),
+                    ),
+                    _buildSwitch(
+                      context,
+                      icon: Icons.check_circle_outline,
+                      title: 'Mises à jour des réservations',
+                      subtitle: 'Réservation confirmée, annulée, etc.',
+                      value: notificationProvider.bookingUpdatesEnabled,
+                      onChanged: (v) => notificationProvider.setBookingUpdatesEnabled(v),
+                    ),
+                  ],
                 ),
-                _buildSwitch(
-                  context,
-                  icon: Icons.message_outlined,
-                  title: 'Nouveaux messages',
-                  subtitle:
-                      'Recevoir une alerte pour les nouveaux messages de conducteurs/passagers.',
-                  value: _newMessages,
-                  onChanged: (v) => setState(() => _newMessages = v),
-                ),
-                _buildSwitch(
-                  context,
-                  icon: Icons.check_circle_outline,
-                  title: 'Mises à jour des réservations',
-                  subtitle: 'Réservation confirmée, annulée, etc.',
-                  value: _bookingUpdates,
-                  onChanged: (v) => setState(() => _bookingUpdates = v),
-                ),
-              ],
-            ),
-          ),
+              ),
 
-          // --- Section Notifications Email ---
-          _buildSectionTitle(context, 'Notifications par E-mail'),
+              // --- Section Notifications Email ---
+              _buildSectionTitle(context, 'Notifications par E-mail'),
 
-          Container(
-            color: theme.cardColor,
-            child: Column(
-              children: <Widget>[
-                _buildSwitch(
-                  context,
-                  icon: Icons.local_offer_outlined,
-                  title: 'Promotions et actualités',
-                  subtitle: 'Recevoir les promotions et les nouvelles de Moov.',
-                  value: _promotions,
-                  onChanged: (v) => setState(() => _promotions = v),
+              Container(
+                color: theme.cardColor,
+                child: Column(
+                  children: <Widget>[
+                    _buildSwitch(
+                      context,
+                      icon: Icons.local_offer_outlined,
+                      title: 'Promotions et actualités',
+                      subtitle: 'Recevoir les promotions et les nouvelles de Moov.',
+                      value: notificationProvider.promotionsEnabled,
+                      onChanged: (v) => notificationProvider.setPromotionsEnabled(v),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          ),
-        ],
+              ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -103,7 +113,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       child: Text(
         title.toUpperCase(),
         style: TextStyle(
-          color: colors.onSurface.withOpacity(0.7),
+          color: colors.onSurface.withValues(alpha: 0.7),
           fontWeight: FontWeight.bold,
           fontSize: 12,
         ),
@@ -128,12 +138,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       title: Text(title, style: TextStyle(color: colors.onSurface)),
       subtitle: Text(
         subtitle,
-        style: TextStyle(color: colors.onSurface.withOpacity(0.7)),
+        style: TextStyle(color: colors.onSurface.withValues(alpha: 0.7)),
       ),
       value: value,
       onChanged: onChanged,
       activeThumbColor: colors.primary,
-      activeTrackColor: colors.primary.withOpacity(0.4),
+      activeTrackColor: colors.primary.withValues(alpha: 0.4),
     );
   }
 }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:moovapp/core/services/stats_service.dart';
+import 'package:moovapp/core/service/stats_service.dart';
 import 'package:moovapp/core/api/api_service.dart';
 
 class StatsProvider with ChangeNotifier {

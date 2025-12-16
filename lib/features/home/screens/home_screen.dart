@@ -8,6 +8,7 @@ import 'package:moovapp/features/ride/screens/my_rides_screen.dart';
 import 'package:moovapp/core/providers/auth_provider.dart';
 import 'package:moovapp/core/providers/ride_provider.dart';
 import 'package:moovapp/core/providers/reservation_provider.dart';
+import 'package:moovapp/features/profile/screens/notifications_list_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -192,7 +193,14 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: const Icon(Icons.notifications_none_outlined,
                 color: Colors.white, size: 28),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                   builder: (_) => const NotificationsListScreen(),
+                ),
+              );
+            },
           ),
           const SizedBox(width: 8),
         ],

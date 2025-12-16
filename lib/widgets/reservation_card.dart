@@ -7,7 +7,7 @@ import 'package:moovapp/core/providers/rating_provider.dart';
 import 'package:moovapp/core/providers/auth_provider.dart';
 import 'package:moovapp/core/providers/reservation_provider.dart';
 import 'package:moovapp/features/ratings/screens/rate_driver_screen.dart';
-import 'package:moovapp/widgets/star_rating.dart';
+
 
 class ReservationCard extends StatelessWidget {
   final Reservation reservation;

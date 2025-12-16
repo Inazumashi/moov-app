@@ -11,6 +11,9 @@ import 'package:moovapp/core/providers/language_provider.dart';
 import 'package:moovapp/core/providers/ride_provider.dart';
 import 'package:moovapp/core/providers/reservation_provider.dart';
 import 'package:moovapp/core/providers/station_provider.dart';
+import 'package:moovapp/core/providers/payment_provider.dart';
+import 'package:moovapp/core/providers/premium_provider.dart';
+import 'package:moovapp/core/providers/notification_provider.dart';
 import 'package:moovapp/core/providers/rating_provider.dart';
 import 'package:moovapp/core/providers/stats_provider.dart';
 import 'package:moovapp/core/providers/chat_provider.dart';
@@ -31,6 +34,9 @@ void main() async {
         ChangeNotifierProvider(create: (_) => StatsProvider()),
         ChangeNotifierProvider(create: (_) => ChatProvider()),
         ChangeNotifierProvider(create: (_) => StationProvider()),
+        ChangeNotifierProvider(create: (_) => PaymentProvider()),
+        ChangeNotifierProvider(create: (_) => PremiumProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
       ],
       child: const MyApp(),
     ),
