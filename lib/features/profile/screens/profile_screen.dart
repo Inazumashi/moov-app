@@ -4,7 +4,6 @@ import 'package:moovapp/features/auth/screens/welcome_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:moovapp/core/providers/auth_provider.dart';
 import '../widgets/profile_activity_item.dart';
-import 'package:provider/provider.dart';
 import 'package:moovapp/core/providers/reservation_provider.dart';
 import '../widgets/profile_menu_item.dart';
 import '../widgets/profile_header.dart';

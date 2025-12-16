@@ -1,5 +1,3 @@
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
@@ -11,7 +9,6 @@ class NotificationService {
   factory NotificationService() => _instance;
   NotificationService._internal();
 
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin _localNotifications = FlutterLocalNotificationsPlugin();
 
   static const String _notificationsKey = 'stored_notifications';
@@ -21,9 +18,6 @@ class NotificationService {
   Function(AppNotification)? onNotificationReceived;
 
   Future<void> initialize() async {
-    // Initialize Firebase
-    await Firebase.initializeApp();
-
     // Initialize local notifications
     const AndroidInitializationSettings androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
     const DarwinInitializationSettings iosSettings = DarwinInitializationSettings();
@@ -33,35 +27,13 @@ class NotificationService {
     );
     await _localNotifications.initialize(settings);
 
-    // Request permissions
-    await _requestPermissions();
-
-    // Handle background messages
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-
-    // Handle foreground messages
-    FirebaseMessaging.onMessage.listen(_handleForegroundMessage);
-
-    // Handle notification taps
+    // Setup notification tap
     await _setupNotificationTap();
   }
 
-  Future<void> _requestPermissions() async {
-    NotificationSettings settings = await _firebaseMessaging.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
-
-    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      print('User granted permission');
-    } else {
-      print('User declined or has not accepted permission');
-    }
-  }
-
   Future<String?> getToken() async {
-    return await _firebaseMessaging.getToken();
+    // Return null since no Firebase
+    return null;
   }
 
   // Gestion des préférences de notifications
@@ -87,91 +59,7 @@ class NotificationService {
     preferences[key] = value;
     await prefs.setString(_preferencesKey, jsonEncode(preferences));
 
-    // S'abonner/désabonner au topic selon la préférence
-    final topic = _getTopicForPreference(key);
-    if (topic != null) {
-      if (value) {
-        await subscribeToTopic(topic);
-      } else {
-        await unsubscribeFromTopic(topic);
-      }
-    }
-  }
-
-  String? _getTopicForPreference(String preference) {
-    switch (preference) {
-      case 'newRides':
-        return 'new_rides';
-      case 'newMessages':
-        return 'new_messages';
-      case 'bookingUpdates':
-        return 'booking_updates';
-      case 'promotions':
-        return 'promotions';
-      default:
-        return null;
-    }
-  }
-
-  Future<void> subscribeToTopic(String topic) async {
-    await _firebaseMessaging.subscribeToTopic(topic);
-  }
-
-  Future<void> unsubscribeFromTopic(String topic) async {
-    await _firebaseMessaging.unsubscribeFromTopic(topic);
-  }
-
-  void _handleForegroundMessage(RemoteMessage message) {
-    RemoteNotification? notification = message.notification;
-    AndroidNotification? android = message.notification?.android;
-
-    if (notification != null) {
-      // Créer une notification locale
-      _localNotifications.show(
-        notification.hashCode,
-        notification.title,
-        notification.body,
-        const NotificationDetails(
-          android: AndroidNotificationDetails(
-            'high_importance_channel',
-            'High Importance Notifications',
-            importance: Importance.high,
-            priority: Priority.high,
-          ),
-        ),
-      );
-
-      // Stocker la notification dans l'app
-      final appNotification = AppNotification(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        title: notification.title ?? 'Notification',
-        body: notification.body ?? '',
-        type: _getNotificationTypeFromData(message.data),
-        timestamp: DateTime.now(),
-        data: message.data,
-      );
-
-      _storeNotification(appNotification);
-
-      // Notifier l'UI
-      onNotificationReceived?.call(appNotification);
-    }
-  }
-
-  NotificationType _getNotificationTypeFromData(Map<String, dynamic> data) {
-    final type = data['type'];
-    switch (type) {
-      case 'new_ride':
-        return NotificationType.newRide;
-      case 'new_message':
-        return NotificationType.newMessage;
-      case 'booking_update':
-        return NotificationType.bookingUpdate;
-      case 'promotion':
-        return NotificationType.promotion;
-      default:
-        return NotificationType.general;
-    }
+    // Note: Topic subscription removed since no Firebase
   }
 
   Future<void> _storeNotification(AppNotification notification) async {
@@ -229,17 +117,12 @@ class NotificationService {
 
   Future<void> _setupNotificationTap() async {
     // Handle notification tap when app is in background
-    FirebaseMessaging.onMessageOpenedApp.listen(_handleNotificationTap);
+    // Note: Removed Firebase handling
   }
 
-  void _handleNotificationTap(RemoteMessage message) {
+  void _handleNotificationTap() {
     // Handle what happens when user taps on notification
-    print('Notification tapped: ${message.data}');
-    // You can navigate to specific screen based on message data
+    print('Notification tapped');
+    // You can navigate to specific screen based on data
   }
-}
-
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
-  print('Handling a background message: ${message.messageId}');
 }

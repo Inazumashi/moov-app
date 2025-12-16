@@ -17,10 +17,12 @@ import 'package:moovapp/core/providers/notification_provider.dart';
 import 'package:moovapp/core/providers/rating_provider.dart';
 import 'package:moovapp/core/providers/stats_provider.dart';
 import 'package:moovapp/core/providers/chat_provider.dart';
+import 'package:moovapp/core/service/notification_service.dart';
 import 'package:moovapp/l10n/app_localizations.dart';
 
 void main() async { 
   WidgetsFlutterBinding.ensureInitialized(); 
+  await NotificationService().initialize();
 
   runApp(
     MultiProvider(
