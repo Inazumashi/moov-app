@@ -54,6 +54,8 @@ class ApiService {
     return headers;
   }
 
+  
+
   // --- GESTION DES RÉPONSES ---
 
   dynamic _handleResponse(http.Response response) {

@@ -19,6 +19,7 @@ import 'package:moovapp/core/providers/stats_provider.dart';
 import 'package:moovapp/core/providers/chat_provider.dart';
 import 'package:moovapp/core/service/notification_service.dart';
 import 'package:moovapp/l10n/app_localizations.dart';
+import 'package:moovapp/core/api/api_service.dart';
 
 void main() async { 
   WidgetsFlutterBinding.ensureInitialized(); 
@@ -31,7 +32,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => LanguageProvider()), 
         ChangeNotifierProvider(create: (_) => RideProvider()),
-        ChangeNotifierProvider(create: (_) => ReservationProvider()),
+        ChangeNotifierProvider(create: (_) => ReservationProvider(ApiService())),
         ChangeNotifierProvider(create: (_) => RatingProvider()),
         ChangeNotifierProvider(create: (_) => StatsProvider()),
         ChangeNotifierProvider(create: (_) => ChatProvider()),
