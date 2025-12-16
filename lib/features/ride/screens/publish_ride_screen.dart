@@ -157,8 +157,10 @@ class _PublishRideScreenState extends State<PublishRideScreen> {
       }
 
       print('📤 Début publication du trajet...');
-      print('   Départ: ${_departureStation!.displayName}');
-      print('   Arrivée: ${_arrivalStation!.displayName}');
+      print(
+          '   Départ: ${_departureStation!.displayName} (ID: ${_departureStation!.id})');
+      print(
+          '   Arrivée: ${_arrivalStation!.displayName} (ID: ${_arrivalStation!.id})');
 
       // ✅ CORRECTION : Utiliser les IDs des stations et displayName (qui retourne label de la BD)
       final ride = RideModel(

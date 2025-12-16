@@ -197,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                   builder: (_) => const NotificationsListScreen(),
+                  builder: (_) => const NotificationsListScreen(),
                 ),
               );
             },
@@ -316,14 +316,82 @@ class _HomeScreenState extends State<HomeScreen> {
                       subtitle: Text(ride.departureTime != null
                           ? '${ride.formattedDate} • ${ride.formattedTime}'
                           : 'Date non définie'),
-                      trailing: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text('${ride.availableSeats} places'),
-                          const SizedBox(height: 4),
-                          Text('${ride.pricePerSeat} DH',
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.bold)),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text('${ride.availableSeats} places'),
+                              const SizedBox(height: 4),
+                              Text('${ride.pricePerSeat} DH',
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold)),
+                            ],
+                          ),
+                          const SizedBox(width: 8),
+                          PopupMenuButton<String>(
+                            icon: const Icon(Icons.more_vert),
+                            onSelected: (value) async {
+                              final rideProv = Provider.of<RideProvider>(
+                                  context,
+                                  listen: false);
+                              if (value == 'delete') {
+                                final confirmed = await showDialog<bool>(
+                                  context: context,
+                                  builder: (ctx) => AlertDialog(
+                                    title: const Text('Supprimer le trajet'),
+                                    content: const Text(
+                                        'Êtes-vous sûr de vouloir supprimer ce trajet ?'),
+                                    actions: [
+                                      TextButton(
+                                          onPressed: () =>
+                                              Navigator.of(ctx).pop(false),
+                                          child: const Text('Annuler')),
+                                      TextButton(
+                                          onPressed: () =>
+                                              Navigator.of(ctx).pop(true),
+                                          child: const Text('Supprimer')),
+                                    ],
+                                  ),
+                                );
+                                if (confirmed == true) {
+                                  final success =
+                                      await rideProv.deleteRide(ride.rideId);
+                                  if (success) {
+                                    // remove locally to update UI instantly
+                                    rideProv.removeLocalRide(ride.rideId);
+                                  }
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(success
+                                          ? 'Trajet supprimé'
+                                          : 'Erreur suppression'),
+                                    ),
+                                  );
+                                }
+                              } else if (value == 'edit') {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (_) => const MyRidesScreen()));
+                              }
+                            },
+                            itemBuilder: (BuildContext context) => [
+                              const PopupMenuItem<String>(
+                                value: 'delete',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.delete,
+                                        color: Colors.red, size: 20),
+                                    SizedBox(width: 8),
+                                    Text('Supprimer')
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                       onTap: () => Navigator.push(

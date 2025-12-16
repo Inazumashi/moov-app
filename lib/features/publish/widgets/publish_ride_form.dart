@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moovapp/core/providers/station_provider.dart';
+import 'package:moovapp/core/models/station_model.dart';
 import 'package:provider/provider.dart';
 
 class PublishRideForm extends StatefulWidget {
@@ -16,8 +17,8 @@ class PublishRideForm extends StatefulWidget {
   final ValueChanged<bool> onRegularRideChanged;
   final VoidCallback onSelectDate;
   final VoidCallback onSelectTime;
-  final ValueChanged<String>? onDepartureChanged;
-  final ValueChanged<String>? onArrivalChanged;
+  final ValueChanged<StationModel?>? onDepartureChanged;
+  final ValueChanged<StationModel?>? onArrivalChanged;
 
   const PublishRideForm({
     Key? key,
@@ -276,7 +277,7 @@ class _PublishRideFormState extends State<PublishRideForm> {
     final stationProvider =
         Provider.of<StationProvider>(context, listen: false);
 
-    final result = await showSearch<String>(
+    final result = await showSearch<StationModel?>(
       context: context,
       delegate: StationSearchDelegate(stationProvider),
       query: isDeparture
@@ -284,14 +285,14 @@ class _PublishRideFormState extends State<PublishRideForm> {
           : widget.arrivalController.text,
     );
 
-    if (result != null && result.isNotEmpty) {
+    if (result != null) {
       if (isDeparture) {
-        widget.departureController.text = result;
+        widget.departureController.text = result.displayName;
         if (widget.onDepartureChanged != null) {
           widget.onDepartureChanged!(result);
         }
       } else {
-        widget.arrivalController.text = result;
+        widget.arrivalController.text = result.displayName;
         if (widget.onArrivalChanged != null) {
           widget.onArrivalChanged!(result);
         }
@@ -300,7 +301,7 @@ class _PublishRideFormState extends State<PublishRideForm> {
   }
 }
 
-class StationSearchDelegate extends SearchDelegate<String> {
+class StationSearchDelegate extends SearchDelegate<StationModel?> {
   final StationProvider stationProvider;
 
   StationSearchDelegate(this.stationProvider);
@@ -322,7 +323,7 @@ class StationSearchDelegate extends SearchDelegate<String> {
     return IconButton(
       icon: Icon(Icons.arrow_back),
       onPressed: () {
-        close(context, '');
+        close(context, null);
       },
     );
   }
@@ -369,7 +370,7 @@ class StationSearchDelegate extends SearchDelegate<String> {
           trailing:
               station.isFavorite ? Icon(Icons.star, color: Colors.amber) : null,
           onTap: () {
-            close(context, station.displayName);
+            close(context, station);
           },
         );
       },

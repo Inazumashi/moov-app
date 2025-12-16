@@ -243,23 +243,11 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
                 PopupMenuButton<String>(
                   icon: const Icon(Icons.more_vert),
                   onSelected: (value) {
-                    if (value == 'edit') {
-                      _editRide(context, ride);
-                    } else if (value == 'delete') {
+                    if (value == 'delete') {
                       _deleteRide(context, ride.rideId, provider);
                     }
                   },
                   itemBuilder: (BuildContext context) => [
-                    const PopupMenuItem<String>(
-                      value: 'edit',
-                      child: Row(
-                        children: [
-                          Icon(Icons.edit, size: 20),
-                          SizedBox(width: 8),
-                          Text('Modifier'),
-                        ],
-                      ),
-                    ),
                     const PopupMenuItem<String>(
                       value: 'delete',
                       child: Row(
@@ -390,8 +378,9 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
             onPressed: () async {
               Navigator.pop(context);
               final success = await provider.deleteRide(rideId);
-
               if (success) {
+                // Update UI immediately
+                provider.removeLocalRide(rideId);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Trajet supprimé avec succès'),

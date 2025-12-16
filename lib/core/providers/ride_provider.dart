@@ -64,7 +64,7 @@ class RideProvider with ChangeNotifier {
   }) async {
     _isLoading = true;
     _error = '';
-    
+
     // Sauvegarder les filtres appliqués
     _appliedFilters = {
       'departureId': departureId,
@@ -79,7 +79,7 @@ class RideProvider with ChangeNotifier {
       'page': page,
       'limit': limit,
     };
-    
+
     _safeNotifyListeners();
 
     try {
@@ -167,17 +167,26 @@ class RideProvider with ChangeNotifier {
     _safeNotifyListeners();
 
     try {
+      print('🔴 RideProvider.deleteRide called for id: $rideId');
       await _rideService.deleteRide(rideId);
+      print('✅ RideProvider.deleteRide succeeded for id: $rideId');
       await loadMyPublishedRides();
       _isLoading = false;
       _safeNotifyListeners();
       return true;
     } catch (e) {
       _error = 'Erreur lors de la suppression: $e';
+      print('❌ RideProvider.deleteRide error for id $rideId: $e');
       _isLoading = false;
       _safeNotifyListeners();
       return false;
     }
+  }
+
+  // Supprimer localement sans appeler l'API (UI instantané)
+  void removeLocalRide(String rideId) {
+    _myPublishedRides.removeWhere((r) => r.rideId == rideId);
+    _safeNotifyListeners();
   }
 
   // ✅ CORRECTION : Mettre à jour un trajet avec toApiJson()

@@ -35,7 +35,7 @@ class RideService {
   }) async {
     try {
       final String formattedDate = DateFormat('yyyy-MM-dd').format(date);
-      
+
       // Construire URL avec queryParameters
       Map<String, String> queryParams = {
         'departure_station_id': departureId.toString(),
@@ -44,19 +44,22 @@ class RideService {
         'page': page.toString(),
         'limit': limit.toString(),
       };
-      
+
       if (minPrice != null) queryParams['min_price'] = minPrice.toString();
       if (maxPrice != null) queryParams['max_price'] = maxPrice.toString();
       if (minRating != null) queryParams['min_rating'] = minRating.toString();
-      if (verifiedOnly != null) queryParams['verified_only'] = verifiedOnly.toString();
-      if (departureTimeStart != null) queryParams['departure_time_start'] = departureTimeStart;
-      if (departureTimeEnd != null) queryParams['departure_time_end'] = departureTimeEnd;
+      if (verifiedOnly != null)
+        queryParams['verified_only'] = verifiedOnly.toString();
+      if (departureTimeStart != null)
+        queryParams['departure_time_start'] = departureTimeStart;
+      if (departureTimeEnd != null)
+        queryParams['departure_time_end'] = departureTimeEnd;
 
       final queryString = queryParams.entries
           .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
           .join('&');
       final url = 'rides/search?$queryString';
-      
+
       print('🔍 Requête API: $url');
 
       final response = await _apiService.get(
@@ -94,7 +97,7 @@ class RideService {
   Future<List<RideModel>> getSuggestions() async {
     try {
       print('📌 Chargement suggestions...');
-      
+
       final response = await _apiService.get(
         'search/rides/suggestions',
         isProtected: true,
@@ -146,32 +149,26 @@ class RideService {
   Future<void> publishRide(RideModel ride) async {
     try {
       print('📤 Début publication du trajet...');
-      print('   Départ: ${ride.startPoint}');
-      print('   Arrivée: ${ride.endPoint}');
-      
-      // ✅ VÉRIFIER SI ON A DÉJÀ LES IDs DANS LE MODÈLE
-      int? departureId = ride.departureStationId;
-      int? arrivalId = ride.arrivalStationId;
-      
-      // Si on n'a pas les IDs, on les récupère via le nom
-      if (departureId == null) {
-        print('🔍 Recherche ID station départ: ${ride.startPoint}');
-        departureId = await _getStationId(ride.startPoint);
+      print(
+          '   Départ: ${ride.startPoint} (Station ID: ${ride.departureStationId})');
+      print(
+          '   Arrivée: ${ride.endPoint} (Station ID: ${ride.arrivalStationId})');
+
+      // ✅ CORRECTION: Les IDs DOIVENT être présents (passés depuis publish_ride_screen)
+      final departureId = ride.departureStationId;
+      final arrivalId = ride.arrivalStationId;
+
+      if (departureId == null || departureId == 0) {
+        throw Exception(
+            'ID station de départ manquant pour: ${ride.startPoint}');
       }
-      
-      if (arrivalId == null) {
-        print('🔍 Recherche ID station arrivée: ${ride.endPoint}');
-        arrivalId = await _getStationId(ride.endPoint);
+      if (arrivalId == null || arrivalId == 0) {
+        throw Exception(
+            'ID station d\'arrivée manquant pour: ${ride.endPoint}');
       }
 
-      if (departureId == null) {
-        throw Exception('Station de départ non trouvée: ${ride.startPoint}');
-      }
-      if (arrivalId == null) {
-        throw Exception('Station d\'arrivée non trouvée: ${ride.endPoint}');
-      }
-
-      print('✅ IDs récupérés: Départ=$departureId, Arrivée=$arrivalId');
+      print(
+          '✅ IDs utilisés directement: Départ=$departureId, Arrivée=$arrivalId');
 
       // Préparer les données au format backend
       final Map<String, dynamic> rideData = {
@@ -197,7 +194,7 @@ class RideService {
         rideData,
         isProtected: true, // ✅ IMPORTANT: Route protégée
       );
-      
+
       print('✅ Trajet publié avec succès!');
     } catch (e) {
       print('❌ Erreur publication trajet: $e');
@@ -241,37 +238,39 @@ class RideService {
   Future<List<RideModel>> getMyPublishedRides() async {
     try {
       print('🚗 getMyPublishedRides appelé');
-      
-      final response = await _apiService.get('rides/my-rides', isProtected: true);
-      
+
+      final response =
+          await _apiService.get('rides/my-rides', isProtected: true);
+
       print('📊 Type réponse: ${response.runtimeType}');
-      
+
       if (response is Map && response.containsKey('rides')) {
         final ridesList = response['rides'] as List;
         print('📊 Nombre de trajets: ${ridesList.length}');
-        
+
         final parsedRides = <RideModel>[];
         for (var i = 0; i < ridesList.length; i++) {
           try {
             final rideJson = ridesList[i] as Map<String, dynamic>;
-            
+
             // ✅ DEBUG DÉTAILLÉ
             print('=' * 50);
             print('🔍 Trajet $i - Champs disponibles:');
             rideJson.forEach((key, value) {
               print('   $key: $value (${value.runtimeType})');
             });
-            
+
             final ride = RideModel.fromJson(rideJson);
             parsedRides.add(ride);
-            
+
             // ✅ VÉRIFICATION
             print('✅ Trajet parsé:');
             print('   ID: ${ride.rideId}');
-            print('   Départ: ${ride.startPoint}');
-            print('   Arrivée: ${ride.endPoint}');
+            print(
+                '   Départ: ${ride.startPoint} (Station ID: ${ride.departureStationId})');
+            print(
+                '   Arrivée: ${ride.endPoint} (Station ID: ${ride.arrivalStationId})');
             print('   Date: ${ride.departureTime}');
-            
           } catch (e, stack) {
             print('❌ Erreur parsing trajet $i: $e');
             print('❌ Stack: $stack');
@@ -295,6 +294,7 @@ class RideService {
         'rides/$rideId',
         isProtected: true,
       );
+      print('✅ ride_service.deleteRide: request sent for id $rideId');
     } catch (e) {
       print('Erreur suppression trajet: $e');
       rethrow;

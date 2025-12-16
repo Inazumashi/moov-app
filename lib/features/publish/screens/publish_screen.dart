@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:moovapp/core/models/ride_model.dart';
 import 'package:moovapp/core/providers/ride_provider.dart';
 import 'package:moovapp/features/publish/widgets/publish_ride_form.dart';
+import 'package:moovapp/core/models/station_model.dart';
 import 'package:moovapp/features/main_navigation/main_navigation_shell.dart';
 import 'package:provider/provider.dart';
 
@@ -31,6 +32,8 @@ class _PublishScreenState extends State<PublishScreen> {
   TimeOfDay? _selectedTime;
   bool _isRegularRide = false;
   bool _isLoading = false;
+  StationModel? _departureStationModel;
+  StationModel? _arrivalStationModel;
 
   @override
   void initState() {
@@ -142,6 +145,8 @@ class _PublishScreenState extends State<PublishScreen> {
         driverId: '', // Le backend remplira avec l'ID du conducteur
         startPoint: _departureController.text,
         endPoint: _arrivalController.text,
+        departureStationId: _departureStationModel?.id,
+        arrivalStationId: _arrivalStationModel?.id,
         departureTime: departureTime,
         availableSeats: int.parse(_seatsController.text),
         pricePerSeat: double.parse(_priceController.text),
@@ -326,11 +331,15 @@ class _PublishScreenState extends State<PublishScreen> {
                 },
                 onSelectDate: () => _selectDate(context),
                 onSelectTime: () => _selectTime(context),
-                onDepartureChanged: (value) {
-                  // Logique si nécessaire
+                onDepartureChanged: (station) {
+                  setState(() {
+                    _departureStationModel = station;
+                  });
                 },
-                onArrivalChanged: (value) {
-                  // Logique si nécessaire
+                onArrivalChanged: (station) {
+                  setState(() {
+                    _arrivalStationModel = station;
+                  });
                 },
               ),
 
