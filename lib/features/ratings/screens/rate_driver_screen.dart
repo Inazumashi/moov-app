@@ -1,4 +1,3 @@
-// File: lib/features/ratings/screens/rate_driver_screen.dart
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:moovapp/core/models/reservation.dart';
@@ -39,15 +38,17 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
 
     final ratingProvider = Provider.of<RatingProvider>(context, listen: false);
 
-    // Récupérer les IDs de la réservation
-    final rideId = int.tryParse(widget.reservation.rideId) ?? 0;
-    final driverId = widget.reservation.driverId ??
-      (int.tryParse(widget.reservation.ride?.driverId ?? '0') ?? 0);
+    // Convertir le driverId de String à int
+    final rideId = widget.reservation.rideId;
+    
+    // Obtenir le driverId et le convertir en int
+    String driverIdString = widget.reservation.driverId ?? widget.reservation.ride?.driverId ?? '0';
+    int driverId = int.tryParse(driverIdString) ?? 0;
 
     final success = await ratingProvider.rateDriver(
       bookingId: widget.reservation.id,
       rideId: rideId,
-      driverId: driverId,
+      driverId: driverId, // Maintenant c'est un int
       rating: _rating,
       comment: _commentController.text.isEmpty ? null : _commentController.text,
     );
@@ -101,10 +102,8 @@ class _RateDriverScreenState extends State<RateDriverScreen> {
     final colors = theme.colorScheme;
     final ratingProvider = Provider.of<RatingProvider>(context);
 
-    // Récupérer le nom du conducteur
-    final driverName = widget.reservation.ride?.driverName ??
-        widget.reservation.driverFirstName ??
-        'Conducteur';
+    // Accéder au ride via la propriété ride
+    final driverName = widget.reservation.ride?.driverName ?? 'Conducteur';
     final startPoint = widget.reservation.ride?.startPoint ?? 'Départ';
     final endPoint = widget.reservation.ride?.endPoint ?? 'Arrivée';
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:moovapp/core/providers/payment_provider.dart';
 import 'package:moovapp/core/providers/premium_provider.dart';
+import 'package:moovapp/features/payment/screens/simple_payment_screen.dart'; // IMPORT AJOUTÉ
 
 class PremiumScreen extends StatefulWidget {
   const PremiumScreen({super.key});
@@ -14,6 +15,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
   bool _isProcessingPayment = false;
 
   Future<void> _handlePremiumPurchase() async {
+<<<<<<< HEAD
     final paymentProvider = context.read<PaymentProvider>();
     
     // NOTE: Si tu veux forcer l'utilisateur à avoir ajouté une méthode avant de payer, garde ceci.
@@ -95,6 +97,18 @@ class _PremiumScreenState extends State<PremiumScreen> {
         setState(() => _isProcessingPayment = false);
       }
     }
+=======
+    // Navigation vers l'écran de paiement simplifié
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => SimplePaymentScreen(
+          amount: 49.0,
+          description: 'Abonnement Premium Moov - 1 mois',
+        ),
+      ),
+    );
+>>>>>>> 8d254050b069fa69edc0671565c54623d4bd184f
   }
 
   @override

@@ -1,4 +1,4 @@
-// lib/features/home/screens/home_screen.dart - VERSION FINALE
+// lib/features/home/screens/home_screen.dart - VERSION FINALE AVEC CHAT
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -9,6 +9,8 @@ import 'package:moovapp/features/ride/screens/my_rides_screen.dart';
 import 'package:moovapp/core/providers/auth_provider.dart';
 import 'package:moovapp/core/providers/ride_provider.dart';
 import 'package:moovapp/core/providers/reservation_provider.dart';
+import 'package:moovapp/core/providers/chat_provider.dart';
+import 'package:moovapp/features/driver/driver_messages_screen.dart';
 import 'package:moovapp/features/profile/screens/notifications_list_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -25,8 +27,15 @@ class _HomeScreenState extends State<HomeScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final rideProv = Provider.of<RideProvider>(context, listen: false);
       final resProv = Provider.of<ReservationProvider>(context, listen: false);
+      final chatProv = Provider.of<ChatProvider>(context, listen: false);
+      
       rideProv.refreshAllData();
       resProv.loadReservations();
+      
+      // Charger les conversations si l'utilisateur est connecté
+      if (Provider.of<AuthProvider>(context, listen: false).isAuthenticated) {
+        chatProv.loadConversations();
+      }
     });
   }
 
@@ -35,9 +44,10 @@ class _HomeScreenState extends State<HomeScreen> {
     final cs = Theme.of(context).colorScheme;
     final auth = Provider.of<AuthProvider>(context);
     final rideProv = Provider.of<RideProvider>(context);
+    final resProv = Provider.of<ReservationProvider>(context);
+    final chatProv = Provider.of<ChatProvider>(context);
 
     final user = auth.currentUser;
-
     final ridesCount = user?.ridesCompleted ?? 0;
     final rating = (user?.averageRating ?? 0.0).toStringAsFixed(1);
 
@@ -64,6 +74,52 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         actions: [
+          // BOUTON MESSAGES AVEC BADGE
+          Consumer<ChatProvider>(
+            builder: (context, chatProvider, _) {
+              return Stack(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.chat_outlined,
+                        color: Colors.white, size: 26),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const DriverMessagesScreen(),
+                        ),
+                      ).then((_) {
+                        // Recharger les messages après retour
+                        chatProvider.loadConversations();
+                      });
+                    },
+                  ),
+                  // Badge pour messages non lus
+                  if (chatProvider.unreadCount > 0)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          '${chatProvider.unreadCount}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+          
           IconButton(
             icon: Icon(Icons.workspace_premium_outlined,
                 color: Colors.orange.shade300, size: 28),
@@ -74,6 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       builder: (context) => const PremiumScreen()));
             },
           ),
+          
           IconButton(
             icon: const Icon(Icons.notifications_none_outlined,
                 color: Colors.white, size: 28),
@@ -86,6 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             },
           ),
+          
           const SizedBox(width: 8),
         ],
         toolbarHeight: 70,
@@ -95,9 +153,12 @@ class _HomeScreenState extends State<HomeScreen> {
         onRefresh: () async {
           final rideProv = Provider.of<RideProvider>(context, listen: false);
           final resProv = Provider.of<ReservationProvider>(context, listen: false);
+          final chatProv = Provider.of<ChatProvider>(context, listen: false);
+          
           await Future.wait([
             rideProv.refreshAllData(),
             resProv.loadReservations(),
+            chatProv.loadConversations(), // Recharger aussi les messages
           ]);
         },
         child: SingleChildScrollView(
@@ -140,7 +201,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(width: 12),
                   _buildStatCard(rating, 'Note', cs.tertiary),
                   const SizedBox(width: 12),
-                  _buildStatCard('0', 'MAD Économisés', cs.secondary),
+                  Consumer<ChatProvider>(
+                    builder: (context, chatProvider, _) {
+                      return _buildStatCard(
+                        chatProvider.unreadCount.toString(),
+                        'Messages',
+                        Colors.purple,
+                      );
+                    },
+                  ),
                 ],
               ),
               const SizedBox(height: 24),
@@ -158,7 +227,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 24),
 
-              // Mes réservations avec nouveau widget
+              // Mes réservations
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -181,8 +250,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                     color: cs.primary,
                                   ),
                                 )
-                              : Icon(Icons.refresh, size: 20),
-                          label: Text('Actualiser'),
+                              : const Icon(Icons.refresh, size: 20),
+                          label: const Text('Actualiser'),
                           style: TextButton.styleFrom(
                             foregroundColor: cs.primary,
                           ),
