@@ -14,6 +14,10 @@ class _PremiumScreenState extends State<PremiumScreen> {
   bool _isProcessingPayment = false;
 
   Future<void> _handlePremiumPurchase() async {
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+>>>>>>> ad7c188b84b9cc6343c6f6ad24108a3f98e9e62d
     final paymentProvider = context.read<PaymentProvider>();
     
     // NOTE: Si tu veux forcer l'utilisateur à avoir ajouté une méthode avant de payer, garde ceci.
@@ -95,6 +99,21 @@ class _PremiumScreenState extends State<PremiumScreen> {
         setState(() => _isProcessingPayment = false);
       }
     }
+<<<<<<< HEAD
+=======
+=======
+    // Navigation vers l'écran de paiement simplifié
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => SimplePaymentScreen(
+          amount: 49.0,
+          description: 'Abonnement Premium Moov - 1 mois',
+        ),
+      ),
+    );
+>>>>>>> 8d254050b069fa69edc0671565c54623d4bd184f
+>>>>>>> ad7c188b84b9cc6343c6f6ad24108a3f98e9e62d
   }
 
   @override
