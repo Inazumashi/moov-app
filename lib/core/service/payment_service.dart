@@ -7,8 +7,15 @@ import 'package:moovapp/core/models/payment_method.dart';
 
 class PaymentService {
   static const String _paymentMethodsKey = 'payment_methods';
-  static const String _paypalClientId = 'YOUR_PAYPAL_CLIENT_ID'; // À remplacer par votre client ID
-  static const String _paypalClientSecret = 'YOUR_PAYPAL_CLIENT_SECRET'; // À remplacer par votre client secret
+  
+  // ⚠️ IMPORTANT : Remplace ces clés par tes identifiants Sandbox PayPal
+  static const String _paypalClientId = 'YOUR_PAYPAL_CLIENT_ID'; 
+  static const String _paypalClientSecret = 'YOUR_PAYPAL_CLIENT_SECRET';
+
+  // ⚠️ CONFIGURATION URL BACKEND
+  // Si tu utilises l'Émulateur Android : utilise 'http://10.0.2.2:3000'
+  // Si tu utilises un Téléphone Physique : utilise l'IP de ton PC (ex: 'http://192.168.1.15:3000')
+  static const String _baseUrl = 'http://10.0.2.2:3000/api'; 
 
   // Simuler un serveur pour les tokens PayPal (en production, ceci devrait être côté serveur)
   Future<String> _getPayPalAccessToken() async {
@@ -68,23 +75,25 @@ class PaymentService {
         ],
         note: "Contact us for any questions on your order.",
         onSuccess: (Map params) async {
-          print("onSuccess: $params");
+          print("onSuccess PayPal: $params");
+          // On extrait l'ID de paiement renvoyé par PayPal
           String paymentId = params['data']['id'];
           onSuccess(paymentId);
         },
         onError: (error) {
-          print("onError: $error");
+          print("onError PayPal: $error");
           onError(error.toString());
         },
         onCancel: () {
           print('cancelled:');
-          onError('Payment cancelled');
+          onError('Paiement annulé');
         },
       ),
     ));
   }
 
-  // Gestion des méthodes de paiement
+  // --- Gestion locale des méthodes de paiement (inchangé) ---
+  
   Future<List<PaymentMethod>> getPaymentMethods() async {
     final prefs = await SharedPreferences.getInstance();
     final methodsJson = prefs.getStringList(_paymentMethodsKey) ?? [];
@@ -95,7 +104,6 @@ class PaymentService {
     final prefs = await SharedPreferences.getInstance();
     var methods = await getPaymentMethods();
 
-    // Si c'est la méthode par défaut, désactiver les autres
     if (method.isDefault) {
       methods = methods.map((m) => m.copyWith(isDefault: false)).toList();
     }
@@ -127,6 +135,55 @@ class PaymentService {
       return methods.firstWhere((m) => m.isDefault);
     } catch (e) {
       return methods.isNotEmpty ? methods.first : null;
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // NOUVELLE FONCTION : Vérification avec le Backend
+  // ---------------------------------------------------------------------------
+  
+  Future<void> verifyPaymentWithBackend(String paymentId, double amount) async {
+    final url = Uri.parse('$_baseUrl/payment/verify-paypal');
+    
+    print("Envoi verification au backend : $url avec PaymentID: $paymentId");
+
+    final prefs = await SharedPreferences.getInstance();
+    // On récupère le token JWT sauvegardé lors du Login
+    // Vérifie que la clé est bien 'token' ou 'auth_token' selon ton AuthProvider
+    final token = prefs.getString('token'); 
+
+    if (token == null) {
+      throw Exception("Erreur d'authentification : Vous devez être connecté.");
+    }
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'paymentId': paymentId,
+          'amount': amount,
+          'currency': 'MAD'
+        }),
+      );
+
+      print("Réponse Backend Code: ${response.statusCode}");
+      print("Réponse Backend Body: ${response.body}");
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        // C'est bon, le backend a validé !
+        return;
+      } else {
+        // Le backend a refusé (déjà payé, erreur serveur, etc.)
+        final errorData = jsonDecode(response.body);
+        throw Exception(errorData['message'] ?? 'Erreur lors de la validation du paiement');
+      }
+    } catch (e) {
+      print("Erreur connection Backend: $e");
+      throw Exception("Impossible de contacter le serveur : $e");
     }
   }
 }
