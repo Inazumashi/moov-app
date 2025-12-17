@@ -1,11 +1,14 @@
-// lib/core/providers/reservation_provider.dart - VERSION CORRIGÉE
+// lib/core/providers/reservation_provider.dart - VERSION COMPLÈTE CORRIGÉE
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 import 'package:moovapp/core/api/api_service.dart';
 import 'package:moovapp/core/models/reservation.dart';
 import 'package:moovapp/core/models/ride_model.dart';
 
 class ReservationProvider with ChangeNotifier {
   final ApiService _apiService;
+  String? _token;
 
   List<Reservation> _reservations = [];
   List<Reservation> _allReservations = [];
@@ -22,6 +25,203 @@ class ReservationProvider with ChangeNotifier {
   String get error => _error;
   String get filterStatus => _filterStatus;
   List<Reservation> get filteredReservations => _reservations;
+
+  // Définir le token
+  void setToken(String token) {
+    _token = token;
+  }
+
+  // Méthode helper pour obtenir l'URL de base
+  String _getBaseUrl() {
+    if (kIsWeb) {
+      return "http://localhost:3000/api";
+    }
+
+    if (defaultTargetPlatform == TargetPlatform.android) {
+      return "http://10.0.2.2:3000/api";
+    } else if (defaultTargetPlatform == TargetPlatform.iOS) {
+      return "http://localhost:3000/api";
+    } else {
+      return "http://localhost:3000/api";
+    }
+  }
+
+  // ✅ Méthode principale pour réserver - VERSION SIMPLIFIÉE
+  Future<bool> bookRide(int rideId, int seats) async {
+    // Protection contre les doubles appels
+    if (_isLoading) {
+      print('⚠️ Réservation déjà en cours, ignore...');
+      return false;
+    }
+    
+    _isLoading = true;
+    _error = '';
+    notifyListeners();
+
+    try {
+      print('📝 Réservation trajet #$rideId avec $seats place(s)...');
+      
+      // Validation
+      if (rideId <= 0) {
+        _error = 'ID du trajet invalide';
+        print('❌ Erreur: rideId invalide: $rideId');
+        return false;
+      }
+      
+      final token = await _apiService.getToken();
+      if (token == null || token.isEmpty) {
+        _error = 'Session expirée. Veuillez vous reconnecter.';
+        print('⚠️ Erreur: Token non disponible');
+        return false;
+      }
+      
+      final baseUrl = _getBaseUrl();
+      final url = Uri.parse('$baseUrl/reservations');
+      
+      // ✅ FORMAT UNIQUE (camelCase seulement)
+      final requestData = {
+        'rideId': rideId,
+        'seatsBooked': seats,
+      };
+      
+      print('📤 Envoi avec format camelCase: $requestData');
+      print('📤 Données JSON: ${jsonEncode(requestData)}');
+      
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(requestData),
+      );
+
+      print('📡 Réponse: ${response.statusCode}');
+      print('📡 Corps: ${response.body}');
+      
+      final data = jsonDecode(response.body);
+      
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        if (data['success'] == true) {
+          print('✅ Réservation créée avec succès');
+          print('📊 Données retour: $data');
+          
+          await loadReservations();
+          return true;
+        } else {
+          _error = data['message']?.toString() ?? 'Erreur lors de la réservation';
+          print('⚠️ Erreur création: $_error');
+          return false;
+        }
+      } else {
+        _error = data['message']?.toString() ?? 'Erreur lors de la réservation';
+        print('⚠️ Erreur API: ${response.statusCode} - $_error');
+        return false;
+      }
+    } catch (e, stackTrace) {
+      print('❌ Erreur création réservation: $e');
+      print('Stack trace: $stackTrace');
+      _error = 'Erreur réseau: ${e.toString()}';
+      return false;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // ✅ Créer une réservation - REDIRIGE VERS bookRide
+  Future<bool> createReservation({
+    required int rideId,
+    required int seats,
+    String? pickupPoint,
+    String? dropoffPoint,
+  }) async {
+    print('📞 createReservation appelée, redirection vers bookRide');
+    return await bookRide(rideId, seats);
+  }
+
+  // NOUVELLE MÉTHODE: Tester la connexion
+  Future<void> testReservationEndpoint() async {
+    print('🧪 TEST ENDPOINT RÉSERVATION');
+    print('🌐 Base URL: ${_getBaseUrl()}');
+    
+    try {
+      final token = await _apiService.getToken();
+      print('🔑 Token disponible: ${token != null}');
+      if (token != null) {
+        print('🔑 Token (début): ${token.substring(0, 20)}...');
+      }
+      
+      final response = await _apiService.get(
+        'reservations/my-reservations',
+        isProtected: true,
+      );
+      
+      print('📡 Réponse test GET: $response');
+    } catch (e) {
+      print('❌ Erreur test endpoint: $e');
+    }
+  }
+
+  // Méthode alternative avec contrôle total
+  Future<Map<String, dynamic>?> createReservationRaw({
+    required int rideId,
+    required int seats,
+    String? pickupPoint,
+    String? dropoffPoint,
+  }) async {
+    try {
+      final token = await _apiService.getToken();
+      if (token == null) throw Exception('Token non disponible');
+      
+      final baseUrl = _getBaseUrl();
+      final url = Uri.parse('$baseUrl/reservations');
+      
+      // Formats possibles
+      final formats = [
+        // Format principal (camelCase)
+        {
+          'rideId': rideId,
+          'seatsBooked': seats,
+          if (pickupPoint != null) 'pickupPoint': pickupPoint,
+          if (dropoffPoint != null) 'dropoffPoint': dropoffPoint,
+        },
+      ];
+      
+      for (var i = 0; i < formats.length; i++) {
+        try {
+          print('🔄 Test format ${i + 1}: ${formats[i]}');
+          
+          final response = await http.post(
+            url,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+            body: jsonEncode(formats[i]),
+          );
+          
+          final data = jsonDecode(response.body);
+          print('📡 Format ${i + 1} - Status: ${response.statusCode}');
+          print('📡 Format ${i + 1} - Réponse: $data');
+          
+          if (response.statusCode == 200 || response.statusCode == 201) {
+            if (data is Map && data['success'] == true) {
+              print('✅ SUCCÈS avec format ${i + 1}');
+              return Map<String, dynamic>.from(data);
+            }
+          }
+        } catch (e) {
+          print('❌ Format ${i + 1} échoué: $e');
+        }
+      }
+      
+      return null;
+    } catch (e) {
+      print('❌ Erreur createReservationRaw: $e');
+      return null;
+    }
+  }
 
   // Charger toutes les réservations AVEC les trajets
   Future<void> loadReservations() async {
@@ -75,31 +275,25 @@ class ReservationProvider with ChangeNotifier {
     
     for (var json in reservationsJson) {
       try {
-        // Créer la réservation de base
         final reservation = Reservation.fromJson(json);
         
-        // Si le JSON contient déjà les infos du trajet
         RideModel? ride;
         if (json['ride'] != null && json['ride'] is Map) {
           try {
             ride = RideModel.fromJson(json['ride'] as Map<String, dynamic>);
-            print('✅ Trajet chargé depuis reservation JSON: ${ride.rideId}');
           } catch (e) {
             print('❌ Erreur parsing ride depuis JSON: $e');
           }
         }
         
-        // Si le trajet n'est pas dans le JSON, le charger séparément
         if (ride == null && reservation.rideId > 0) {
           try {
             ride = await _loadRideById(reservation.rideId);
-            print('✅ Trajet chargé séparément pour rideId: ${reservation.rideId}');
           } catch (e) {
             print('❌ Erreur chargement trajet pour rideId ${reservation.rideId}: $e');
           }
         }
         
-        // Créer la réservation avec le trajet
         final reservationWithRide = reservation.copyWith(ride: ride);
         reservations.add(reservationWithRide);
         
@@ -186,7 +380,6 @@ class ReservationProvider with ChangeNotifier {
       if (response is Map && response['success'] == true) {
         print('✅ Réservation annulée avec succès');
         
-        // Recharger les réservations
         await loadReservations();
         return true;
       } else {
@@ -200,53 +393,6 @@ class ReservationProvider with ChangeNotifier {
       _error = 'Erreur: ${e.toString()}';
       notifyListeners();
       return false;
-    }
-  }
-
-  // Créer une réservation
-  Future<bool> createReservation({
-    required int rideId,
-    required int seats,
-    String? pickupPoint,
-    String? dropoffPoint,
-  }) async {
-    _isLoading = true;
-    _error = '';
-    notifyListeners();
-
-    try {
-      print('📝 Création réservation pour trajet #$rideId...');
-      
-      final response = await _apiService.post(
-        'reservations',
-        {
-          'ride_id': rideId,
-          'seats': seats,
-          if (pickupPoint != null) 'pickup_point': pickupPoint,
-          if (dropoffPoint != null) 'dropoff_point': dropoffPoint,
-        },
-        isProtected: true,
-      );
-
-      if (response is Map && response['success'] == true) {
-        print('✅ Réservation créée avec succès');
-        
-        // Recharger les réservations
-        await loadReservations();
-        return true;
-      } else {
-        _error = response['message']?.toString() ?? 'Erreur de création';
-        print('⚠️ Erreur création: $_error');
-        return false;
-      }
-    } catch (e, stackTrace) {
-      print('❌ Erreur création réservation: $e');
-      print('Stack trace: $stackTrace');
-      _error = 'Erreur: ${e.toString()}';
-      return false;
-    } finally {
-      _isLoading = false;
-      notifyListeners();
     }
   }
 
@@ -264,7 +410,6 @@ class ReservationProvider with ChangeNotifier {
       if (response is Map && response['success'] == true) {
         print('✅ Réservation marquée comme terminée');
         
-        // Recharger les réservations
         await loadReservations();
         return true;
       } else {
@@ -294,10 +439,8 @@ class ReservationProvider with ChangeNotifier {
       if (response is Map && response['success'] == true) {
         final reservationJson = response['reservation'];
         if (reservationJson != null) {
-          // Charger avec le trajet
           final reservation = Reservation.fromJson(reservationJson);
           
-          // Charger le trajet si nécessaire
           if (reservation.ride == null && reservation.rideId > 0) {
             final ride = await _loadRideById(reservation.rideId);
             return reservation.copyWith(ride: ride);
@@ -314,7 +457,7 @@ class ReservationProvider with ChangeNotifier {
     }
   }
 
-  // Trouver une réservation par ID dans la liste locale - CORRECTION
+  // Trouver une réservation par ID dans la liste locale
   Reservation? findReservationById(int reservationId) {
     try {
       return _allReservations.firstWhere(
@@ -370,48 +513,74 @@ class ReservationProvider with ChangeNotifier {
     double totalCO2Saved = 0;
     double totalMoneySaved = 0;
     int totalPassengers = 0;
+    int completedTrips = 0;
     
-    // Seulement les réservations complétées
     final completedReservations = _allReservations.where((r) => r.status == 'completed');
+    completedTrips = completedReservations.length;
     
     for (var reservation in completedReservations) {
-      // Estimation de distance (à adapter selon votre logique)
-      final distance = _estimateDistance(reservation);
+      final distance = 50.0;
       totalDistance += distance;
       totalPassengers += reservation.seatsReserved;
       
-      // Calcul CO2 économisé (simplifié)
-      // 1 voiture = ~150g CO2/km, donc économie = CO2 évité par passager supplémentaire
-      final co2PerKm = 150.0; // grammes
+      final co2PerKm = 150.0;
       final co2Saved = distance * co2PerKm * (reservation.seatsReserved - 1);
-      totalCO2Saved += co2Saved / 1000; // convertir en kg
+      totalCO2Saved += co2Saved / 1000;
       
-      // Calcul économies (simplifié)
-      // Prix essence: ~12 DH/L, consommation: ~6L/100km
-      final fuelCostPerKm = (12.0 * 6.0) / 100; // DH/km
+      final fuelCostPerKm = (12.0 * 6.0) / 100;
       final fuelCost = distance * fuelCostPerKm;
       final revenue = reservation.totalPrice;
       final savings = revenue - fuelCost;
       if (savings > 0) totalMoneySaved += savings;
     }
     
+    if (completedTrips == 0) {
+      return {
+        'total_trips': 0,
+        'total_distance': 0,
+        'co2_saved_kg': 0,
+        'money_saved_dh': 0,
+        'total_passengers': 0,
+        'trees_equivalent': 0,
+      };
+    }
+    
     return {
+      'total_trips': completedTrips.toDouble(),
       'total_distance': totalDistance,
       'co2_saved_kg': totalCO2Saved,
       'money_saved_dh': totalMoneySaved,
       'total_passengers': totalPassengers.toDouble(),
-      'trees_equivalent': totalCO2Saved / 21, // 1 arbre absorbe ~21kg CO2/an
+      'trees_equivalent': totalCO2Saved / 21,
     };
   }
-  
-  // Méthode pour estimer la distance (à adapter)
-  double _estimateDistance(Reservation reservation) {
-    // Si vous avez des données de distance dans votre modèle
-    if (reservation.ride != null) {
-      // Ici vous devriez avoir une logique pour estimer la distance
-      // basée sur les stations de départ et d'arrivée
-      return 50.0; // Valeur par défaut
+
+  // Nettoyer le provider
+  void disposeProvider() {
+    _reservations.clear();
+    _allReservations.clear();
+    _error = '';
+    _filterStatus = 'all';
+    notifyListeners();
+  }
+
+  // Vérifier si l'utilisateur a déjà réservé un trajet spécifique
+  bool hasBookedRide(int rideId) {
+    return _allReservations.any((r) => 
+      r.rideId == rideId && 
+      ['pending', 'confirmed'].contains(r.status.toLowerCase())
+    );
+  }
+
+  // Obtenir une réservation pour un trajet spécifique
+  Reservation? getReservationForRide(int rideId) {
+    try {
+      return _allReservations.firstWhere((r) => 
+        r.rideId == rideId && 
+        ['pending', 'confirmed'].contains(r.status.toLowerCase())
+      );
+    } catch (e) {
+      return null;
     }
-    return 50.0; // Distance moyenne par défaut
   }
 }

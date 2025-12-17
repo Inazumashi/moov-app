@@ -23,6 +23,7 @@ class ApiService {
 
   final _storage = const FlutterSecureStorage();
   final String _tokenKey = 'jwt_token';
+  String get baseUrl => _baseUrl;
 
   // --- GESTION DU TOKEN ---
 

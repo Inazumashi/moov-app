@@ -1,4 +1,4 @@
-// File: lib/features/reservations/screens/book_ride_screen.dart - CORRIGÉ
+// File: lib/features/reservations/screens/book_ride_screen.dart - VERSION CORRIGÉE COMPLÈTE
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:moovapp/core/models/ride_model.dart';
@@ -22,8 +22,16 @@ class BookRideScreen extends StatefulWidget {
 
 class _BookRideScreenState extends State<BookRideScreen> {
   int _selectedSeats = 1;
+  bool _isBooking = false; // Protection contre les doubles clics
 
-  void _bookRide(BuildContext context) async {
+  Future<void> _bookRide(BuildContext context) async {
+    // Protection contre les doubles clics
+    if (_isBooking) {
+      print('⚠️ Réservation déjà en cours, ignore...');
+      return;
+    }
+
+    // Validation du nombre de places
     if (_selectedSeats > widget.ride.availableSeats) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -34,33 +42,75 @@ class _BookRideScreenState extends State<BookRideScreen> {
       return;
     }
 
+    // Validation de l'ID du trajet
+    final rideId = int.tryParse(widget.ride.rideId) ?? 0;
+    if (rideId <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Erreur: ID du trajet invalide'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    print('🚗 Début réservation: rideId=$rideId, seats=$_selectedSeats');
+
+    _isBooking = true;
     final reservationProvider =
         Provider.of<ReservationProvider>(context, listen: false);
 
-    final success = await reservationProvider.createReservation(
-      rideId: int.tryParse(widget.ride.rideId) ?? 0,
-      seats: _selectedSeats,
-    );
+    try {
+      // ✅ CORRECTION: Utiliser bookRide au lieu de createReservation
+      // bookRide envoie UNE SEULE requête avec le bon format
+      final success = await reservationProvider.bookRide(rideId, _selectedSeats);
 
-    if (success) {
+      if (success) {
+        print('✅ Réservation réussie!');
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('🎉 Réservation confirmée !'),
+            backgroundColor: Colors.green,
+            duration: Duration(seconds: 3),
+          ),
+        );
+
+        // Callback et navigation
+        widget.onBookingComplete?.call();
+        
+        // Petit délai pour que l'utilisateur voie le message
+        await Future.delayed(const Duration(milliseconds: 500));
+        
+        if (mounted) {
+          Navigator.pop(context, true);
+        }
+      } else {
+        print('❌ Échec réservation: ${reservationProvider.error}');
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('❌ ${reservationProvider.error}'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 4),
+          ),
+        );
+      }
+    } catch (e) {
+      print('❌ Exception dans _bookRide: $e');
+      
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('🎉 Réservation confirmée !'),
-          backgroundColor: Colors.green,
-          duration: Duration(seconds: 3),
-        ),
-      );
-
-      widget.onBookingComplete?.call();
-      Navigator.pop(context, true);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('❌ ${reservationProvider.error}'),
+          content: Text('❌ Erreur lors de la réservation'),
           backgroundColor: Colors.red,
-          duration: const Duration(seconds: 4),
         ),
       );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isBooking = false;
+        });
+      }
     }
   }
 
@@ -70,6 +120,9 @@ class _BookRideScreenState extends State<BookRideScreen> {
     final reservationProvider = Provider.of<ReservationProvider>(context);
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+
+    // Calcul de l'état de chargement
+    final isLoading = reservationProvider.isLoading || _isBooking;
 
     return Scaffold(
       appBar: AppBar(
@@ -95,7 +148,7 @@ class _BookRideScreenState extends State<BookRideScreen> {
             const SizedBox(height: 32),
 
             // Bouton de confirmation
-            _buildConfirmationButton(reservationProvider),
+            _buildConfirmationButton(isLoading),
           ],
         ),
       ),
@@ -299,12 +352,12 @@ class _BookRideScreenState extends State<BookRideScreen> {
     );
   }
 
-  Widget _buildConfirmationButton(ReservationProvider reservationProvider) {
+  Widget _buildConfirmationButton(bool isLoading) {
     return SizedBox(
       width: double.infinity,
       height: 56,
       child: ElevatedButton(
-        onPressed: reservationProvider.isLoading
+        onPressed: isLoading
             ? null
             : () => _bookRide(context),
         style: ElevatedButton.styleFrom(
@@ -313,8 +366,9 @@ class _BookRideScreenState extends State<BookRideScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
+          elevation: 2,
         ),
-        child: reservationProvider.isLoading
+        child: isLoading
             ? const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -327,17 +381,20 @@ class _BookRideScreenState extends State<BookRideScreen> {
                     ),
                   ),
                   SizedBox(width: 12),
-                  Text('Réservation en cours...'),
+                  Text(
+                    'Réservation en cours...',
+                    style: TextStyle(fontSize: 16),
+                  ),
                 ],
               )
             : const Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.check_circle_outline),
-                  SizedBox(width: 8),
+                  Icon(Icons.check_circle_outline, size: 24),
+                  SizedBox(width: 12),
                   Text(
                     'Confirmer la réservation',
-                    style: TextStyle(fontSize: 16),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -357,5 +414,12 @@ class _BookRideScreenState extends State<BookRideScreen> {
     } else {
       return 'Date et heure non définies';
     }
+  }
+
+  @override
+  void dispose() {
+    // Nettoyage
+    _isBooking = false;
+    super.dispose();
   }
 }

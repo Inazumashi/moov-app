@@ -1,4 +1,4 @@
-// lib/features/home/screens/home_screen.dart - VERSION FINALE AVEC CHAT
+// lib/features/home/screens/home_screen.dart - VERSION FINALE AVEC CHAT ET STATS ÉCO
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -12,6 +12,7 @@ import 'package:moovapp/core/providers/reservation_provider.dart';
 import 'package:moovapp/core/providers/chat_provider.dart';
 import 'package:moovapp/features/driver/driver_messages_screen.dart';
 import 'package:moovapp/features/profile/screens/notifications_list_screen.dart';
+import 'package:moovapp/features/stats/screens/eco_stats_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -74,6 +75,19 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         actions: [
+          // BOUTON STATISTIQUES ÉCO
+          IconButton(
+            icon: const Icon(Icons.bar_chart, color: Colors.white, size: 26),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const EcoStatsScreen(),
+                ),
+              );
+            },
+          ),
+          
           // BOUTON MESSAGES AVEC BADGE
           Consumer<ChatProvider>(
             builder: (context, chatProvider, _) {
