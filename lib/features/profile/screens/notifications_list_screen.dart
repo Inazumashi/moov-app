@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:moovapp/core/providers/notification_provider.dart';
 import 'package:moovapp/core/models/notification.dart';
+import 'package:moovapp/l10n/app_localizations.dart';
 
 class NotificationsListScreen extends StatefulWidget {
   const NotificationsListScreen({super.key});
@@ -30,7 +31,7 @@ class _NotificationsListScreenState extends State<NotificationsListScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
-          'Mes Notifications',
+          AppLocalizations.of(context)!.myNotifications,
           style: TextStyle(
             color: colors.onPrimary,
             fontWeight: FontWeight.bold,
@@ -46,7 +47,7 @@ class _NotificationsListScreenState extends State<NotificationsListScreen> {
                 onPressed: notificationProvider.notifications.isNotEmpty
                     ? () => _showClearAllDialog(context, notificationProvider)
                     : null,
-                tooltip: 'Tout marquer comme lu',
+                tooltip: AppLocalizations.of(context)!.markAllAsRead,
               );
             },
           ),
@@ -55,7 +56,7 @@ class _NotificationsListScreenState extends State<NotificationsListScreen> {
               return IconButton(
                 icon: const Icon(Icons.add),
                 onPressed: () => _createDemoNotifications(context, notificationProvider),
-                tooltip: 'Créer des notifications de démonstration',
+                tooltip: AppLocalizations.of(context)!.createDemoNotifications,
               );
             },
           ),
@@ -98,7 +99,7 @@ class _NotificationsListScreenState extends State<NotificationsListScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            'Aucune notification',
+            AppLocalizations.of(context)!.noNotifications,
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -107,7 +108,7 @@ class _NotificationsListScreenState extends State<NotificationsListScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            'Vous n\'avez pas encore reçu de notifications.',
+            AppLocalizations.of(context)!.noNotificationsDesc,
             style: TextStyle(
               color: colors.onSurface.withValues(alpha: 0.7),
             ),
@@ -142,9 +143,9 @@ class _NotificationsListScreenState extends State<NotificationsListScreen> {
         provider.deleteNotification(notification.id);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: const Text('Notification supprimée'),
+            content: Text(AppLocalizations.of(context)!.notificationDeleted),
             action: SnackBarAction(
-              label: 'Annuler',
+              label: AppLocalizations.of(context)!.undo,
               onPressed: () {
                 // Note: Dans une vraie app, on restaurerait la notification
               },
@@ -243,11 +244,11 @@ class _NotificationsListScreenState extends State<NotificationsListScreen> {
     final difference = now.difference(date);
 
     if (difference.inDays == 0) {
-      return 'Aujourd\'hui ${DateFormat('HH:mm').format(date)}';
+      return '${AppLocalizations.of(context)!.today} ${DateFormat('HH:mm').format(date)}';
     } else if (difference.inDays == 1) {
-      return 'Hier ${DateFormat('HH:mm').format(date)}';
+      return '${AppLocalizations.of(context)!.yesterday} ${DateFormat('HH:mm').format(date)}';
     } else if (difference.inDays < 7) {
-      return '${difference.inDays} jours';
+      return AppLocalizations.of(context)!.daysAgo(difference.inDays);
     } else {
       return DateFormat('dd/MM/yyyy').format(date);
     }
@@ -257,19 +258,19 @@ class _NotificationsListScreenState extends State<NotificationsListScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Marquer tout comme lu'),
-        content: const Text('Voulez-vous marquer toutes les notifications comme lues ?'),
+        title: Text(AppLocalizations.of(context)!.markAllAsRead),
+        content: Text(AppLocalizations.of(context)!.markAllAsReadQuestion),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Annuler'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () {
               provider.markAllAsRead();
               Navigator.of(context).pop();
             },
-            child: const Text('Marquer comme lu'),
+            child: Text(AppLocalizations.of(context)!.markAllAsRead),
           ),
         ],
       ),
@@ -302,9 +303,9 @@ class _NotificationsListScreenState extends State<NotificationsListScreen> {
     await provider.createDemoNotifications();
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Notifications de démonstration créées'),
-          duration: Duration(seconds: 2),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.demoNotificationsCreated),
+          duration: const Duration(seconds: 2),
         ),
       );
     }

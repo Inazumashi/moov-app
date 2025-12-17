@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moovapp/l10n/app_localizations.dart';
 
 class ContactUsScreen extends StatefulWidget {
   const ContactUsScreen({super.key});
@@ -27,7 +28,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
-          'Contactez-nous',
+          AppLocalizations.of(context)!.pageTitleContact,
           style: TextStyle(
             color: colors.onPrimary,
             fontWeight: FontWeight.bold,
@@ -48,7 +49,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Sujet',
+                AppLocalizations.of(context)!.subject,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -60,7 +61,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                 controller: _subjectController,
                 style: TextStyle(color: colors.onSurface),
                 decoration: InputDecoration(
-                  hintText: 'Ex: Problème de réservation',
+                  hintText: AppLocalizations.of(context)!.hintSubject,
                   hintStyle:
                       TextStyle(color: colors.onSurface.withOpacity(0.6)),
                   prefixIcon:
@@ -80,7 +81,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
               ),
               const SizedBox(height: 24),
               Text(
-                'Message',
+                AppLocalizations.of(context)!.message,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -92,7 +93,7 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                 controller: _messageController,
                 style: TextStyle(color: colors.onSurface),
                 decoration: InputDecoration(
-                  hintText: 'Bonjour, j\'ai un problème avec...',
+                  hintText: AppLocalizations.of(context)!.hintMessage,
                   hintStyle:
                       TextStyle(color: colors.onSurface.withOpacity(0.6)),
                   filled: true,
@@ -121,8 +122,8 @@ class _ContactUsScreenState extends State<ContactUsScreen> {
                     backgroundColor: colors.primary,
                     foregroundColor: colors.onPrimary,
                   ),
-                  child: const Text(
-                    'Envoyer le message',
+                  child: Text(
+                    AppLocalizations.of(context)!.sendMessage,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),

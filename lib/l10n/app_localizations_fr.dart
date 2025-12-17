@@ -132,9 +132,6 @@ class AppLocalizationsFr extends AppLocalizations {
   String get sectionSecurity => 'Sécurité';
 
   @override
-  String get passwordManagement => 'Gestion du mot de passe';
-
-  @override
   String get sectionGeneral => 'Général';
 
   @override
@@ -250,6 +247,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get logout => 'Se déconnecter';
+
+  @override
+  String get passwordManagement => 'Gestion du mot de passe';
 
   @override
   String get communities => 'Communautés';
@@ -387,6 +387,60 @@ class AppLocalizationsFr extends AppLocalizations {
   String get freePrice => '0 MAD';
 
   @override
+  String get pushNotifications => 'Notifications Push';
+
+  @override
+  String get emailNotifications => 'Notifications par e-mail';
+
+  @override
+  String get myNotifications => 'Mes Notifications';
+
+  @override
+  String get markAsRead => 'Marquer comme lu';
+
+  @override
+  String get demoNotificationsCreated => 'Notifications de démonstration créées';
+
+  @override
+  String get noNotifications => 'Aucune notification';
+
+  @override
+  String get noNotificationsDesc => 'Vous n\'avez pas encore reçu de notifications.';
+
+  @override
+  String get notificationDeleted => 'Notification supprimée';
+
+  @override
+  String get undo => 'Annuler';
+
+  @override
+  String get markAllAsReadQuestion => 'Voulez-vous marquer toutes les notifications comme lues ?';
+
+  @override
+  String get newRidesPublished => 'Nouveaux trajets publiés';
+
+  @override
+  String get newRidesDesc => 'Recevoir une alerte pour les nouveaux trajets sur vos routes favorites.';
+
+  @override
+  String get newMessages => 'Nouveaux messages';
+
+  @override
+  String get newMessagesDesc => 'Recevoir une alerte pour les nouveaux messages de conducteurs/passagers.';
+
+  @override
+  String get bookingUpdates => 'Mises à jour des réservations';
+
+  @override
+  String get bookingUpdatesDesc => 'Réservation confirmée, annulée, etc.';
+
+  @override
+  String get promotions => 'Promotions et actualités';
+
+  @override
+  String get promotionsDesc => 'Recevoir les promotions et les nouvelles de Moov.';
+
+  @override
   String get pageTitleAddCreditCard => 'Ajouter une carte';
 
   @override
@@ -399,10 +453,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get hintCardNumber => '1234 5678 9012 3456';
 
   @override
-  String get labelExpiry => 'Date d\'expiration';
+  String get labelExpiry => 'Expiration';
 
   @override
-  String get hintExpiry => 'MM/AA';
+  String get hintExpiry => 'MM/YY';
 
   @override
   String get labelCvv => 'CVV';
@@ -417,6 +471,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get hintCardName => 'JOHN DOE';
 
   @override
+  String get msgSecurePayment => 'Vos informations de paiement sont sécurisées et cryptées selon les normes PCI DSS.';
+
+  @override
+  String get btnAddCard => 'Ajouter la carte';
+
+  @override
   String get validationCardNumberRequired => 'Numéro de carte requis';
 
   @override
@@ -426,7 +486,7 @@ class AppLocalizationsFr extends AppLocalizations {
   String get validationExpiryRequired => 'Date d\'expiration requise';
 
   @override
-  String get validationExpiryFormat => 'Format MM/AA requis';
+  String get validationExpiryFormat => 'Format MM/YY requis';
 
   @override
   String get validationCvvRequired => 'CVV requis';
@@ -441,8 +501,45 @@ class AppLocalizationsFr extends AppLocalizations {
   String get msgCardAddedSuccess => 'Carte ajoutée avec succès';
 
   @override
-  String get msgSecurePayment => 'Vos informations de paiement sont sécurisées et cryptées selon les normes PCI DSS.';
+  String get createDemoNotifications => 'Créer des notifications de démonstration';
 
   @override
-  String get btnAddCard => 'Ajouter la carte';
+  String get today => 'Aujourd\'hui';
+
+  @override
+  String get yesterday => 'Hier';
+
+  @override
+  String daysAgo(Object count) {
+    return '$count jours';
+  }
+
+  @override
+  String get markAllAsRead => 'Marquer tout comme lu';
+
+  @override
+  String get cancel => 'Annuler';
+
+  @override
+  String get subject => 'Sujet';
+
+  @override
+  String get hintSubject => 'Ex: Problème de réservation';
+
+  @override
+  String get message => 'Message';
+
+  @override
+  String get hintMessage => 'Bonjour, j\'ai un problème avec...';
+
+  @override
+  String get sendMessage => 'Envoyer le message';
+
+  @override
+  String get myCommunities => 'Mes communautés';
+
+  @override
+  String publishedRidesCount(Object count) {
+    return '$count trajet(s) publié(s)';
+  }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:moovapp/core/providers/ride_provider.dart';
 import 'package:moovapp/core/models/ride_model.dart';
+import 'package:moovapp/l10n/app_localizations.dart';
 
 class MyRidesScreen extends StatefulWidget {
   const MyRidesScreen({super.key});
@@ -33,15 +34,15 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Mes Publications',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)!.myPublishedRides,
+              style: const TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 20,
               ),
             ),
             Text(
-              '${rideProvider.myPublishedRides.length} trajet(s) publié(s)',
+              AppLocalizations.of(context)!.publishedRidesCount(rideProvider.myPublishedRides.length),
               style: TextStyle(
                 fontSize: 14,
                 color: colors.onPrimary.withOpacity(0.7),

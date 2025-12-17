@@ -4,6 +4,7 @@ import 'package:moovapp/features/profile/screens/faq_screen.dart';
 import 'package:moovapp/features/profile/screens/contact_us_screen.dart';
 import 'package:moovapp/features/profile/screens/terms_of_service_screen.dart';
 import 'package:moovapp/features/profile/screens/privacy_policy_screen.dart';
+import 'package:moovapp/l10n/app_localizations.dart';
 
 class SupportScreen extends StatelessWidget {
   const SupportScreen({super.key});
@@ -16,7 +17,7 @@ class SupportScreen extends StatelessWidget {
       backgroundColor: colors.surface,
       appBar: AppBar(
         title: Text(
-          'Aide & Support',
+          AppLocalizations.of(context)!.helpSupport,
           style: TextStyle(
             color: colors.onPrimary,
             fontWeight: FontWeight.bold,
@@ -28,7 +29,7 @@ class SupportScreen extends StatelessWidget {
       body: ListView(
         children: <Widget>[
           // SECTION AIDE
-          _buildSectionTitle(context, 'Aide'),
+          _buildSectionTitle(context, AppLocalizations.of(context)!.help),
           Container(
             color: colors.surface,
             child: Column(
@@ -36,7 +37,7 @@ class SupportScreen extends StatelessWidget {
                 ListTile(
                   leading: Icon(Icons.quiz_outlined, color: colors.onSurface),
                   title: Text(
-                    'FAQ (Questions fréquentes)',
+                    AppLocalizations.of(context)!.pageTitleFaq,
                     style: TextStyle(color: colors.onSurface),
                   ),
                   trailing: Icon(Icons.arrow_forward_ios,
@@ -52,7 +53,7 @@ class SupportScreen extends StatelessWidget {
                 ListTile(
                   leading: Icon(Icons.email_outlined, color: colors.onSurface),
                   title: Text(
-                    'Contactez-nous',
+                    AppLocalizations.of(context)!.pageTitleContact,
                     style: TextStyle(color: colors.onSurface),
                   ),
                   trailing: Icon(Icons.arrow_forward_ios,
@@ -70,7 +71,7 @@ class SupportScreen extends StatelessWidget {
           ),
 
           // SECTION LEGAL
-          _buildSectionTitle(context, 'Légal'),
+          _buildSectionTitle(context, AppLocalizations.of(context)!.sectionLegal),
           Container(
             color: colors.surface,
             child: Column(
@@ -78,7 +79,7 @@ class SupportScreen extends StatelessWidget {
                 ListTile(
                   leading: Icon(Icons.gavel_outlined, color: colors.onSurface),
                   title: Text(
-                    "Conditions d'utilisation",
+                    AppLocalizations.of(context)!.pageTitleTerms,
                     style: TextStyle(color: colors.onSurface),
                   ),
                   trailing: Icon(Icons.arrow_forward_ios,
@@ -95,7 +96,7 @@ class SupportScreen extends StatelessWidget {
                   leading:
                       Icon(Icons.privacy_tip_outlined, color: colors.onSurface),
                   title: Text(
-                    'Politique de confidentialité',
+                    AppLocalizations.of(context)!.pageTitlePrivacy,
                     style: TextStyle(color: colors.onSurface),
                   ),
                   trailing: Icon(Icons.arrow_forward_ios,

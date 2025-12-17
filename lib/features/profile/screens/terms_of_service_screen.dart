@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moovapp/l10n/app_localizations.dart';
 
 class TermsOfServiceScreen extends StatelessWidget {
   const TermsOfServiceScreen({super.key});
@@ -12,7 +13,7 @@ class TermsOfServiceScreen extends StatelessWidget {
       backgroundColor: colors.surface,
       appBar: AppBar(
         title: Text(
-          "Conditions d'utilisation",
+          AppLocalizations.of(context)!.pageTitleTerms,
           style: TextStyle(
             color: colors.onPrimary,
             fontWeight: FontWeight.bold,

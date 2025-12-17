@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:moovapp/core/providers/notification_provider.dart';
+import 'package:moovapp/l10n/app_localizations.dart';
 
 class NotificationsScreen extends StatefulWidget {
   const NotificationsScreen({super.key});
@@ -28,7 +29,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
-          'Notifications',
+          AppLocalizations.of(context)!.pageTitleNotifications,
           style: TextStyle(
             color: colors.onPrimary,
             fontWeight: FontWeight.bold,
@@ -42,7 +43,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           return ListView(
             children: <Widget>[
               // --- Section Notifications Push ---
-              _buildSectionTitle(context, 'Notifications Push'),
+              _buildSectionTitle(context, AppLocalizations.of(context)!.pushNotifications),
 
               Container(
                 color: theme.cardColor,
@@ -51,26 +52,24 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     _buildSwitch(
                       context,
                       icon: Icons.directions_car_outlined,
-                      title: 'Nouveaux trajets publiés',
-                      subtitle:
-                          'Recevoir une alerte pour les nouveaux trajets sur vos routes favorites.',
+                      title: AppLocalizations.of(context)!.newRidesPublished,
+                      subtitle: AppLocalizations.of(context)!.newRidesDesc,
                       value: notificationProvider.newRidesEnabled,
                       onChanged: (v) => notificationProvider.setNewRidesEnabled(v),
                     ),
                     _buildSwitch(
                       context,
                       icon: Icons.message_outlined,
-                      title: 'Nouveaux messages',
-                      subtitle:
-                          'Recevoir une alerte pour les nouveaux messages de conducteurs/passagers.',
+                      title: AppLocalizations.of(context)!.newMessages,
+                      subtitle: AppLocalizations.of(context)!.newMessagesDesc,
                       value: notificationProvider.newMessagesEnabled,
                       onChanged: (v) => notificationProvider.setNewMessagesEnabled(v),
                     ),
                     _buildSwitch(
                       context,
                       icon: Icons.check_circle_outline,
-                      title: 'Mises à jour des réservations',
-                      subtitle: 'Réservation confirmée, annulée, etc.',
+                      title: AppLocalizations.of(context)!.bookingUpdates,
+                      subtitle: AppLocalizations.of(context)!.bookingUpdatesDesc,
                       value: notificationProvider.bookingUpdatesEnabled,
                       onChanged: (v) => notificationProvider.setBookingUpdatesEnabled(v),
                     ),
@@ -79,7 +78,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               ),
 
               // --- Section Notifications Email ---
-              _buildSectionTitle(context, 'Notifications par E-mail'),
+              _buildSectionTitle(context, AppLocalizations.of(context)!.emailNotifications),
 
               Container(
                 color: theme.cardColor,
@@ -88,8 +87,8 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     _buildSwitch(
                       context,
                       icon: Icons.local_offer_outlined,
-                      title: 'Promotions et actualités',
-                      subtitle: 'Recevoir les promotions et les nouvelles de Moov.',
+                      title: AppLocalizations.of(context)!.promotions,
+                      subtitle: AppLocalizations.of(context)!.promotionsDesc,
                       value: notificationProvider.promotionsEnabled,
                       onChanged: (v) => notificationProvider.setPromotionsEnabled(v),
                     ),
