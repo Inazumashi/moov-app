@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:moovapp/core/providers/payment_provider.dart';
 import 'package:moovapp/core/providers/premium_provider.dart';
+import 'package:moovapp/features/payment/screens/simple_payment_screen.dart'; // IMPORT AJOUTÉ
 
 class PremiumScreen extends StatefulWidget {
   const PremiumScreen({super.key});
@@ -14,56 +15,16 @@ class _PremiumScreenState extends State<PremiumScreen> {
   bool _isProcessingPayment = false;
 
   Future<void> _handlePremiumPurchase() async {
-    final paymentProvider = context.read<PaymentProvider>();
-    final defaultMethod = await paymentProvider.getDefaultPaymentMethod();
-
-    if (defaultMethod == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Veuillez ajouter un moyen de paiement dans les paramètres'),
-          action: SnackBarAction(
-            label: 'Aller aux paramètres',
-            onPressed: () {
-              // Navigation vers l'écran des moyens de paiement
-              Navigator.of(context).pushNamed('/payment-methods');
-            },
-          ),
+    // Navigation vers l'écran de paiement simplifié
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => SimplePaymentScreen(
+          amount: 49.0,
+          description: 'Abonnement Premium Moov - 1 mois',
         ),
-      );
-      return;
-    }
-
-    setState(() => _isProcessingPayment = true);
-
-    try {
-      await paymentProvider.initiatePayPalPayment(
-        context: context,
-        amount: 49.0,
-        currency: 'MAD',
-        description: 'Abonnement Premium Moov - 1 mois',
-        onSuccess: (paymentId) async {
-          // Activer le statut premium
-          await context.read<PremiumProvider>().activatePremium();
-
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Paiement réussi ! Bienvenue dans Premium !')),
-          );
-          // Retourner à l'écran précédent
-          Navigator.of(context).pop();
-        },
-        onError: (error) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erreur de paiement: $error')),
-          );
-        },
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur: ${e.toString()}')),
-      );
-    } finally {
-      setState(() => _isProcessingPayment = false);
-    }
+      ),
+    );
   }
 
   @override
