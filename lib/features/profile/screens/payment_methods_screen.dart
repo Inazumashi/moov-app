@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:moovapp/core/providers/payment_provider.dart';
 import 'package:moovapp/core/models/payment_method.dart';
 import 'package:moovapp/features/profile/screens/add_credit_card_screen.dart';
+import 'package:moovapp/l10n/app_localizations.dart';
 
 class PaymentMethodsScreen extends StatefulWidget {
   const PaymentMethodsScreen({super.key});
@@ -30,7 +31,7 @@ class _PaymentMethodsScreenState extends State<PaymentMethodsScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
-          'Moyens de paiement',
+          AppLocalizations.of(context)!.pageTitlePaymentMethods,
           style: TextStyle(
             color: colors.onPrimary,
             fontWeight: FontWeight.bold,

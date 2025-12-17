@@ -132,6 +132,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sectionSecurity => 'الأمان';
 
   @override
+  String get passwordManagement => 'إدارة كلمة المرور';
+
+  @override
   String get sectionGeneral => 'عام';
 
   @override
@@ -382,4 +385,64 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get freePrice => '0 درهم';
+
+  @override
+  String get pageTitleAddCreditCard => 'إضافة بطاقة ائتمانية';
+
+  @override
+  String get sectionCardInformation => 'معلومات البطاقة';
+
+  @override
+  String get labelCardNumber => 'رقم البطاقة';
+
+  @override
+  String get hintCardNumber => '1234 5678 9012 3456';
+
+  @override
+  String get labelExpiry => 'تاريخ الانتهاء';
+
+  @override
+  String get hintExpiry => 'شهر/سنة';
+
+  @override
+  String get labelCvv => 'CVV';
+
+  @override
+  String get hintCvv => '123';
+
+  @override
+  String get labelCardName => 'الاسم على البطاقة';
+
+  @override
+  String get hintCardName => 'JOHN DOE';
+
+  @override
+  String get validationCardNumberRequired => 'رقم البطاقة مطلوب';
+
+  @override
+  String get validationCardNumberInvalid => 'رقم البطاقة غير صالح';
+
+  @override
+  String get validationExpiryRequired => 'تاريخ الانتهاء مطلوب';
+
+  @override
+  String get validationExpiryFormat => 'تنسيق شهر/سنة مطلوب';
+
+  @override
+  String get validationCvvRequired => 'CVV مطلوب';
+
+  @override
+  String get validationCvvInvalid => 'CVV غير صالح';
+
+  @override
+  String get validationNameRequired => 'الاسم مطلوب';
+
+  @override
+  String get msgCardAddedSuccess => 'تمت إضافة البطاقة بنجاح';
+
+  @override
+  String get msgSecurePayment => 'معلومات الدفع الخاصة بك آمنة ومشفرة وفقًا لمعايير PCI DSS.';
+
+  @override
+  String get btnAddCard => 'إضافة البطاقة';
 }

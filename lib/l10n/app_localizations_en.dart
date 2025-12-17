@@ -132,6 +132,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sectionSecurity => 'Security';
 
   @override
+  String get passwordManagement => 'Password Management';
+
+  @override
   String get sectionGeneral => 'General';
 
   @override
@@ -382,4 +385,64 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get freePrice => '0 MAD';
+
+  @override
+  String get pageTitleAddCreditCard => 'Add Credit Card';
+
+  @override
+  String get sectionCardInformation => 'Card Information';
+
+  @override
+  String get labelCardNumber => 'Card Number';
+
+  @override
+  String get hintCardNumber => '1234 5678 9012 3456';
+
+  @override
+  String get labelExpiry => 'Expiry Date';
+
+  @override
+  String get hintExpiry => 'MM/YY';
+
+  @override
+  String get labelCvv => 'CVV';
+
+  @override
+  String get hintCvv => '123';
+
+  @override
+  String get labelCardName => 'Name on Card';
+
+  @override
+  String get hintCardName => 'JOHN DOE';
+
+  @override
+  String get validationCardNumberRequired => 'Card number required';
+
+  @override
+  String get validationCardNumberInvalid => 'Invalid card number';
+
+  @override
+  String get validationExpiryRequired => 'Expiry date required';
+
+  @override
+  String get validationExpiryFormat => 'MM/YY format required';
+
+  @override
+  String get validationCvvRequired => 'CVV required';
+
+  @override
+  String get validationCvvInvalid => 'Invalid CVV';
+
+  @override
+  String get validationNameRequired => 'Name required';
+
+  @override
+  String get msgCardAddedSuccess => 'Card added successfully';
+
+  @override
+  String get msgSecurePayment => 'Your payment information is secure and encrypted according to PCI DSS standards.';
+
+  @override
+  String get btnAddCard => 'Add Card';
 }

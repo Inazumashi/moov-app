@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moovapp/l10n/app_localizations.dart';
 
 class FaqScreen extends StatelessWidget {
   const FaqScreen({super.key});
@@ -12,7 +13,7 @@ class FaqScreen extends StatelessWidget {
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
-          'FAQ (Questions fréquentes)',
+          AppLocalizations.of(context)!.pageTitleFaq,
           style: TextStyle(
             color: colors.onPrimary,
             fontWeight: FontWeight.bold,

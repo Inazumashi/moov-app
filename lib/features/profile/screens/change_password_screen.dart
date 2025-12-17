@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moovapp/features/auth/widgets/auth_textfield.dart';
+import 'package:moovapp/l10n/app_localizations.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -31,7 +32,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         backgroundColor: colorScheme.primary,
         iconTheme: IconThemeData(color: colorScheme.onPrimary),
         title: Text(
-          'Changer le mot de passe',
+          AppLocalizations.of(context)!.changePassword,
           style: TextStyle(
             color: colorScheme.onPrimary,
             fontWeight: FontWeight.bold,
@@ -50,7 +51,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Mot de passe actuel',
+                AppLocalizations.of(context)!.hintCurrentPassword,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -66,7 +67,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               ),
               const SizedBox(height: 24),
               Text(
-                'Nouveau mot de passe',
+                AppLocalizations.of(context)!.hintNewPassword,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -76,14 +77,14 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               const SizedBox(height: 8),
               AuthTextField(
                 controller: _newPasswordController,
-                hintText: 'Nouveau mot de passe',
+                hintText: AppLocalizations.of(context)!.hintNewPassword,
                 icon: Icons.lock_outline,
                 isPassword: true,
               ),
               const SizedBox(height: 16),
               AuthTextField(
                 controller: _confirmPasswordController,
-                hintText: 'Confirmer le nouveau mot de passe',
+                hintText: AppLocalizations.of(context)!.hintConfirmPassword,
                 icon: Icons.lock_outline,
                 isPassword: true,
               ),
@@ -99,8 +100,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     backgroundColor: colorScheme.primary,
                     foregroundColor: colorScheme.onPrimary,
                   ),
-                  child: const Text(
-                    'Enregistrer les modifications',
+                  child: Text(
+                    AppLocalizations.of(context)!.btnSaveModifications,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),

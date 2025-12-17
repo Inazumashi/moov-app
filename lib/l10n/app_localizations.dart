@@ -343,6 +343,12 @@ abstract class AppLocalizations {
   /// **'Security'**
   String get sectionSecurity;
 
+  /// No description provided for @passwordManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Password Management'**
+  String get passwordManagement;
+
   /// No description provided for @sectionGeneral.
   ///
   /// In en, this message translates to:
@@ -822,6 +828,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'0 MAD'**
   String get freePrice;
+
+  /// No description provided for @pageTitleAddCreditCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Credit Card'**
+  String get pageTitleAddCreditCard;
+
+  /// No description provided for @sectionCardInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Card Information'**
+  String get sectionCardInformation;
+
+  /// No description provided for @labelCardNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Card Number'**
+  String get labelCardNumber;
+
+  /// No description provided for @hintCardNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'1234 5678 9012 3456'**
+  String get hintCardNumber;
+
+  /// No description provided for @labelExpiry.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiry Date'**
+  String get labelExpiry;
+
+  /// No description provided for @hintExpiry.
+  ///
+  /// In en, this message translates to:
+  /// **'MM/YY'**
+  String get hintExpiry;
+
+  /// No description provided for @labelCvv.
+  ///
+  /// In en, this message translates to:
+  /// **'CVV'**
+  String get labelCvv;
+
+  /// No description provided for @hintCvv.
+  ///
+  /// In en, this message translates to:
+  /// **'123'**
+  String get hintCvv;
+
+  /// No description provided for @labelCardName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name on Card'**
+  String get labelCardName;
+
+  /// No description provided for @hintCardName.
+  ///
+  /// In en, this message translates to:
+  /// **'JOHN DOE'**
+  String get hintCardName;
+
+  /// No description provided for @validationCardNumberRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Card number required'**
+  String get validationCardNumberRequired;
+
+  /// No description provided for @validationCardNumberInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid card number'**
+  String get validationCardNumberInvalid;
+
+  /// No description provided for @validationExpiryRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiry date required'**
+  String get validationExpiryRequired;
+
+  /// No description provided for @validationExpiryFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'MM/YY format required'**
+  String get validationExpiryFormat;
+
+  /// No description provided for @validationCvvRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'CVV required'**
+  String get validationCvvRequired;
+
+  /// No description provided for @validationCvvInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid CVV'**
+  String get validationCvvInvalid;
+
+  /// No description provided for @validationNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Name required'**
+  String get validationNameRequired;
+
+  /// No description provided for @msgCardAddedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Card added successfully'**
+  String get msgCardAddedSuccess;
+
+  /// No description provided for @msgSecurePayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Your payment information is secure and encrypted according to PCI DSS standards.'**
+  String get msgSecurePayment;
+
+  /// No description provided for @btnAddCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Card'**
+  String get btnAddCard;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

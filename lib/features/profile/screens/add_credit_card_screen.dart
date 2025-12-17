@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:moovapp/core/providers/payment_provider.dart';
 import 'package:moovapp/core/models/payment_method.dart';
+import 'package:moovapp/l10n/app_localizations.dart';
 
 class AddCreditCardScreen extends StatefulWidget {
   const AddCreditCardScreen({super.key});
@@ -31,38 +32,38 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
 
   String? _validateCardNumber(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Numéro de carte requis';
+      return AppLocalizations.of(context)!.validationCardNumberRequired;
     }
     final cleanValue = value.replaceAll(' ', '');
     if (cleanValue.length < 13 || cleanValue.length > 19) {
-      return 'Numéro de carte invalide';
+      return AppLocalizations.of(context)!.validationCardNumberInvalid;
     }
     return null;
   }
 
   String? _validateExpiry(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Date d\'expiration requise';
+      return AppLocalizations.of(context)!.validationExpiryRequired;
     }
     if (!RegExp(r'^\d{2}/\d{2}$').hasMatch(value)) {
-      return 'Format MM/YY requis';
+      return AppLocalizations.of(context)!.validationExpiryFormat;
     }
     return null;
   }
 
   String? _validateCVV(String? value) {
     if (value == null || value.isEmpty) {
-      return 'CVV requis';
+      return AppLocalizations.of(context)!.validationCvvRequired;
     }
     if (value.length < 3 || value.length > 4) {
-      return 'CVV invalide';
+      return AppLocalizations.of(context)!.validationCvvInvalid;
     }
     return null;
   }
 
   String? _validateName(String? value) {
     if (value == null || value.isEmpty) {
-      return 'Nom requis';
+      return AppLocalizations.of(context)!.validationNameRequired;
     }
     return null;
   }
@@ -107,14 +108,14 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Carte ajoutée avec succès')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.msgCardAddedSuccess)),
         );
         Navigator.of(context).pop();
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur: ${e.toString()}')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.error(e.toString()))),
         );
       }
     } finally {
@@ -131,7 +132,7 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
-          'Ajouter une carte',
+          AppLocalizations.of(context)!.pageTitleAddCreditCard,
           style: TextStyle(
             color: colors.onPrimary,
             fontWeight: FontWeight.bold,
@@ -148,7 +149,7 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Informations de la carte',
+                AppLocalizations.of(context)!.sectionCardInformation,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -158,9 +159,9 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
               const SizedBox(height: 24),
               TextFormField(
                 controller: _cardNumberController,
-                decoration: const InputDecoration(
-                  labelText: 'Numéro de carte',
-                  hintText: '1234 5678 9012 3456',
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.labelCardNumber,
+                  hintText: AppLocalizations.of(context)!.hintCardNumber,
                   prefixIcon: Icon(Icons.credit_card),
                 ),
                 keyboardType: TextInputType.number,
@@ -185,9 +186,9 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
                   Expanded(
                     child: TextFormField(
                       controller: _expiryController,
-                      decoration: const InputDecoration(
-                        labelText: 'Expiration',
-                        hintText: 'MM/YY',
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.labelExpiry,
+                        hintText: AppLocalizations.of(context)!.hintExpiry,
                         prefixIcon: Icon(Icons.calendar_today),
                       ),
                       keyboardType: TextInputType.number,
@@ -203,9 +204,9 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
                   Expanded(
                     child: TextFormField(
                       controller: _cvvController,
-                      decoration: const InputDecoration(
-                        labelText: 'CVV',
-                        hintText: '123',
+                      decoration: InputDecoration(
+                        labelText: AppLocalizations.of(context)!.labelCvv,
+                        hintText: AppLocalizations.of(context)!.hintCvv,
                         prefixIcon: Icon(Icons.security),
                       ),
                       keyboardType: TextInputType.number,
@@ -222,9 +223,9 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Nom sur la carte',
-                  hintText: 'JOHN DOE',
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.labelCardName,
+                  hintText: AppLocalizations.of(context)!.hintCardName,
                   prefixIcon: Icon(Icons.person),
                 ),
                 textCapitalization: TextCapitalization.characters,
@@ -238,7 +239,7 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  'Vos informations de paiement sont sécurisées et cryptées selon les normes PCI DSS.',
+                  AppLocalizations.of(context)!.msgSecurePayment,
                   style: TextStyle(
                     color: colors.onSurface.withOpacity(0.7),
                   ),
@@ -266,8 +267,8 @@ class _AddCreditCardScreenState extends State<AddCreditCardScreen> {
                             valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                           ),
                         )
-                      : const Text(
-                          'Ajouter la carte',
+                      : Text(
+                          AppLocalizations.of(context)!.btnAddCard,
                           style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                 ),

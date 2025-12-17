@@ -132,6 +132,9 @@ class AppLocalizationsFr extends AppLocalizations {
   String get sectionSecurity => 'Sécurité';
 
   @override
+  String get passwordManagement => 'Gestion du mot de passe';
+
+  @override
   String get sectionGeneral => 'Général';
 
   @override
@@ -382,4 +385,64 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get freePrice => '0 MAD';
+
+  @override
+  String get pageTitleAddCreditCard => 'Ajouter une carte';
+
+  @override
+  String get sectionCardInformation => 'Informations de la carte';
+
+  @override
+  String get labelCardNumber => 'Numéro de carte';
+
+  @override
+  String get hintCardNumber => '1234 5678 9012 3456';
+
+  @override
+  String get labelExpiry => 'Date d\'expiration';
+
+  @override
+  String get hintExpiry => 'MM/AA';
+
+  @override
+  String get labelCvv => 'CVV';
+
+  @override
+  String get hintCvv => '123';
+
+  @override
+  String get labelCardName => 'Nom sur la carte';
+
+  @override
+  String get hintCardName => 'JOHN DOE';
+
+  @override
+  String get validationCardNumberRequired => 'Numéro de carte requis';
+
+  @override
+  String get validationCardNumberInvalid => 'Numéro de carte invalide';
+
+  @override
+  String get validationExpiryRequired => 'Date d\'expiration requise';
+
+  @override
+  String get validationExpiryFormat => 'Format MM/AA requis';
+
+  @override
+  String get validationCvvRequired => 'CVV requis';
+
+  @override
+  String get validationCvvInvalid => 'CVV invalide';
+
+  @override
+  String get validationNameRequired => 'Nom requis';
+
+  @override
+  String get msgCardAddedSuccess => 'Carte ajoutée avec succès';
+
+  @override
+  String get msgSecurePayment => 'Vos informations de paiement sont sécurisées et cryptées selon les normes PCI DSS.';
+
+  @override
+  String get btnAddCard => 'Ajouter la carte';
 }
