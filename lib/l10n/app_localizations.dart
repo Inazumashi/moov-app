@@ -577,6 +577,12 @@ abstract class AppLocalizations {
   /// **'Logout'**
   String get logout;
 
+  /// No description provided for @passwordManagement.
+  ///
+  /// In en, this message translates to:
+  /// **'Password Management'**
+  String get passwordManagement;
+
   /// No description provided for @communities.
   ///
   /// In en, this message translates to:
@@ -822,6 +828,312 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'0 MAD'**
   String get freePrice;
+
+  /// No description provided for @pushNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Push Notifications'**
+  String get pushNotifications;
+
+  /// No description provided for @emailNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Email Notifications'**
+  String get emailNotifications;
+
+  /// No description provided for @myNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'My Notifications'**
+  String get myNotifications;
+
+  /// No description provided for @markAsRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as read'**
+  String get markAsRead;
+
+  /// No description provided for @demoNotificationsCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Demo notifications created'**
+  String get demoNotificationsCreated;
+
+  /// No description provided for @noNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'No notifications'**
+  String get noNotifications;
+
+  /// No description provided for @noNotificationsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t received any notifications yet.'**
+  String get noNotificationsDesc;
+
+  /// No description provided for @notificationDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification deleted'**
+  String get notificationDeleted;
+
+  /// No description provided for @undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
+  /// No description provided for @markAllAsReadQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to mark all notifications as read?'**
+  String get markAllAsReadQuestion;
+
+  /// No description provided for @newRidesPublished.
+  ///
+  /// In en, this message translates to:
+  /// **'New rides published'**
+  String get newRidesPublished;
+
+  /// No description provided for @newRidesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Get alerts for new rides on your favorite routes.'**
+  String get newRidesDesc;
+
+  /// No description provided for @newMessages.
+  ///
+  /// In en, this message translates to:
+  /// **'New messages'**
+  String get newMessages;
+
+  /// No description provided for @newMessagesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Get alerts for new messages from drivers/passengers.'**
+  String get newMessagesDesc;
+
+  /// No description provided for @bookingUpdates.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking updates'**
+  String get bookingUpdates;
+
+  /// No description provided for @bookingUpdatesDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Booking confirmed, canceled, etc.'**
+  String get bookingUpdatesDesc;
+
+  /// No description provided for @promotions.
+  ///
+  /// In en, this message translates to:
+  /// **'Promotions and news'**
+  String get promotions;
+
+  /// No description provided for @promotionsDesc.
+  ///
+  /// In en, this message translates to:
+  /// **'Receive promotions and Moov news.'**
+  String get promotionsDesc;
+
+  /// No description provided for @pageTitleAddCreditCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Credit Card'**
+  String get pageTitleAddCreditCard;
+
+  /// No description provided for @sectionCardInformation.
+  ///
+  /// In en, this message translates to:
+  /// **'Card Information'**
+  String get sectionCardInformation;
+
+  /// No description provided for @labelCardNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Card Number'**
+  String get labelCardNumber;
+
+  /// No description provided for @hintCardNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'1234 5678 9012 3456'**
+  String get hintCardNumber;
+
+  /// No description provided for @labelExpiry.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiry'**
+  String get labelExpiry;
+
+  /// No description provided for @hintExpiry.
+  ///
+  /// In en, this message translates to:
+  /// **'MM/YY'**
+  String get hintExpiry;
+
+  /// No description provided for @labelCvv.
+  ///
+  /// In en, this message translates to:
+  /// **'CVV'**
+  String get labelCvv;
+
+  /// No description provided for @hintCvv.
+  ///
+  /// In en, this message translates to:
+  /// **'123'**
+  String get hintCvv;
+
+  /// No description provided for @labelCardName.
+  ///
+  /// In en, this message translates to:
+  /// **'Name on Card'**
+  String get labelCardName;
+
+  /// No description provided for @hintCardName.
+  ///
+  /// In en, this message translates to:
+  /// **'JOHN DOE'**
+  String get hintCardName;
+
+  /// No description provided for @msgSecurePayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Your payment information is secure and encrypted according to PCI DSS standards.'**
+  String get msgSecurePayment;
+
+  /// No description provided for @btnAddCard.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Card'**
+  String get btnAddCard;
+
+  /// No description provided for @validationCardNumberRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Card number required'**
+  String get validationCardNumberRequired;
+
+  /// No description provided for @validationCardNumberInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid card number'**
+  String get validationCardNumberInvalid;
+
+  /// No description provided for @validationExpiryRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expiry date required'**
+  String get validationExpiryRequired;
+
+  /// No description provided for @validationExpiryFormat.
+  ///
+  /// In en, this message translates to:
+  /// **'MM/YY format required'**
+  String get validationExpiryFormat;
+
+  /// No description provided for @validationCvvRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'CVV required'**
+  String get validationCvvRequired;
+
+  /// No description provided for @validationCvvInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid CVV'**
+  String get validationCvvInvalid;
+
+  /// No description provided for @validationNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Name required'**
+  String get validationNameRequired;
+
+  /// No description provided for @msgCardAddedSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Card added successfully'**
+  String get msgCardAddedSuccess;
+
+  /// No description provided for @createDemoNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Create demo notifications'**
+  String get createDemoNotifications;
+
+  /// No description provided for @today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get today;
+
+  /// No description provided for @yesterday.
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday'**
+  String get yesterday;
+
+  /// No description provided for @daysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days ago'**
+  String daysAgo(Object count);
+
+  /// No description provided for @markAllAsRead.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all as read'**
+  String get markAllAsRead;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get cancel;
+
+  /// No description provided for @subject.
+  ///
+  /// In en, this message translates to:
+  /// **'Subject'**
+  String get subject;
+
+  /// No description provided for @hintSubject.
+  ///
+  /// In en, this message translates to:
+  /// **'Ex: Booking issue'**
+  String get hintSubject;
+
+  /// No description provided for @message.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get message;
+
+  /// No description provided for @hintMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Hello, I have a problem with...'**
+  String get hintMessage;
+
+  /// No description provided for @sendMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Send message'**
+  String get sendMessage;
+
+  /// No description provided for @myCommunities.
+  ///
+  /// In en, this message translates to:
+  /// **'My Communities'**
+  String get myCommunities;
+
+  /// No description provided for @publishedRidesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} ride(s) published'**
+  String publishedRidesCount(Object count);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

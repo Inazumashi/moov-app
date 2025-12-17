@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // ✅ Import
 import 'package:moovapp/core/service/auth_service.dart';   // ✅ Import
 import 'package:moovapp/features/auth/widgets/auth_textfield.dart';
+import 'package:moovapp/l10n/app_localizations.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});
@@ -88,7 +89,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
-          'Modifier le profil',
+          AppLocalizations.of(context)!.editProfile,
           style: TextStyle(
             color: colors.onPrimary,
             fontWeight: FontWeight.bold,
@@ -110,7 +111,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             children: [
               // Nom Complet
               Text(
-                'Nom complet',
+                AppLocalizations.of(context)!.hintFullName,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -129,7 +130,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               // Email (non modifiable)
               Text(
-                'Email universitaire',
+                AppLocalizations.of(context)!.hintEmail,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -150,7 +151,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
               // Téléphone
               Text(
-                'Téléphone',
+                AppLocalizations.of(context)!.hintPhone,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -184,8 +185,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           width: 20,
                           child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
                         )
-                      : const Text(
-                          'Enregistrer les modifications',
+                      : Text(
+                          AppLocalizations.of(context)!.btnSaveModifications,
                           style: TextStyle(fontWeight: FontWeight.bold),
                         ),
                 ),

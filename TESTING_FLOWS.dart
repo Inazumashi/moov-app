@@ -4,7 +4,7 @@
 import 'package:moovapp/core/providers/ride_provider.dart';
 import 'package:moovapp/core/providers/chat_provider.dart';
 import 'package:moovapp/core/providers/reservation_provider.dart';
-import 'package:moovapp/core/providers/auth_provider.dart';
+
 
 // ============================================
 // TEST 1: SUGGESTIONS

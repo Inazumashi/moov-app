@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moovapp/features/inscription/screens/university_select_screen.dart';
+import 'package:moovapp/l10n/app_localizations.dart';
 
 
 class CommunitiesScreen extends StatelessWidget {
@@ -13,7 +14,7 @@ class CommunitiesScreen extends StatelessWidget {
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
-          'Mes communautés',
+          AppLocalizations.of(context)!.myCommunities,
           style: TextStyle(
             color: colorScheme.onPrimary,
             fontWeight: FontWeight.bold,

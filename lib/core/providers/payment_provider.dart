@@ -76,6 +76,32 @@ class PaymentProvider with ChangeNotifier {
     );
   }
 
+  // ---------------------------------------------------------------------------
+  // NOUVELLE MÉTHODE : Appeler le backend pour valider le paiement
+  // ---------------------------------------------------------------------------
+  Future<void> verifyAndActivatePremium(String paymentId, double amount) async {
+    try {
+      // On peut mettre isLoading à true si on veut montrer un loader
+      _isLoading = true;
+      notifyListeners();
+
+      await _paymentService.verifyPaymentWithBackend(paymentId, amount);
+      
+      // Si on arrive ici, c'est que le backend a répondu 200 OK.
+      // On retire l'erreur potentielle précédente
+      _error = null;
+
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      // On relance l'erreur pour que l'écran (PremiumScreen) puisse afficher la SnackBar rouge
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<PaymentMethod?> getDefaultPaymentMethod() async {
     return await _paymentService.getDefaultPaymentMethod();
   }

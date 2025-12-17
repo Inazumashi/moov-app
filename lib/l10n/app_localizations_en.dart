@@ -249,6 +249,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logout => 'Logout';
 
   @override
+  String get passwordManagement => 'Password Management';
+
+  @override
   String get communities => 'Communities';
 
   @override
@@ -382,4 +385,161 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get freePrice => '0 MAD';
+
+  @override
+  String get pushNotifications => 'Push Notifications';
+
+  @override
+  String get emailNotifications => 'Email Notifications';
+
+  @override
+  String get myNotifications => 'My Notifications';
+
+  @override
+  String get markAsRead => 'Mark as read';
+
+  @override
+  String get demoNotificationsCreated => 'Demo notifications created';
+
+  @override
+  String get noNotifications => 'No notifications';
+
+  @override
+  String get noNotificationsDesc => 'You haven\'t received any notifications yet.';
+
+  @override
+  String get notificationDeleted => 'Notification deleted';
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String get markAllAsReadQuestion => 'Do you want to mark all notifications as read?';
+
+  @override
+  String get newRidesPublished => 'New rides published';
+
+  @override
+  String get newRidesDesc => 'Get alerts for new rides on your favorite routes.';
+
+  @override
+  String get newMessages => 'New messages';
+
+  @override
+  String get newMessagesDesc => 'Get alerts for new messages from drivers/passengers.';
+
+  @override
+  String get bookingUpdates => 'Booking updates';
+
+  @override
+  String get bookingUpdatesDesc => 'Booking confirmed, canceled, etc.';
+
+  @override
+  String get promotions => 'Promotions and news';
+
+  @override
+  String get promotionsDesc => 'Receive promotions and Moov news.';
+
+  @override
+  String get pageTitleAddCreditCard => 'Add Credit Card';
+
+  @override
+  String get sectionCardInformation => 'Card Information';
+
+  @override
+  String get labelCardNumber => 'Card Number';
+
+  @override
+  String get hintCardNumber => '1234 5678 9012 3456';
+
+  @override
+  String get labelExpiry => 'Expiry';
+
+  @override
+  String get hintExpiry => 'MM/YY';
+
+  @override
+  String get labelCvv => 'CVV';
+
+  @override
+  String get hintCvv => '123';
+
+  @override
+  String get labelCardName => 'Name on Card';
+
+  @override
+  String get hintCardName => 'JOHN DOE';
+
+  @override
+  String get msgSecurePayment => 'Your payment information is secure and encrypted according to PCI DSS standards.';
+
+  @override
+  String get btnAddCard => 'Add Card';
+
+  @override
+  String get validationCardNumberRequired => 'Card number required';
+
+  @override
+  String get validationCardNumberInvalid => 'Invalid card number';
+
+  @override
+  String get validationExpiryRequired => 'Expiry date required';
+
+  @override
+  String get validationExpiryFormat => 'MM/YY format required';
+
+  @override
+  String get validationCvvRequired => 'CVV required';
+
+  @override
+  String get validationCvvInvalid => 'Invalid CVV';
+
+  @override
+  String get validationNameRequired => 'Name required';
+
+  @override
+  String get msgCardAddedSuccess => 'Card added successfully';
+
+  @override
+  String get createDemoNotifications => 'Create demo notifications';
+
+  @override
+  String get today => 'Today';
+
+  @override
+  String get yesterday => 'Yesterday';
+
+  @override
+  String daysAgo(Object count) {
+    return '$count days ago';
+  }
+
+  @override
+  String get markAllAsRead => 'Mark all as read';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get subject => 'Subject';
+
+  @override
+  String get hintSubject => 'Ex: Booking issue';
+
+  @override
+  String get message => 'Message';
+
+  @override
+  String get hintMessage => 'Hello, I have a problem with...';
+
+  @override
+  String get sendMessage => 'Send message';
+
+  @override
+  String get myCommunities => 'My Communities';
+
+  @override
+  String publishedRidesCount(Object count) {
+    return '$count ride(s) published';
+  }
 }

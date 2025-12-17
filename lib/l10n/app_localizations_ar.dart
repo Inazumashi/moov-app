@@ -249,6 +249,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get logout => 'تسجيل الخروج';
 
   @override
+  String get passwordManagement => 'إدارة كلمة المرور';
+
+  @override
   String get communities => 'المجتمعات';
 
   @override
@@ -382,4 +385,161 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get freePrice => '0 درهم';
+
+  @override
+  String get pushNotifications => 'إشعارات الدفع';
+
+  @override
+  String get emailNotifications => 'إشعارات البريد الإلكتروني';
+
+  @override
+  String get myNotifications => 'إشعاراتي';
+
+  @override
+  String get markAsRead => 'وضع علامة كمقروء';
+
+  @override
+  String get demoNotificationsCreated => 'تم إنشاء إشعارات تجريبية';
+
+  @override
+  String get noNotifications => 'لا توجد إشعارات';
+
+  @override
+  String get noNotificationsDesc => 'لم تتلق أي إشعارات بعد.';
+
+  @override
+  String get notificationDeleted => 'تم حذف الإشعار';
+
+  @override
+  String get undo => 'تراجع';
+
+  @override
+  String get markAllAsReadQuestion => 'هل تريد تحديد جميع الإشعارات كمقروءة؟';
+
+  @override
+  String get newRidesPublished => 'رحلات جديدة منشورة';
+
+  @override
+  String get newRidesDesc => 'احصل على تنبيهات للرحلات الجديدة على طرقك المفضلة.';
+
+  @override
+  String get newMessages => 'رسائل جديدة';
+
+  @override
+  String get newMessagesDesc => 'احصل على تنبيهات للرسائل الجديدة من السائقين/الركاب.';
+
+  @override
+  String get bookingUpdates => 'تحديثات الحجز';
+
+  @override
+  String get bookingUpdatesDesc => 'حجز مؤكد، ملغى، إلخ.';
+
+  @override
+  String get promotions => 'العروض والأخبار';
+
+  @override
+  String get promotionsDesc => 'تلقي العروض وأخبار Moov.';
+
+  @override
+  String get pageTitleAddCreditCard => 'إضافة بطاقة ائتمان';
+
+  @override
+  String get sectionCardInformation => 'معلومات البطاقة';
+
+  @override
+  String get labelCardNumber => 'رقم البطاقة';
+
+  @override
+  String get hintCardNumber => '1234 5678 9012 3456';
+
+  @override
+  String get labelExpiry => 'انتهاء الصلاحية';
+
+  @override
+  String get hintExpiry => 'MM/YY';
+
+  @override
+  String get labelCvv => 'CVV';
+
+  @override
+  String get hintCvv => '123';
+
+  @override
+  String get labelCardName => 'الاسم على البطاقة';
+
+  @override
+  String get hintCardName => 'JOHN DOE';
+
+  @override
+  String get msgSecurePayment => 'معلومات الدفع الخاصة بك آمنة ومشفرة وفقًا لمعايير PCI DSS.';
+
+  @override
+  String get btnAddCard => 'إضافة البطاقة';
+
+  @override
+  String get validationCardNumberRequired => 'رقم البطاقة مطلوب';
+
+  @override
+  String get validationCardNumberInvalid => 'رقم البطاقة غير صالح';
+
+  @override
+  String get validationExpiryRequired => 'تاريخ انتهاء الصلاحية مطلوب';
+
+  @override
+  String get validationExpiryFormat => 'تنسيق MM/YY مطلوب';
+
+  @override
+  String get validationCvvRequired => 'CVV مطلوب';
+
+  @override
+  String get validationCvvInvalid => 'CVV غير صالح';
+
+  @override
+  String get validationNameRequired => 'الاسم مطلوب';
+
+  @override
+  String get msgCardAddedSuccess => 'تم إضافة البطاقة بنجاح';
+
+  @override
+  String get createDemoNotifications => 'إنشاء إشعارات تجريبية';
+
+  @override
+  String get today => 'اليوم';
+
+  @override
+  String get yesterday => 'أمس';
+
+  @override
+  String daysAgo(Object count) {
+    return 'منذ $count أيام';
+  }
+
+  @override
+  String get markAllAsRead => 'تحديد الكل كمقروء';
+
+  @override
+  String get cancel => 'إلغاء';
+
+  @override
+  String get subject => 'الموضوع';
+
+  @override
+  String get hintSubject => 'مثال: مشكلة في الحجز';
+
+  @override
+  String get message => 'الرسالة';
+
+  @override
+  String get hintMessage => 'مرحبا، لدي مشكلة مع...';
+
+  @override
+  String get sendMessage => 'إرسال الرسالة';
+
+  @override
+  String get myCommunities => 'مجتمعاتي';
+
+  @override
+  String publishedRidesCount(Object count) {
+    return '$count رحلة(رحلات) منشورة';
+  }
 }

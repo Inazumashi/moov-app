@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:moovapp/core/providers/language_provider.dart'; // <-- à créer
+import 'package:moovapp/l10n/app_localizations.dart';
 
 class LanguageSelectionScreen extends StatelessWidget {
   const LanguageSelectionScreen({super.key});
 
-  final List<Map<String, String>> languages = const [
-    {'code': 'fr', 'name': 'Français'},
-    {'code': 'en', 'name': 'English'},
-    {'code': 'ar', 'name': 'العربية (Arabe)'},
+  List<Map<String, String>> _getLanguages(BuildContext context) => [
+    {'code': 'fr', 'name': AppLocalizations.of(context)!.placeholderFrench},
+    {'code': 'en', 'name': AppLocalizations.of(context)!.placeholderEnglish},
+    {'code': 'ar', 'name': AppLocalizations.of(context)!.placeholderArabic},
   ];
 
   @override
@@ -24,7 +25,7 @@ class LanguageSelectionScreen extends StatelessWidget {
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
-          'Langue',
+          AppLocalizations.of(context)!.pageTitleLanguage,
           style: TextStyle(color: colors.onPrimary),
         ),
         backgroundColor: colors.primary,
@@ -37,8 +38,8 @@ class LanguageSelectionScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
-          children: List.generate(languages.length, (index) {
-            final lang = languages[index];
+          children: List.generate(_getLanguages(context).length, (index) {
+            final lang = _getLanguages(context)[index];
             final bool isSelected = lang['code'] == currentLocale.languageCode;
 
             return Column(
@@ -58,7 +59,7 @@ class LanguageSelectionScreen extends StatelessWidget {
                     Navigator.of(context).pop();
                   },
                 ),
-                if (index < languages.length - 1)
+                if (index < _getLanguages(context).length - 1)
                   Divider(
                     height: 1,
                     indent: 16,

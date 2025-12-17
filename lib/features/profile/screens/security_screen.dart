@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moovapp/features/profile/screens/change_password_screen.dart';
+import 'package:moovapp/l10n/app_localizations.dart';
 
 class SecurityScreen extends StatefulWidget {
   const SecurityScreen({super.key});
@@ -19,7 +20,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
       backgroundColor: colors.surface,
       appBar: AppBar(
         title: Text(
-          'Sécurité',
+          AppLocalizations.of(context)!.pageTitleSecurity,
           style: TextStyle(
             color: colors.onPrimary,
             fontWeight: FontWeight.bold,
@@ -30,7 +31,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
       ),
       body: ListView(
         children: [
-          _buildSectionTitle('Gestion du mot de passe'),
+          _buildSectionTitle(AppLocalizations.of(context)!.passwordManagement),
           Container(
             color: colors.surface,
             child: Column(
@@ -38,7 +39,7 @@ class _SecurityScreenState extends State<SecurityScreen> {
                 ListTile(
                   leading: Icon(Icons.lock_outline, color: colors.onSurface),
                   title: Text(
-                    'Changer le mot de passe',
+                    AppLocalizations.of(context)!.changePassword,
                     style: TextStyle(color: colors.onSurface),
                   ),
                   trailing: Icon(Icons.arrow_forward_ios,

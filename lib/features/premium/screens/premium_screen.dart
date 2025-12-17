@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:moovapp/core/providers/payment_provider.dart';
 import 'package:moovapp/core/providers/premium_provider.dart';
-import 'package:moovapp/features/payment/screens/simple_payment_screen.dart'; // IMPORT AJOUTÉ
 
 class PremiumScreen extends StatefulWidget {
   const PremiumScreen({super.key});
@@ -15,16 +14,87 @@ class _PremiumScreenState extends State<PremiumScreen> {
   bool _isProcessingPayment = false;
 
   Future<void> _handlePremiumPurchase() async {
-    // Navigation vers l'écran de paiement simplifié
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => SimplePaymentScreen(
-          amount: 49.0,
-          description: 'Abonnement Premium Moov - 1 mois',
+    final paymentProvider = context.read<PaymentProvider>();
+    
+    // NOTE: Si tu veux forcer l'utilisateur à avoir ajouté une méthode avant de payer, garde ceci.
+    // Sinon, tu peux retirer ce bloc si flutter_paypal_payment gère tout.
+    final defaultMethod = await paymentProvider.getDefaultPaymentMethod();
+
+    if (defaultMethod == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Veuillez ajouter un moyen de paiement dans les paramètres'),
+          action: SnackBarAction(
+            label: 'Aller aux paramètres',
+            onPressed: () {
+              Navigator.of(context).pushNamed('/payment-methods');
+            },
+          ),
         ),
-      ),
-    );
+      );
+      return;
+    }
+
+    setState(() => _isProcessingPayment = true);
+
+    try {
+      await paymentProvider.initiatePayPalPayment(
+        context: context,
+        amount: 49.0,
+        currency: 'MAD',
+        description: 'Abonnement Premium Moov - 1 mois',
+        onSuccess: (paymentId) async {
+          print("Paiement PayPal réussi (ID: $paymentId). Vérification serveur...");
+          
+          try {
+            // -----------------------------------------------------------
+            // 1. APPEL AU BACKEND : On vérifie et on active coté serveur
+            // -----------------------------------------------------------
+            await context.read<PaymentProvider>().verifyAndActivatePremium(paymentId, 49.0);
+
+            // -----------------------------------------------------------
+            // 2. MISE À JOUR LOCALE : Si le serveur dit OK, on débloque l'UI
+            // -----------------------------------------------------------
+            if (mounted) {
+              await context.read<PremiumProvider>().activatePremium();
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Paiement validé par le serveur ! Bienvenue dans Premium !'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+              
+              // Retourner à l'écran précédent
+              Navigator.of(context).pop();
+            }
+          } catch (serverError) {
+            // Si le serveur refuse (fraude, erreur réseau...)
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Erreur de validation serveur: ${serverError.toString()}'),
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
+          }
+        },
+        onError: (error) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Erreur de paiement: $error')),
+          );
+        },
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur: ${e.toString()}')),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _isProcessingPayment = false);
+      }
+    }
   }
 
   @override
@@ -55,7 +125,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
             Text(
               isAlreadyPremium ? 'Premium Actif' : 'Premium',
               style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
             Text(
               isAlreadyPremium
@@ -105,6 +175,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
   // ------------------------------------------------------
   Widget _buildPremiumCard(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
+    // On récupère l'état pour savoir si le bouton doit être désactivé
+    final isPremium = context.watch<PremiumProvider>().isPremium;
 
     return Container(
       decoration: BoxDecoration(
@@ -180,7 +252,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
           SizedBox(
             width: double.infinity,
             child: ElevatedButton(
-              onPressed: _isProcessingPayment || context.watch<PremiumProvider>().isPremium ? null : _handlePremiumPurchase,
+              // Si déjà premium ou en chargement, on désactive le bouton
+              onPressed: _isProcessingPayment || isPremium ? null : _handlePremiumPurchase,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange[400],
                 foregroundColor: Colors.black87,
@@ -198,7 +271,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                       ),
                     )
                   : Text(
-                      context.watch<PremiumProvider>().isPremium ? 'Premium Actif' : 'Commencer Premium',
+                      isPremium ? 'Premium Actif' : 'Commencer Premium',
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
             ),
@@ -209,7 +282,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
   }
 
   // ------------------------------------------------------
-  // FREE CARD
+  // FREE CARD (Code inchangé)
   // ------------------------------------------------------
   Widget _buildFreeCard(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -271,9 +344,6 @@ class _PremiumScreenState extends State<PremiumScreen> {
     );
   }
 
-  // ------------------------------------------------------
-  // FEATURE ROW (Premium + Free Cards)
-  // ------------------------------------------------------
   Widget _buildFeatureRow(
     String text,
     bool included, {
@@ -313,9 +383,6 @@ class _PremiumScreenState extends State<PremiumScreen> {
     );
   }
 
-  // ------------------------------------------------------
-  // WHY PREMIUM ROW
-  // ------------------------------------------------------
   Widget _buildWhyPremiumRow(
       BuildContext context, IconData icon, String title, String subtitle) {
     final cs = Theme.of(context).colorScheme;

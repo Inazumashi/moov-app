@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:moovapp/l10n/app_localizations.dart';
 
 class PrivacyPolicyScreen extends StatelessWidget {
   const PrivacyPolicyScreen({super.key});
@@ -12,7 +13,7 @@ class PrivacyPolicyScreen extends StatelessWidget {
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
-          'Politique de confidentialité',
+          AppLocalizations.of(context)!.pageTitlePrivacy,
           style: TextStyle(
             color: colors.onPrimary,
             fontWeight: FontWeight.bold,
