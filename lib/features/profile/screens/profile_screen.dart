@@ -40,16 +40,7 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
             centerTitle: true,
-            actions: [
-              IconButton(
-                icon: Icon(Icons.settings_outlined, color: colors.onPrimary),
-                onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const SettingsScreen(),
-                  ));
-                },
-              ),
-            ],
+
             flexibleSpace: FlexibleSpaceBar(
               background: Builder(builder: (context) {
                 final auth = Provider.of<AuthProvider>(context);

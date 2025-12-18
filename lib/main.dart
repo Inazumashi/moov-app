@@ -21,6 +21,7 @@ import 'package:moovapp/core/service/notification_service.dart';
 import 'package:moovapp/l10n/app_localizations.dart';
 import 'package:moovapp/core/api/api_service.dart';
 import 'package:moovapp/core/providers/eco_stats_provider.dart';
+import 'package:moovapp/core/service/remote_notification_service.dart';
 
 
 void main() async { 
@@ -41,7 +42,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => StationProvider()),
         ChangeNotifierProvider(create: (_) => PaymentProvider()),
         ChangeNotifierProvider(create: (_) => PremiumProvider()),
-        ChangeNotifierProvider(create: (_) => NotificationProvider()),
+        ChangeNotifierProvider(create: (_) => NotificationProvider(RemoteNotificationService(ApiService()))),
         ChangeNotifierProvider(create: (_) => EcoStatsProvider()),
       ],
       child: const MyApp(),

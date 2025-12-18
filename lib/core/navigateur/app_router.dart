@@ -7,6 +7,8 @@ import 'package:moovapp/features/inscription/screens/university_select_screen.da
 // ✅ AJOUT: Import de l'écran de test de connexion
 import 'package:moovapp/features/test/screens/connection_test_screen.dart';
 
+import 'package:moovapp/features/ride/screens/publish_ride_screen.dart'; // ✅ IMPORT
+
 class AppRouter {
   // Noms des routes statiques
   static const String welcome = '/';
@@ -14,6 +16,7 @@ class AppRouter {
   static const String onboardingRoutes = '/onboarding/routes';
   static const String onboardingUniversity = '/onboarding/university';
   static const String home = '/home';
+  static const String publishRide = '/publish'; // ✅ AJOUT: Route de publication
   // ✅ AJOUT: Route de test de connexion backend
   static const String connectionTest = '/test/connection';
 
@@ -30,7 +33,7 @@ class AppRouter {
         // --- MODIFICATION ICI ---
         // 1. On récupère la liste envoyée via les arguments
         final args = settings.arguments as List<RouteInfo>;
-        
+
         // 2. On injecte 'args' dans le paramètre 'routes'.
         // Note : On a retiré le mot 'const' devant UniversitySelectScreen
         return MaterialPageRoute(
@@ -38,6 +41,8 @@ class AppRouter {
         );
       case home:
         return MaterialPageRoute(builder: (_) => const MainNavigationShell());
+      case publishRide: // ✅ AJOUT: Case pour publication
+        return MaterialPageRoute(builder: (_) => const PublishRideScreen());
       // ✅ AJOUT: Route de test de connexion
       case connectionTest:
         return MaterialPageRoute(builder: (_) => const ConnectionTestScreen());

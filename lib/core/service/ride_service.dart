@@ -30,6 +30,7 @@ class RideService {
     bool? verifiedOnly,
     String? departureTimeStart,
     String? departureTimeEnd,
+    int? minSeats,
     int page = 1,
     int limit = 20,
   }) async {
@@ -54,6 +55,7 @@ class RideService {
         queryParams['departure_time_start'] = departureTimeStart;
       if (departureTimeEnd != null)
         queryParams['departure_time_end'] = departureTimeEnd;
+      if (minSeats != null) queryParams['min_seats'] = minSeats.toString();
 
       final queryString = queryParams.entries
           .map((e) => '${e.key}=${Uri.encodeComponent(e.value)}')
@@ -237,16 +239,37 @@ class RideService {
   // 4. Charger les trajets publiés par l'utilisateur
   Future<List<RideModel>> getMyPublishedRides() async {
     try {
-      print('🚗 getMyPublishedRides appelé');
+      print('');
+      print('=' * 60);
+      print('🚗 getMyPublishedRides APPELÉ');
+      print('=' * 60);
 
       final response =
           await _apiService.get('rides/my-rides', isProtected: true);
 
       print('📊 Type réponse: ${response.runtimeType}');
+      print('📊 Réponse brute: $response');
 
-      if (response is Map && response.containsKey('rides')) {
-        final ridesList = response['rides'] as List;
-        print('📊 Nombre de trajets: ${ridesList.length}');
+      if (response is Map) {
+        final List<dynamic> ridesList;
+        if (response.containsKey('rides')) {
+          ridesList = response['rides'] as List;
+          print('✅ Clé "rides" trouvée');
+        } else if (response.containsKey('data')) {
+          ridesList = response['data'] as List;
+          print('✅ Clé "data" trouvée');
+        } else {
+          print('⚠️ Aucune clé "rides" ou "data" trouvée');
+          print('⚠️ Clés disponibles: ${response.keys.toList()}');
+          ridesList = [];
+        }
+
+        print('📊 Nombre de trajets dans la liste: ${ridesList.length}');
+
+        if (ridesList.isEmpty) {
+          print('⚠️ Liste de trajets vide!');
+          return [];
+        }
 
         final parsedRides = <RideModel>[];
         for (var i = 0; i < ridesList.length; i++) {
@@ -254,8 +277,9 @@ class RideService {
             final rideJson = ridesList[i] as Map<String, dynamic>;
 
             // ✅ DEBUG DÉTAILLÉ
+            print('');
             print('=' * 50);
-            print('🔍 Trajet $i - Champs disponibles:');
+            print('🔍 TRAJET $i - Champs disponibles:');
             rideJson.forEach((key, value) {
               print('   $key: $value (${value.runtimeType})');
             });
@@ -264,25 +288,37 @@ class RideService {
             parsedRides.add(ride);
 
             // ✅ VÉRIFICATION
-            print('✅ Trajet parsé:');
+            print('✅ Trajet parsé avec succès:');
             print('   ID: ${ride.rideId}');
             print(
                 '   Départ: ${ride.startPoint} (Station ID: ${ride.departureStationId})');
             print(
                 '   Arrivée: ${ride.endPoint} (Station ID: ${ride.arrivalStationId})');
             print('   Date: ${ride.departureTime}');
+            print('   Prix: ${ride.pricePerSeat} DH');
           } catch (e, stack) {
-            print('❌ Erreur parsing trajet $i: $e');
-            print('❌ Stack: $stack');
+            print('❌ ERREUR parsing trajet $i: $e');
+            print('❌ Stack trace: $stack');
           }
         }
+
+        print('');
+        print('=' * 60);
+        print('✅ TOTAL TRAJETS PARSÉS: ${parsedRides.length}');
+        print('=' * 60);
+
         return parsedRides;
       } else {
-        print('❌ Format inattendu ou pas de trajets');
+        print('❌ La réponse n\'est pas un Map');
+        print('❌ Type reçu: ${response.runtimeType}');
         return [];
       }
-    } catch (e) {
-      print('❌ ERREUR getMyPublishedRides: $e');
+    } catch (e, stack) {
+      print('');
+      print('❌' * 30);
+      print('❌ ERREUR CRITIQUE getMyPublishedRides: $e');
+      print('❌ Stack: $stack');
+      print('❌' * 30);
       rethrow;
     }
   }
@@ -366,6 +402,20 @@ class RideService {
     } catch (e) {
       print('Erreur chargement universités: $e');
       return [];
+    }
+  }
+
+  // 10. Marquer un trajet comme terminé
+  Future<void> completeRide(String rideId) async {
+    try {
+      await _apiService.put(
+        'rides/$rideId/complete',
+        {},
+        isProtected: true,
+      );
+    } catch (e) {
+      print('Erreur completion trajet: $e');
+      rethrow;
     }
   }
 }

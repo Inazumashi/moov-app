@@ -6,13 +6,16 @@ import 'package:moovapp/features/home/widgets/my_reservations_widget.dart';
 import 'package:moovapp/features/home/widgets/suggestions_section.dart';
 import 'package:moovapp/features/premium/screens/premium_screen.dart';
 import 'package:moovapp/features/ride/screens/my_rides_screen.dart';
+import 'package:moovapp/features/ride/screens/publish_ride_screen.dart';
 import 'package:moovapp/core/providers/auth_provider.dart';
 import 'package:moovapp/core/providers/ride_provider.dart';
 import 'package:moovapp/core/providers/reservation_provider.dart';
 import 'package:moovapp/core/providers/chat_provider.dart';
 import 'package:moovapp/features/driver/driver_messages_screen.dart';
-import 'package:moovapp/features/profile/screens/notifications_list_screen.dart';
+import 'package:moovapp/features/notifications/screens/notifications_screen.dart';
 import 'package:moovapp/features/stats/screens/eco_stats_screen.dart';
+import 'package:moovapp/features/ride/screens/ride_details_screen.dart';
+import 'package:moovapp/features/ride/widgets/reservation_flow_modal.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -29,10 +32,10 @@ class _HomeScreenState extends State<HomeScreen> {
       final rideProv = Provider.of<RideProvider>(context, listen: false);
       final resProv = Provider.of<ReservationProvider>(context, listen: false);
       final chatProv = Provider.of<ChatProvider>(context, listen: false);
-      
+
       rideProv.refreshAllData();
       resProv.loadReservations();
-      
+
       // Charger les conversations si l'utilisateur est connecté
       if (Provider.of<AuthProvider>(context, listen: false).isAuthenticated) {
         chatProv.loadConversations();
@@ -87,7 +90,7 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             },
           ),
-          
+
           // BOUTON MESSAGES AVEC BADGE
           Consumer<ChatProvider>(
             builder: (context, chatProvider, _) {
@@ -133,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
               );
             },
           ),
-          
+
           IconButton(
             icon: Icon(Icons.workspace_premium_outlined,
                 color: Colors.orange.shade300, size: 28),
@@ -144,7 +147,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       builder: (context) => const PremiumScreen()));
             },
           ),
-          
+
           IconButton(
             icon: const Icon(Icons.notifications_none_outlined,
                 color: Colors.white, size: 28),
@@ -152,23 +155,23 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => const NotificationsListScreen(),
+                  builder: (_) => const NotificationsScreen(),
                 ),
               );
             },
           ),
-          
+
           const SizedBox(width: 8),
         ],
         toolbarHeight: 70,
       ),
-
       body: RefreshIndicator(
         onRefresh: () async {
           final rideProv = Provider.of<RideProvider>(context, listen: false);
-          final resProv = Provider.of<ReservationProvider>(context, listen: false);
+          final resProv =
+              Provider.of<ReservationProvider>(context, listen: false);
           final chatProv = Provider.of<ChatProvider>(context, listen: false);
-          
+
           await Future.wait([
             rideProv.refreshAllData(),
             resProv.loadReservations(),
@@ -231,12 +234,20 @@ class _HomeScreenState extends State<HomeScreen> {
               // Suggestions
               SuggestionsSection(
                 onViewDetails: (rideId) {
-                  // TODO: Naviguer vers RideDetailsScreen
-                  print('Voir détails: $rideId');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => RideDetailsScreen(rideId: rideId),
+                    ),
+                  );
                 },
                 onRideSelected: (ride) {
-                  // TODO: Ouvrir ReservationFlowModal
-                  print('Réserver: ${ride.rideId}');
+                  showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (context) => ReservationFlowModal(ride: ride),
+                  );
                 },
               ),
               const SizedBox(height: 24),
@@ -281,24 +292,11 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 24),
 
               // Mes trajets publiés
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Mes trajets publiés',
-                      style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: cs.onSurface)),
-                  if (rideProv.myPublishedRides.isNotEmpty)
-                    TextButton(
-                      onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => const MyRidesScreen())),
-                      child: const Text('Voir tout'),
-                    ),
-                ],
-              ),
+              Text('Mes trajets publiés',
+                  style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: cs.onSurface)),
               const SizedBox(height: 12),
               if (rideProv.myPublishedRides.isEmpty)
                 Card(
@@ -313,12 +311,17 @@ class _HomeScreenState extends State<HomeScreen> {
                         const Expanded(
                           child: Text('Aucun trajet publié pour le moment.'),
                         ),
-                        TextButton(
+                        ElevatedButton.icon(
                           onPressed: () => Navigator.push(
                               context,
                               MaterialPageRoute(
-                                  builder: (_) => const MyRidesScreen())),
-                          child: const Text('Publier'),
+                                  builder: (_) => const PublishRideScreen())),
+                          icon: const Icon(Icons.add),
+                          label: const Text('Publier un trajet'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: cs.primary,
+                            foregroundColor: Colors.white,
+                          ),
                         )
                       ],
                     ),
@@ -382,17 +385,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                   if (confirmed == true) {
                                     final success =
                                         await rideProv.deleteRide(ride.rideId);
-                                    
+
                                     if (!context.mounted) return;
-                                    
+
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text(success
                                             ? '✅ Trajet supprimé'
                                             : '❌ Erreur suppression'),
-                                        backgroundColor: success 
-                                          ? Colors.green 
-                                          : Colors.red,
+                                        backgroundColor:
+                                            success ? Colors.green : Colors.red,
                                       ),
                                     );
                                   }
@@ -400,7 +402,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (_) => const MyRidesScreen()));
+                                          builder: (_) =>
+                                              const MyRidesScreen()));
                                 }
                               },
                               itemBuilder: (BuildContext context) => [
@@ -427,7 +430,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   }).toList(),
                 ),
-              
+
               // Message si plus de 3 trajets
               if (rideProv.myPublishedRides.length > 3)
                 Padding(

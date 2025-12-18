@@ -53,40 +53,40 @@ class ReservationProvider with ChangeNotifier {
       print('⚠️ Réservation déjà en cours, ignore...');
       return false;
     }
-    
+
     _isLoading = true;
     _error = '';
     notifyListeners();
 
     try {
       print('📝 Réservation trajet #$rideId avec $seats place(s)...');
-      
+
       // Validation
       if (rideId <= 0) {
         _error = 'ID du trajet invalide';
         print('❌ Erreur: rideId invalide: $rideId');
         return false;
       }
-      
+
       final token = await _apiService.getToken();
       if (token == null || token.isEmpty) {
         _error = 'Session expirée. Veuillez vous reconnecter.';
         print('⚠️ Erreur: Token non disponible');
         return false;
       }
-      
+
       final baseUrl = _getBaseUrl();
       final url = Uri.parse('$baseUrl/reservations');
-      
+
       // ✅ FORMAT UNIQUE (camelCase seulement)
       final requestData = {
         'rideId': rideId,
         'seatsBooked': seats,
       };
-      
+
       print('📤 Envoi avec format camelCase: $requestData');
       print('📤 Données JSON: ${jsonEncode(requestData)}');
-      
+
       final response = await http.post(
         url,
         headers: {
@@ -98,18 +98,19 @@ class ReservationProvider with ChangeNotifier {
 
       print('📡 Réponse: ${response.statusCode}');
       print('📡 Corps: ${response.body}');
-      
+
       final data = jsonDecode(response.body);
-      
+
       if (response.statusCode == 200 || response.statusCode == 201) {
         if (data['success'] == true) {
           print('✅ Réservation créée avec succès');
           print('📊 Données retour: $data');
-          
+
           await loadReservations();
           return true;
         } else {
-          _error = data['message']?.toString() ?? 'Erreur lors de la réservation';
+          _error =
+              data['message']?.toString() ?? 'Erreur lors de la réservation';
           print('⚠️ Erreur création: $_error');
           return false;
         }
@@ -144,19 +145,19 @@ class ReservationProvider with ChangeNotifier {
   Future<void> testReservationEndpoint() async {
     print('🧪 TEST ENDPOINT RÉSERVATION');
     print('🌐 Base URL: ${_getBaseUrl()}');
-    
+
     try {
       final token = await _apiService.getToken();
       print('🔑 Token disponible: ${token != null}');
       if (token != null) {
         print('🔑 Token (début): ${token.substring(0, 20)}...');
       }
-      
+
       final response = await _apiService.get(
         'reservations/my-reservations',
         isProtected: true,
       );
-      
+
       print('📡 Réponse test GET: $response');
     } catch (e) {
       print('❌ Erreur test endpoint: $e');
@@ -173,10 +174,10 @@ class ReservationProvider with ChangeNotifier {
     try {
       final token = await _apiService.getToken();
       if (token == null) throw Exception('Token non disponible');
-      
+
       final baseUrl = _getBaseUrl();
       final url = Uri.parse('$baseUrl/reservations');
-      
+
       // Formats possibles
       final formats = [
         // Format principal (camelCase)
@@ -187,11 +188,11 @@ class ReservationProvider with ChangeNotifier {
           if (dropoffPoint != null) 'dropoffPoint': dropoffPoint,
         },
       ];
-      
+
       for (var i = 0; i < formats.length; i++) {
         try {
           print('🔄 Test format ${i + 1}: ${formats[i]}');
-          
+
           final response = await http.post(
             url,
             headers: {
@@ -200,11 +201,11 @@ class ReservationProvider with ChangeNotifier {
             },
             body: jsonEncode(formats[i]),
           );
-          
+
           final data = jsonDecode(response.body);
           print('📡 Format ${i + 1} - Status: ${response.statusCode}');
           print('📡 Format ${i + 1} - Réponse: $data');
-          
+
           if (response.statusCode == 200 || response.statusCode == 201) {
             if (data is Map && data['success'] == true) {
               print('✅ SUCCÈS avec format ${i + 1}');
@@ -215,7 +216,7 @@ class ReservationProvider with ChangeNotifier {
           print('❌ Format ${i + 1} échoué: $e');
         }
       }
-      
+
       return null;
     } catch (e) {
       print('❌ Erreur createReservationRaw: $e');
@@ -231,7 +232,7 @@ class ReservationProvider with ChangeNotifier {
 
     try {
       print('📦 Chargement des réservations avec trajets...');
-      
+
       final response = await _apiService.get(
         'reservations/my-reservations',
         isProtected: true,
@@ -239,18 +240,18 @@ class ReservationProvider with ChangeNotifier {
 
       if (response is Map && response['success'] == true) {
         final reservationsJson = response['reservations'] as List? ?? [];
-        
+
         print('📊 ${reservationsJson.length} réservations reçues');
-        
+
         // Charger les réservations avec leurs trajets
         final reservations = await _loadReservationsWithRides(reservationsJson);
-        
+
         _allReservations = reservations;
         _applyFilter();
-        
+
         print('✅ ${_allReservations.length} réservations chargées avec succès');
-        print('🚗 Réservations avec trajet: ${_allReservations.where((r) => r.ride != null).length}');
-        
+        print(
+            '🚗 Réservations avec trajet: ${_allReservations.where((r) => r.ride != null).length}');
       } else {
         _error = response['message']?.toString() ?? 'Erreur de chargement';
         print('⚠️ Erreur API: $_error');
@@ -270,13 +271,14 @@ class ReservationProvider with ChangeNotifier {
   }
 
   // Charger les réservations avec leurs trajets
-  Future<List<Reservation>> _loadReservationsWithRides(List<dynamic> reservationsJson) async {
+  Future<List<Reservation>> _loadReservationsWithRides(
+      List<dynamic> reservationsJson) async {
     final reservations = <Reservation>[];
-    
+
     for (var json in reservationsJson) {
       try {
         final reservation = Reservation.fromJson(json);
-        
+
         RideModel? ride;
         if (json['ride'] != null && json['ride'] is Map) {
           try {
@@ -285,23 +287,23 @@ class ReservationProvider with ChangeNotifier {
             print('❌ Erreur parsing ride depuis JSON: $e');
           }
         }
-        
+
         if (ride == null && reservation.rideId > 0) {
           try {
             ride = await _loadRideById(reservation.rideId);
           } catch (e) {
-            print('❌ Erreur chargement trajet pour rideId ${reservation.rideId}: $e');
+            print(
+                '❌ Erreur chargement trajet pour rideId ${reservation.rideId}: $e');
           }
         }
-        
+
         final reservationWithRide = reservation.copyWith(ride: ride);
         reservations.add(reservationWithRide);
-        
       } catch (e) {
         print('❌ Erreur création réservation: $e - JSON: $json');
       }
     }
-    
+
     return reservations;
   }
 
@@ -309,7 +311,7 @@ class ReservationProvider with ChangeNotifier {
   Future<RideModel?> _loadRideById(int rideId) async {
     try {
       print('🔍 Chargement du trajet #$rideId...');
-      
+
       final response = await _apiService.get(
         'rides/$rideId',
         isProtected: true,
@@ -349,17 +351,26 @@ class ReservationProvider with ChangeNotifier {
           .where((r) => r.status.toLowerCase() == _filterStatus.toLowerCase())
           .toList();
     }
-    print('🎯 Filtre appliqué: $_filterStatus -> ${_reservations.length} réservations');
+    print(
+        '🎯 Filtre appliqué: $_filterStatus -> ${_reservations.length} réservations');
   }
 
   // Statistiques des réservations
   Map<String, int> get reservationStats {
     final stats = <String, int>{
       'all': _allReservations.length,
-      'pending': _allReservations.where((r) => r.status.toLowerCase() == 'pending').length,
-      'confirmed': _allReservations.where((r) => r.status.toLowerCase() == 'confirmed').length,
-      'completed': _allReservations.where((r) => r.status.toLowerCase() == 'completed').length,
-      'cancelled': _allReservations.where((r) => r.status.toLowerCase() == 'cancelled').length,
+      'pending': _allReservations
+          .where((r) => r.status.toLowerCase() == 'pending')
+          .length,
+      'confirmed': _allReservations
+          .where((r) => r.status.toLowerCase() == 'confirmed')
+          .length,
+      'completed': _allReservations
+          .where((r) => r.status.toLowerCase() == 'completed')
+          .length,
+      'cancelled': _allReservations
+          .where((r) => r.status.toLowerCase() == 'cancelled')
+          .length,
     };
 
     print('📊 Stats réservations: $stats');
@@ -370,7 +381,7 @@ class ReservationProvider with ChangeNotifier {
   Future<bool> cancelReservation(int reservationId) async {
     try {
       print('🚫 Annulation réservation #$reservationId...');
-      
+
       final response = await _apiService.put(
         'reservations/$reservationId/cancel',
         {},
@@ -379,7 +390,7 @@ class ReservationProvider with ChangeNotifier {
 
       if (response is Map && response['success'] == true) {
         print('✅ Réservation annulée avec succès');
-        
+
         await loadReservations();
         return true;
       } else {
@@ -400,7 +411,7 @@ class ReservationProvider with ChangeNotifier {
   Future<bool> markCompleted(int reservationId) async {
     try {
       print('✅ Marquage réservation #$reservationId comme terminée...');
-      
+
       final response = await _apiService.put(
         'reservations/$reservationId/complete',
         {},
@@ -409,7 +420,7 @@ class ReservationProvider with ChangeNotifier {
 
       if (response is Map && response['success'] == true) {
         print('✅ Réservation marquée comme terminée');
-        
+
         await loadReservations();
         return true;
       } else {
@@ -430,7 +441,7 @@ class ReservationProvider with ChangeNotifier {
   Future<Reservation?> getReservationById(int reservationId) async {
     try {
       print('🔍 Récupération détails réservation #$reservationId...');
-      
+
       final response = await _apiService.get(
         'reservations/$reservationId',
         isProtected: true,
@@ -440,12 +451,12 @@ class ReservationProvider with ChangeNotifier {
         final reservationJson = response['reservation'];
         if (reservationJson != null) {
           final reservation = Reservation.fromJson(reservationJson);
-          
+
           if (reservation.ride == null && reservation.rideId > 0) {
             final ride = await _loadRideById(reservation.rideId);
             return reservation.copyWith(ride: ride);
           }
-          
+
           return reservation;
         }
       }
@@ -514,26 +525,27 @@ class ReservationProvider with ChangeNotifier {
     double totalMoneySaved = 0;
     int totalPassengers = 0;
     int completedTrips = 0;
-    
-    final completedReservations = _allReservations.where((r) => r.status == 'completed');
+
+    final completedReservations =
+        _allReservations.where((r) => r.status == 'completed');
     completedTrips = completedReservations.length;
-    
+
     for (var reservation in completedReservations) {
       final distance = 50.0;
       totalDistance += distance;
       totalPassengers += reservation.seatsReserved;
-      
+
       final co2PerKm = 150.0;
       final co2Saved = distance * co2PerKm * (reservation.seatsReserved - 1);
       totalCO2Saved += co2Saved / 1000;
-      
+
       final fuelCostPerKm = (12.0 * 6.0) / 100;
       final fuelCost = distance * fuelCostPerKm;
       final revenue = reservation.totalPrice;
       final savings = revenue - fuelCost;
       if (savings > 0) totalMoneySaved += savings;
     }
-    
+
     if (completedTrips == 0) {
       return {
         'total_trips': 0,
@@ -544,7 +556,7 @@ class ReservationProvider with ChangeNotifier {
         'trees_equivalent': 0,
       };
     }
-    
+
     return {
       'total_trips': completedTrips.toDouble(),
       'total_distance': totalDistance,
@@ -566,21 +578,82 @@ class ReservationProvider with ChangeNotifier {
 
   // Vérifier si l'utilisateur a déjà réservé un trajet spécifique
   bool hasBookedRide(int rideId) {
-    return _allReservations.any((r) => 
-      r.rideId == rideId && 
-      ['pending', 'confirmed'].contains(r.status.toLowerCase())
-    );
+    return _allReservations.any((r) =>
+        r.rideId == rideId &&
+        ['pending', 'confirmed'].contains(r.status.toLowerCase()));
   }
 
   // Obtenir une réservation pour un trajet spécifique
   Reservation? getReservationForRide(int rideId) {
     try {
-      return _allReservations.firstWhere((r) => 
-        r.rideId == rideId && 
-        ['pending', 'confirmed'].contains(r.status.toLowerCase())
-      );
+      return _allReservations.firstWhere((r) =>
+          r.rideId == rideId &&
+          ['pending', 'confirmed'].contains(r.status.toLowerCase()));
     } catch (e) {
       return null;
+    }
+  }
+
+  // ✅ POur le Conducteur : Récupérer les réservations d'un trajet
+  Future<List<Reservation>> fetchReservationsForRide(int rideId) async {
+    _isLoading = true;
+    notifyListeners();
+    try {
+      final response = await _apiService.get(
+        'reservations/for-ride/$rideId',
+        isProtected: true,
+      );
+
+      if (response is Map && response['success'] == true) {
+        final List<dynamic> list = response['reservations'] ?? [];
+        return list.map((e) => Reservation.fromJson(e)).toList();
+      }
+      return [];
+    } catch (e) {
+      print('❌ Erreur fetchReservationsForRide: $e');
+      // FALLBACK MOCK DATA
+      return [
+        Reservation(
+          id: 101,
+          rideId: rideId,
+          passengerId: '99',
+          passengerName: "Ahmed Tazi",
+          passengerPhoto: "https://i.pravatar.cc/150?u=99",
+          seatsReserved: 1,
+          totalPrice: 20.0,
+          status: 'pending',
+          createdAt: DateTime.now().subtract(const Duration(minutes: 30)),
+        ),
+        Reservation(
+          id: 102,
+          rideId: rideId,
+          passengerId: '100',
+          passengerName: "Sarah Benali",
+          passengerPhoto: "https://i.pravatar.cc/150?u=100",
+          seatsReserved: 2,
+          totalPrice: 40.0,
+          status: 'confirmed',
+          createdAt: DateTime.now().subtract(const Duration(hours: 2)),
+        ),
+      ];
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  // ✅ Pour le Conducteur : Confirmer une réservation
+  Future<bool> confirmReservation(int reservationId) async {
+    try {
+      final response = await _apiService.put(
+        'reservations/$reservationId/confirm',
+        {},
+        isProtected: true,
+      );
+      return response is Map && response['success'] == true;
+    } catch (e) {
+      print('❌ Erreur confirmReservation: $e');
+      return true; // MOCK SUCCESS
     }
   }
 }

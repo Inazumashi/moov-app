@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:moovapp/features/profile/screens/edit_profile_screen.dart';
+import 'package:moovapp/features/profile/screens/change_password_screen.dart';
 import 'package:moovapp/features/profile/screens/payment_methods_screen.dart';
 import 'package:moovapp/features/profile/screens/language_selection_screen.dart';
 import 'package:provider/provider.dart';
@@ -57,6 +58,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
             color: Theme.of(context).cardColor,
             child: Column(
               children: [
+                ListTile(
+                  leading: Icon(Icons.lock_outline, color: colorScheme.onSurface),
+                  title: Text('Modifier mot de passe',
+                      style: TextStyle(color: colorScheme.onSurface)),
+                  trailing: Icon(Icons.arrow_forward_ios,
+                      size: 16, color: colorScheme.onSurface),
+                  onTap: () {
+                    Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const ChangePasswordScreen(),
+                    ));
+                  },
+                ),
+                const Divider(height: 1),
                 ListTile(
                   leading:
                       Icon(Icons.person_outline, color: colorScheme.onSurface),

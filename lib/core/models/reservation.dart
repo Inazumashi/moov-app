@@ -1,9 +1,12 @@
 // lib/core/models/reservation.dart
 import 'package:moovapp/core/models/ride_model.dart';
+
 class Reservation {
   final int id;
   final int rideId;
   final String passengerId;
+  final String? passengerName;
+  final String? passengerPhoto;
   final int seatsReserved;
   final double totalPrice;
   final String status;
@@ -17,6 +20,8 @@ class Reservation {
     required this.id,
     required this.rideId,
     required this.passengerId,
+    this.passengerName,
+    this.passengerPhoto,
     required this.seatsReserved,
     required this.totalPrice,
     required this.status,
@@ -28,11 +33,35 @@ class Reservation {
   });
 
   factory Reservation.fromJson(Map<String, dynamic> json) {
+    String pName = json['passenger_name'] ?? 'Passager';
+    String? pPhoto = json['passenger_photo'];
+    String pId = json['passenger_id']?.toString() ?? '0';
+
+    // Support nested user object (common in some APIs)
+    if (json['user'] != null && json['user'] is Map) {
+      final user = json['user'];
+      pName = user['name'] ?? user['username'] ?? user['first_name'] ?? pName;
+      pPhoto =
+          user['photo'] ?? user['avatar'] ?? user['profile_picture'] ?? pPhoto;
+      pId = user['id']?.toString() ?? pId;
+    }
+    // Support nested passenger object
+    else if (json['passenger'] != null && json['passenger'] is Map) {
+      final passenger = json['passenger'];
+      pName = passenger['name'] ?? passenger['username'] ?? pName;
+      pPhoto = passenger['photo'] ?? passenger['avatar'] ?? pPhoto;
+      pId = passenger['id']?.toString() ?? pId;
+    }
+
     return Reservation(
       id: int.tryParse(json['id'].toString()) ?? 0,
       rideId: int.tryParse(json['ride_id'].toString()) ?? 0,
-      passengerId: json['passenger_id']?.toString() ?? '0',
-      seatsReserved: int.tryParse(json['seats'].toString()) ?? 1,
+      passengerId: pId,
+      passengerName: pName,
+      passengerPhoto: pPhoto,
+      seatsReserved: int.tryParse(json['seats'].toString()) ??
+          int.tryParse(json['seats_booked'].toString()) ??
+          1,
       totalPrice: (json['total_price'] as num?)?.toDouble() ?? 0.0,
       status: json['status']?.toString().toLowerCase() ?? 'pending',
       createdAt: json['created_at'] != null
@@ -40,7 +69,8 @@ class Reservation {
           : DateTime.now(),
       driverId: json['driver_id']?.toString(),
       hasUnreadMessages: json['has_unread_messages'] as bool? ?? false,
-      unreadMessagesCount: int.tryParse(json['unread_messages_count'].toString()) ?? 0,
+      unreadMessagesCount:
+          int.tryParse(json['unread_messages_count'].toString()) ?? 0,
     );
   }
 
@@ -91,6 +121,8 @@ class Reservation {
     int? id,
     int? rideId,
     String? passengerId,
+    String? passengerName,
+    String? passengerPhoto,
     int? seatsReserved,
     double? totalPrice,
     String? status,
@@ -104,6 +136,8 @@ class Reservation {
       id: id ?? this.id,
       rideId: rideId ?? this.rideId,
       passengerId: passengerId ?? this.passengerId,
+      passengerName: passengerName ?? this.passengerName,
+      passengerPhoto: passengerPhoto ?? this.passengerPhoto,
       seatsReserved: seatsReserved ?? this.seatsReserved,
       totalPrice: totalPrice ?? this.totalPrice,
       status: status ?? this.status,

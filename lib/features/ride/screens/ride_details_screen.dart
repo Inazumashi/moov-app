@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:moovapp/core/models/ride_model.dart';
+import 'package:moovapp/features/driver/driver_messages_screen.dart'; // Pour DriverMessages (ancien)
+import 'package:moovapp/features/ride/screens/driver_reservations_screen.dart'; // Pour DriverReservations (nouveau)
+import 'package:moovapp/core/providers/auth_provider.dart';
 import 'package:moovapp/core/providers/ride_provider.dart';
 
 class RideDetailsScreen extends StatefulWidget {
@@ -381,28 +384,194 @@ class _RideDetailsScreenState extends State<RideDetailsScreen> {
     );
   }
 
+
+
   Widget _buildActionButtons(ColorScheme colors) {
+    // 1. Récupérer l'utilisateur courant
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final currentUser = authProvider.currentUser;
+    final isDriver = currentUser != null && currentUser.uid == ride.driverId;
+    final isCompleted = ride.status == 'completed';
+
+    // 2. Si c'est le conducteur
+    if (isDriver) {
+      return Column(
+        children: [
+          // Bouton Gérer les passagers
+          FilledButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => DriverReservationsScreen(ride: ride),
+                ),
+              );
+            },
+            icon: const Icon(Icons.people),
+            label: const Text('Gérer les passagers'),
+            style: FilledButton.styleFrom(
+              minimumSize: const Size.fromHeight(48),
+            ),
+          ),
+          const SizedBox(height: 12),
+          
+          if (!isCompleted)
+            FilledButton.icon(
+              onPressed: () => _completeRide(context),
+              icon: const Icon(Icons.check_circle),
+              label: const Text('Terminer le trajet'),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size.fromHeight(48),
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+              ),
+            ),
+          if (!isCompleted) const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: () => _deleteRide(context),
+            icon: const Icon(Icons.delete, color: Colors.red),
+            label: const Text(
+              'Supprimer le trajet',
+              style: TextStyle(color: Colors.red),
+            ),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size.fromHeight(48),
+              side: const BorderSide(color: Colors.red),
+            ),
+          ),
+        ],
+      );
+    }
+
+    // 3. Si c'est un passager
     return Column(
       children: [
-        FilledButton.icon(
-          onPressed: () => _openReservationFlow(context),
-          icon: const Icon(Icons.event_seat),
-          label: const Text('Réserver ce trajet'),
-          style: FilledButton.styleFrom(
-            minimumSize: const Size.fromHeight(48),
+        if (isCompleted)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: colors.surfaceVariant,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+               mainAxisAlignment: MainAxisAlignment.center,
+               children: [
+                 Icon(Icons.check_circle, color: Colors.green),
+                 SizedBox(width: 8),
+                 const Text(
+                  'Ce trajet est terminé',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                 ),
+               ]
+            )
+          )
+        else ...[
+          FilledButton.icon(
+            onPressed: () => _openReservationFlow(context),
+            icon: const Icon(Icons.event_seat),
+            label: const Text('Réserver ce trajet'),
+            style: FilledButton.styleFrom(
+              minimumSize: const Size.fromHeight(48),
+            ),
           ),
-        ),
-        const SizedBox(height: 12),
-        OutlinedButton.icon(
-          onPressed: () => _openChat(context),
-          icon: const Icon(Icons.message),
-          label: const Text('Contacter le conducteur'),
-          style: OutlinedButton.styleFrom(
-            minimumSize: const Size.fromHeight(48),
+          const SizedBox(height: 12),
+          OutlinedButton.icon(
+            onPressed: () => _openChat(context),
+            icon: const Icon(Icons.message),
+            label: const Text('Contacter le conducteur'),
+            style: OutlinedButton.styleFrom(
+              minimumSize: const Size.fromHeight(48),
+            ),
           ),
-        ),
+        ]
       ],
     );
+  }
+
+  void _completeRide(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Terminer le trajet ?'),
+        content: const Text(
+            'Cela marquera le trajet comme complété et confirmera toutes les réservations.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Annuler')),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: FilledButton.styleFrom(backgroundColor: Colors.green),
+            child: const Text('Confirmer'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      final success = await Provider.of<RideProvider>(context, listen: false)
+          .completeRide(ride.rideId);
+      if (context.mounted) {
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('Trajet terminé avec succès'),
+              backgroundColor: Colors.green));
+          _loadRideDetails();
+        } else {
+          final error = Provider.of<RideProvider>(context, listen: false).error;
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text('Erreur: $error'), backgroundColor: Colors.red));
+        }
+      }
+    }
+  }
+
+  void _deleteRide(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Supprimer le trajet'),
+        content: const Text(
+            'Êtes-vous sûr de vouloir supprimer ce trajet ? Cette action est irréversible.'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Annuler')),
+          ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Supprimer')),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      final provider = Provider.of<RideProvider>(context, listen: false);
+      final success = await provider.deleteRide(ride.rideId);
+
+      if (context.mounted) {
+        if (success) {
+          Navigator.pop(context); // Quitter l'écran
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('✅ Trajet supprimé'),
+            backgroundColor: Colors.green,
+          ));
+        } else {
+          // Afficher le message d'erreur précis (ex: réservations actives)
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text(provider.error.isNotEmpty
+                ? provider.error
+                : '❌ Impossible de supprimer le trajet'),
+            backgroundColor: Colors.red,
+          ));
+        }
+      }
+    }
   }
 
   void _openReservationFlow(BuildContext context) {

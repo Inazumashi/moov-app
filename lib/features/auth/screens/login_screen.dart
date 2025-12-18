@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:moovapp/core/providers/auth_provider.dart';
 import 'package:moovapp/utils/email_utils.dart';
 import 'dart:convert';
+import 'package:moovapp/features/auth/screens/forgot_password_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -195,11 +196,19 @@ class _LoginScreenState extends State<LoginScreen> {
                 icon: Icons.lock_outline,
                 isPassword: true,
               ),
-              const SizedBox(height: 8),
+               const SizedBox(height: 8),
+
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
-                  onPressed: () => _showInfo('Fonctionnalité à venir'),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const ForgotPasswordScreen(),
+                      ),
+                    );
+                  },
                   child: Text('Mot de passe oublié ?',
                       style: TextStyle(color: colors.primary)),
                 ),
@@ -231,26 +240,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: colors.secondaryContainer.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: colors.secondaryContainer),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.info, size: 18, color: colors.secondary),
-                    const SizedBox(width: 8),
-                    Flexible(
-                      child: Text(
-                        'Mode test activé - L\'API est en cours de développement',
-                        style: TextStyle(color: colors.secondary, fontSize: 12),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              // Banner removed
               const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

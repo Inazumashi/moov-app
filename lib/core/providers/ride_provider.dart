@@ -59,6 +59,8 @@ class RideProvider with ChangeNotifier {
     bool? verifiedOnly,
     String? departureTimeStart,
     String? departureTimeEnd,
+    int? minSeats,
+    bool? availableOnly,
     int page = 1,
     int limit = 20,
   }) async {
@@ -76,6 +78,8 @@ class RideProvider with ChangeNotifier {
       'verifiedOnly': verifiedOnly,
       'departureTimeStart': departureTimeStart,
       'departureTimeEnd': departureTimeEnd,
+      'minSeats': minSeats,
+      'availableOnly': availableOnly,
       'page': page,
       'limit': limit,
     };
@@ -93,9 +97,21 @@ class RideProvider with ChangeNotifier {
         verifiedOnly: verifiedOnly,
         departureTimeStart: departureTimeStart,
         departureTimeEnd: departureTimeEnd,
+        minSeats: minSeats ?? (availableOnly == true ? 1 : null),
         page: page,
         limit: limit,
       );
+
+      // Filtrage local (fallback) si le backend ne gère pas les paramètres
+      if (minSeats != null) {
+        _searchResults =
+            _searchResults.where((r) => r.availableSeats >= minSeats).toList();
+      }
+      if (availableOnly == true) {
+        _searchResults =
+            _searchResults.where((r) => r.availableSeats >= 1).toList();
+      }
+
       if (_searchResults.isEmpty) {
         _error = 'Aucun trajet ne correspond à vos critères.';
       }
@@ -144,19 +160,52 @@ class RideProvider with ChangeNotifier {
     }
   }
 
-  // Charger les trajets publiés par l'utilisateur
-  Future<void> loadMyPublishedRides() async {
+  // Terminer un trajet
+  Future<bool> completeRide(String rideId) async {
     _isLoading = true;
     _error = '';
     _safeNotifyListeners();
 
     try {
+      await _rideService.completeRide(rideId);
+      await loadMyPublishedRides();
+      _isLoading = false;
+      _safeNotifyListeners();
+      return true;
+    } catch (e) {
+      _error = 'Erreur lors de la complétion: $e';
+      _isLoading = false;
+      _safeNotifyListeners();
+      return false;
+    }
+  }
+
+  // Charger les trajets publiés par l'utilisateur
+  Future<void> loadMyPublishedRides() async {
+    print('');
+    print('🔄 [RideProvider] loadMyPublishedRides() START');
+
+    _isLoading = true;
+    _error = '';
+    _safeNotifyListeners();
+
+    try {
+      print('📡 [RideProvider] Appel de _rideService.getMyPublishedRides()...');
       _myPublishedRides = await _rideService.getMyPublishedRides();
+      print('✅ [RideProvider] Trajets reçus: ${_myPublishedRides.length}');
+
+      for (int i = 0; i < _myPublishedRides.length; i++) {
+        final r = _myPublishedRides[i];
+        print('   [$i] ${r.startPoint} → ${r.endPoint} | ${r.pricePerSeat} DH');
+      }
     } catch (e) {
       _error = 'Erreur lors du chargement: $e';
+      print('❌ [RideProvider] ERREUR: $e');
     } finally {
       _isLoading = false;
       _safeNotifyListeners();
+      print(
+          '🔄 [RideProvider] loadMyPublishedRides() END - isLoading=$_isLoading');
     }
   }
 

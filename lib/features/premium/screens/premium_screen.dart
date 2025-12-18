@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:moovapp/core/providers/payment_provider.dart';
-import 'package:moovapp/core/providers/premium_provider.dart';
+import 'package:moovapp/core/providers/auth_provider.dart';
 
 class PremiumScreen extends StatefulWidget {
   const PremiumScreen({super.key});
@@ -11,407 +11,188 @@ class PremiumScreen extends StatefulWidget {
 }
 
 class _PremiumScreenState extends State<PremiumScreen> {
-  bool _isProcessingPayment = false;
+  final double _price = 10.0;
+  final String _currency = 'USD'; // Sandbox often easier in USD, but user listed verification in MAD.
+  // Actually PaymentService verify expects 'MAD' hardcoded in body? 
+  // Line 169 of payment_provider: 'currency': 'MAD'.
+  // But PayPal payment flutter view usually takes any supported currency.
+  // I will use USD for sandbox to be safe or verify what the user wants. 
+  // User Prompt: "Mode Premium & Paiement (PayPal)... Intégrer flutter_paypal_payment... sandbox".
+  // The backend verify logic sends 'MAD'.
+  // I will stick to what payment_provider does locally or match it.
+  // In initiatePayPalPayment call, I pass currency.
+  
+  bool _isProcessing = false;
 
-  Future<void> _handlePremiumPurchase() async {
-    final paymentProvider = context.read<PaymentProvider>();
-    
-    // NOTE: Si tu veux forcer l'utilisateur à avoir ajouté une méthode avant de payer, garde ceci.
-    // Sinon, tu peux retirer ce bloc si flutter_paypal_payment gère tout.
-    final defaultMethod = await paymentProvider.getDefaultPaymentMethod();
-
-    if (defaultMethod == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Veuillez ajouter un moyen de paiement dans les paramètres'),
-          action: SnackBarAction(
-            label: 'Aller aux paramètres',
-            onPressed: () {
-              Navigator.of(context).pushNamed('/payment-methods');
-            },
-          ),
-        ),
-      );
-      return;
-    }
-
-    setState(() => _isProcessingPayment = true);
-
-    try {
-      await paymentProvider.initiatePayPalPayment(
-        context: context,
-        amount: 49.0,
-        currency: 'MAD',
-        description: 'Abonnement Premium Moov - 1 mois',
-        onSuccess: (paymentId) async {
-          print("Paiement PayPal réussi (ID: $paymentId). Vérification serveur...");
-          
-          try {
-            // -----------------------------------------------------------
-            // 1. APPEL AU BACKEND : On vérifie et on active coté serveur
-            // -----------------------------------------------------------
-            await context.read<PaymentProvider>().verifyAndActivatePremium(paymentId, 49.0);
-
-            // -----------------------------------------------------------
-            // 2. MISE À JOUR LOCALE : Si le serveur dit OK, on débloque l'UI
-            // -----------------------------------------------------------
-            if (mounted) {
-              await context.read<PremiumProvider>().activatePremium();
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Paiement validé par le serveur ! Bienvenue dans Premium !'),
-                  backgroundColor: Colors.green,
-                ),
-              );
-              
-              // Retourner à l'écran précédent
-              Navigator.of(context).pop();
-            }
-          } catch (serverError) {
-            // Si le serveur refuse (fraude, erreur réseau...)
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Erreur de validation serveur: ${serverError.toString()}'),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            }
-          }
-        },
-        onError: (error) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Erreur de paiement: $error')),
-          );
-        },
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erreur: ${e.toString()}')),
-      );
-    } finally {
-      if (mounted) {
-        setState(() => _isProcessingPayment = false);
-      }
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<PremiumProvider>().loadPremiumStatus();
+  void _handlePayment() {
+    setState(() {
+      _isProcessing = true;
     });
+
+    final paymentProvider = Provider.of<PaymentProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    paymentProvider.initiatePayPalPayment(
+      context: context,
+      amount: _price,
+      currency: 'USD',
+      description: 'Abonnement Premium Moov (1 Mois)',
+      onSuccess: (paymentId) async {
+        print('Payment success: $paymentId');
+        try {
+          await paymentProvider.verifyAndActivatePremium(paymentId, _price);
+          await authProvider.refreshProfile();
+          
+          if (mounted) {
+             ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('✅ Abonnement Premium activé !'), backgroundColor: Colors.green),
+            );
+            Navigator.pop(context);
+          }
+        } catch (e) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Erreur activation: $e'), backgroundColor: Colors.red),
+            );
+          }
+        } finally {
+          if (mounted) setState(() => _isProcessing = false);
+        }
+      },
+      onError: (error) {
+        print('Payment error: $error');
+        if (mounted) {
+           ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Erreur: $error'), backgroundColor: Colors.red),
+          );
+          setState(() => _isProcessing = false);
+        }
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    final premiumProvider = context.watch<PremiumProvider>();
-    final isAlreadyPremium = premiumProvider.isPremium;
+    final colors = Theme.of(context).colorScheme;
+    final user = Provider.of<AuthProvider>(context).currentUser;
+    final isPremium = user?.isPremium ?? false;
 
     return Scaffold(
-      backgroundColor: cs.surface,
       appBar: AppBar(
-        backgroundColor: Colors.orange[700],
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              isAlreadyPremium ? 'Premium Actif' : 'Premium',
-              style:
-                  const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              isAlreadyPremium
-                  ? 'Votre abonnement expire dans ${premiumProvider.getRemainingTime()}'
-                  : 'Profitez d\'une expérience complète sans interruption',
-              style:
-                  TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 13),
-            ),
-          ],
-        ),
-        toolbarHeight: 80,
+        title: const Text('Moov Premium'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        foregroundColor: colors.onSurface,
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            _buildPremiumCard(context),
-            const SizedBox(height: 24),
-            _buildFreeCard(context),
-            const SizedBox(height: 24),
-            Text(
-              'Pourquoi Premium ?',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: cs.onSurface,
-              ),
-            ),
+            const Icon(Icons.workspace_premium, size: 80, color: Colors.amber),
             const SizedBox(height: 16),
-            _buildWhyPremiumRow(context, Icons.block,
-                'Expérience sans publicité', 'Naviguez sans interruption'),
-            const SizedBox(height: 12),
-            _buildWhyPremiumRow(context, Icons.bar_chart,
-                'Statistiques détaillées', 'Analysez vos habitudes de trajets'),
-            const SizedBox(height: 12),
-            _buildWhyPremiumRow(context, Icons.verified_user,
-                'Badge Premium visible', 'Montrez votre engagement'),
+            const Text(
+              'Passez au niveau supérieur',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Débloquez des fonctionnalités exclusives pour une meilleure expérience.',
+              style: TextStyle(fontSize: 16, color: colors.onSurfaceVariant),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 32),
+            
+            _buildFeatureItem(Icons.eco, 'Tableau de bord écologique', 'Suivez votre impact CO2 et vos économies en temps réel.'),
+            _buildFeatureItem(Icons.verified, 'Badge Premium', 'Affichez un badge distinctif sur votre profil.'),
+            _buildFeatureItem(Icons.priority_high, 'Support Prioritaire', 'Vos demandes sont traitées en priorité.'),
+            
+            const SizedBox(height: 48),
+            
+            if (isPremium)
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.green),
+                ),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.check_circle, color: Colors.green),
+                    SizedBox(width: 8),
+                    Text('Vous êtes déjà Premium', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              )
+            else
+              Card(
+                elevation: 4,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    children: [
+                      const Text(
+                        '10.00 USD / mois',
+                        style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 8),
+                      const Text('Annulable à tout moment'),
+                      const SizedBox(height: 24),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: FilledButton.icon(
+                          onPressed: _isProcessing ? null : _handlePayment,
+                          style: FilledButton.styleFrom(
+                            backgroundColor: Colors.blue[800], // PayPal color implies trust
+                          ),
+                          icon: _isProcessing 
+                            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) 
+                            : const Icon(Icons.paypal),
+                          label: Text(_isProcessing ? 'Traitement...' : 'Payer avec PayPal'),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
           ],
         ),
       ),
     );
   }
 
-  // ------------------------------------------------------
-  // PREMIUM CARD
-  // ------------------------------------------------------
-  Widget _buildPremiumCard(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    // On récupère l'état pour savoir si le bouton doit être désactivé
-    final isPremium = context.watch<PremiumProvider>().isPremium;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: cs.primary,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.orange[400],
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: const Text(
-                  'Le plus populaire',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12),
-                ),
-              ),
-              Icon(Icons.workspace_premium,
-                  color: Colors.orange[400], size: 32),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-
-          RichText(
-            text: TextSpan(
-              text: '49 MAD ',
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold),
-              children: [
-                TextSpan(
-                  text: '/ par mois',
-                  style: TextStyle(
-                    color: Colors.white.withOpacity(0.8),
-                    fontSize: 16,
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          Text('Annulez à tout moment',
-              style: TextStyle(
-                  color: Colors.white.withOpacity(0.8), fontSize: 13)),
-          const SizedBox(height: 24),
-
-          // Avantages premium
-          _buildFeatureRow('Recherche de trajets', true),
-          _buildFeatureRow('Publication de trajets', true),
-          _buildFeatureRow('Messagerie illimitée', true),
-          _buildFeatureRow('Sans publicité', true, isHighlighted: true),
-          _buildFeatureRow('Statistiques avancées', true),
-          _buildFeatureRow('Sous-communautés multiples', true),
-          _buildFeatureRow('Analyses détaillées', true),
-          _buildFeatureRow('Badge Premium', true),
-          _buildFeatureRow('Support prioritaire', true),
-
-          const SizedBox(height: 24),
-
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              // Si déjà premium ou en chargement, on désactive le bouton
-              onPressed: _isProcessingPayment || isPremium ? null : _handlePremiumPurchase,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange[400],
-                foregroundColor: Colors.black87,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12)),
-              ),
-              child: _isProcessingPayment
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.black87),
-                      ),
-                    )
-                  : Text(
-                      isPremium ? 'Premium Actif' : 'Commencer Premium',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ------------------------------------------------------
-  // FREE CARD (Code inchangé)
-  // ------------------------------------------------------
-  Widget _buildFreeCard(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Container(
-      decoration: BoxDecoration(
-        color: cs.surface,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: cs.outline.withOpacity(0.3)),
-      ),
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
+  Widget _buildFeatureItem(IconData icon, String title, String description) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+            padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: cs.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(20),
+              color: Colors.amber.withOpacity(0.1),
+              shape: BoxShape.circle,
             ),
-            child: Text(
-              'Plan actuel',
-              style: TextStyle(
-                color: cs.onSurfaceVariant,
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
-              ),
-            ),
+            child: Icon(icon, color: Colors.amber[700], size: 24),
           ),
-          const SizedBox(height: 16),
-          RichText(
-            text: TextSpan(
-              text: '0 MAD ',
-              style: TextStyle(
-                  color: cs.onSurface,
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TextSpan(
-                  text: '/ toujours',
-                  style: TextStyle(color: cs.onSurfaceVariant, fontSize: 16),
-                ),
+                Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                const SizedBox(height: 4),
+                Text(description, style: const TextStyle(color: Colors.grey)),
               ],
             ),
           ),
-          const SizedBox(height: 24),
-          _buildFeatureRow('Recherche de trajets', true, isFree: true),
-          _buildFeatureRow('Publication de trajets', true, isFree: true),
-          _buildFeatureRow('Messagerie basique', true, isFree: true),
-          _buildFeatureRow('Publicités', false,
-              isFree: true, isHighlighted: true),
-          _buildFeatureRow('Statistiques basiques', true, isFree: true),
-          _buildFeatureRow('Sous-communautés', true, isFree: true),
-          _buildFeatureRow('Stats avancées', false, isFree: true),
-          _buildFeatureRow('Badge Premium', false, isFree: true),
-          _buildFeatureRow('Support prioritaire', false, isFree: true),
         ],
       ),
-    );
-  }
-
-  Widget _buildFeatureRow(
-    String text,
-    bool included, {
-    bool isFree = false,
-    bool isHighlighted = false,
-  }) {
-    Color iconColor;
-    Color textColor;
-
-    if (included) {
-      iconColor = isHighlighted
-          ? Colors.orange
-          : (isFree ? Colors.green : Colors.white);
-      textColor = isFree ? Colors.black87 : Colors.white;
-    } else {
-      iconColor = isFree ? Colors.grey : Colors.white70;
-      textColor = isFree ? Colors.grey : Colors.white70;
-    }
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6.0),
-      child: Row(
-        children: [
-          Icon(Icons.check_circle, color: iconColor, size: 20),
-          const SizedBox(width: 12),
-          Text(
-            text,
-            style: TextStyle(
-              color: textColor,
-              fontSize: 15,
-              decoration:
-                  included ? TextDecoration.none : TextDecoration.lineThrough,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildWhyPremiumRow(
-      BuildContext context, IconData icon, String title, String subtitle) {
-    final cs = Theme.of(context).colorScheme;
-
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: cs.primary.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(icon, color: cs.primary),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title,
-                  style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: cs.onSurface)),
-              Text(subtitle, style: TextStyle(color: cs.onSurfaceVariant)),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

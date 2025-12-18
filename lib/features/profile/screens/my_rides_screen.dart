@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:moovapp/core/providers/ride_provider.dart';
 import 'package:moovapp/core/models/ride_model.dart';
 import 'package:moovapp/l10n/app_localizations.dart';
+import 'package:moovapp/features/ride/screens/driver_reservations_screen.dart';
 
 class MyRidesScreen extends StatefulWidget {
   const MyRidesScreen({super.key});
@@ -42,7 +43,8 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
               ),
             ),
             Text(
-              AppLocalizations.of(context)!.publishedRidesCount(rideProvider.myPublishedRides.length),
+              AppLocalizations.of(context)!
+                  .publishedRidesCount(rideProvider.myPublishedRides.length),
               style: TextStyle(
                 fontSize: 14,
                 color: colors.onPrimary.withOpacity(0.7),
@@ -148,10 +150,11 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
     );
   }
 
-  Widget _buildRideCard(RideModel ride, RideProvider provider, ColorScheme colors) {
+  Widget _buildRideCard(
+      RideModel ride, RideProvider provider, ColorScheme colors) {
     // Déterminer le statut du trajet
     final status = _determineRideStatus(ride);
-    
+
     return Card(
       elevation: 2,
       margin: const EdgeInsets.only(bottom: 16),
@@ -173,7 +176,8 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
                   Expanded(
                     child: Row(
                       children: [
-                        Icon(Icons.directions_car, color: colors.primary, size: 20),
+                        Icon(Icons.directions_car,
+                            color: colors.primary, size: 20),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
@@ -191,9 +195,9 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
                   _buildStatusBadge(status),
                 ],
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Itinéraire
               Row(
                 children: [
@@ -208,7 +212,7 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
                   ),
                 ],
               ),
-              
+
               Padding(
                 padding: const EdgeInsets.only(left: 8, top: 4, bottom: 4),
                 child: Container(
@@ -217,7 +221,7 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
                   color: Colors.grey[300],
                 ),
               ),
-              
+
               Row(
                 children: [
                   Icon(Icons.location_on, size: 18, color: Colors.blue[600]),
@@ -231,9 +235,9 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
                   ),
                 ],
               ),
-              
+
               const Divider(height: 24),
-              
+
               // Infos
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -243,11 +247,13 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.calendar_today, size: 14, color: Colors.grey[600]),
+                          Icon(Icons.calendar_today,
+                              size: 14, color: Colors.grey[600]),
                           const SizedBox(width: 6),
                           Text(
                             _formatDate(ride.departureTime),
-                            style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                            style: TextStyle(
+                                fontSize: 13, color: Colors.grey[700]),
                           ),
                         ],
                       ),
@@ -258,7 +264,8 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
                           const SizedBox(width: 6),
                           Text(
                             '${ride.availableSeats} places',
-                            style: TextStyle(fontSize: 13, color: Colors.grey[700]),
+                            style: TextStyle(
+                                fontSize: 13, color: Colors.grey[700]),
                           ),
                         ],
                       ),
@@ -274,12 +281,33 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 12),
-              
+
               // Boutons d'action
               Row(
                 children: [
+                  // Nouveau bouton Passagers
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => DriverReservationsScreen(ride: ride),
+                        ),
+                      ),
+                      icon: const Icon(Icons.people, size: 18),
+                      label: const Text('Passagers'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colors.primary,
+                        foregroundColor: colors.onPrimary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: OutlinedButton.icon(
                       onPressed: () => _showRideDetails(ride, provider),
@@ -297,7 +325,7 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
                     child: ElevatedButton.icon(
                       onPressed: () => _showDeleteDialog(ride, provider),
                       icon: const Icon(Icons.delete, size: 18),
-                      label: const Text('Supprimer'),
+                      label: const Text('Suppr.'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                         foregroundColor: Colors.white,
@@ -321,7 +349,7 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
     if (ride.departureTime != null) {
       final now = DateTime.now();
       final departure = ride.departureTime!;
-      
+
       if (departure.isBefore(now)) {
         return 'completed';
       } else if (ride.availableSeats <= 0) {
@@ -332,14 +360,14 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
     } else if (ride.isRegularRide) {
       return ride.availableSeats > 0 ? 'active' : 'full';
     }
-    
+
     return 'pending';
   }
 
   Widget _buildStatusBadge(String status) {
     Color color;
     String text;
-    
+
     switch (status.toLowerCase()) {
       case 'active':
         color = Colors.green;
@@ -365,7 +393,7 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
         color = Colors.grey;
         text = status.toUpperCase();
     }
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
@@ -385,7 +413,7 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
 
   void _showRideDetails(RideModel ride, RideProvider provider) {
     final status = _determineRideStatus(ride);
-    
+
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -415,7 +443,7 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              
+
               // Titre et statut
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -423,42 +451,49 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
                   Text(
                     'Détails du trajet',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
                   _buildStatusBadge(status),
                 ],
               ),
               const SizedBox(height: 24),
-              
+
               // Itinéraire
-              _buildDetailRow(Icons.my_location, 'Départ', ride.startPoint, Colors.green),
+              _buildDetailRow(
+                  Icons.my_location, 'Départ', ride.startPoint, Colors.green),
               const SizedBox(height: 12),
-              _buildDetailRow(Icons.location_on, 'Arrivée', ride.endPoint, Colors.blue),
-              
+              _buildDetailRow(
+                  Icons.location_on, 'Arrivée', ride.endPoint, Colors.blue),
+
               const Divider(height: 32),
-              
+
               // Informations
-              _buildDetailRow(Icons.calendar_today, 'Date', _formatDate(ride.departureTime), Colors.orange),
+              _buildDetailRow(Icons.calendar_today, 'Date',
+                  _formatDate(ride.departureTime), Colors.orange),
               const SizedBox(height: 12),
-              _buildDetailRow(Icons.access_time, 'Heure', _formatTime(ride.departureTime), Colors.purple),
+              _buildDetailRow(Icons.access_time, 'Heure',
+                  _formatTime(ride.departureTime), Colors.purple),
               const SizedBox(height: 12),
-              _buildDetailRow(Icons.people, 'Places', '${ride.availableSeats}', Colors.teal),
+              _buildDetailRow(Icons.people, 'Places', '${ride.availableSeats}',
+                  Colors.teal),
               const SizedBox(height: 12),
-              _buildDetailRow(Icons.attach_money, 'Prix', '${ride.pricePerSeat.toInt()} DH', Colors.green),
-              
+              _buildDetailRow(Icons.attach_money, 'Prix',
+                  '${ride.pricePerSeat.toInt()} DH', Colors.green),
+
               if (ride.vehicleInfo != null && ride.vehicleInfo!.isNotEmpty) ...[
                 const SizedBox(height: 12),
-                _buildDetailRow(Icons.directions_car, 'Véhicule', ride.vehicleInfo!, Colors.indigo),
+                _buildDetailRow(Icons.directions_car, 'Véhicule',
+                    ride.vehicleInfo!, Colors.indigo),
               ],
-              
+
               if (ride.notes != null && ride.notes!.isNotEmpty) ...[
                 const Divider(height: 32),
                 Text(
                   'Notes',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
                 const SizedBox(height: 8),
                 Container(
@@ -470,9 +505,37 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
                   child: Text(ride.notes!),
                 ),
               ],
-              
+
               const SizedBox(height: 24),
-              
+
+              // Bouton Voir les passagers
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => DriverReservationsScreen(ride: ride),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.people),
+                  label: const Text('Voir les passagers / Réservations'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 12),
+
               // Bouton de suppression
               SizedBox(
                 width: double.infinity,
@@ -500,7 +563,8 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
     );
   }
 
-  Widget _buildDetailRow(IconData icon, String label, String value, Color color) {
+  Widget _buildDetailRow(
+      IconData icon, String label, String value, Color color) {
     return Row(
       children: [
         Container(
@@ -599,9 +663,9 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
 
   Future<void> _deleteRide(String rideId, RideProvider provider) async {
     final success = await provider.deleteRide(rideId);
-    
+
     if (!mounted) return;
-    
+
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

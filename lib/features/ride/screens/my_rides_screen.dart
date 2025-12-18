@@ -46,52 +46,68 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
       );
     }
 
-    if (rideProvider.myPublishedRides.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.directions_car, size: 64, color: Colors.grey),
-            SizedBox(height: 16),
-            Text('Aucun trajet publié'),
-            Text('Publiez votre premier trajet !',
-                style: TextStyle(color: Colors.grey)),
-          ],
-        ),
-      );
-    }
-
-    // 🔥 ESSAIE D'ABORD UN SEUL TRAJET SIMPLE
-    final firstRide = rideProvider.myPublishedRides.first;
     return Scaffold(
-      appBar: AppBar(title: Text('Test - 1er trajet')),
-      body: Card(
-        margin: EdgeInsets.all(16),
-        child: Padding(
-          padding: EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('ID: ${firstRide.rideId}'),
-              Text('Départ: ${firstRide.startPoint}'),
-              Text('Arrivée: ${firstRide.endPoint}'),
-              Text('Date: ${firstRide.formattedDate}'),
-              Text('Heure: ${firstRide.formattedTime}'),
-              Text('Places: ${firstRide.availableSeats}'),
-              Text('Prix: ${firstRide.pricePerSeat} DH'),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  icon: const Icon(Icons.list),
-                  label: const Text('Voir réservations'),
-                  onPressed: () => _openReservationsModal(context, firstRide),
-                ),
-              ),
-            ],
+      appBar: AppBar(
+        title: const Text('Mes trajets publiés'),
+        backgroundColor: const Color(0xFF1E3A8A),
+        foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: () => rideProvider.loadMyPublishedRides(),
           ),
-        ),
+        ],
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.pushNamed(context, '/publish').then((_) {
+            rideProvider.loadMyPublishedRides();
+          });
+        },
+        icon: const Icon(Icons.add),
+        label: const Text('Publier'),
+        backgroundColor: const Color(0xFF1E3A8A),
+      ),
+      body: rideProvider.myPublishedRides.isEmpty
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.directions_car, size: 64, color: Colors.grey),
+                  SizedBox(height: 16),
+                  Text('Aucun trajet publié'),
+                  Text('Publiez votre premier trajet !',
+                      style: TextStyle(color: Colors.grey)),
+                  const SizedBox(height: 24),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/publish').then((_) {
+                        rideProvider.loadMyPublishedRides();
+                      });
+                    },
+                    icon: const Icon(Icons.add),
+                    label: const Text('Publier un trajet'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1E3A8A),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24, vertical: 12),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : RefreshIndicator(
+              onRefresh: () => rideProvider.loadMyPublishedRides(),
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: rideProvider.myPublishedRides.length,
+                itemBuilder: (context, index) {
+                  final ride = rideProvider.myPublishedRides[index];
+                  return _buildRideCard(context, ride, rideProvider);
+                },
+              ),
+            ),
     );
   }
 
@@ -349,6 +365,19 @@ class _MyRidesScreenState extends State<MyRidesScreen> {
                 labelStyle: TextStyle(color: Colors.blue[800]),
               ),
             ],
+            const SizedBox(height: 12),
+            // Bouton Voir réservations
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                icon: const Icon(Icons.list),
+                label: const Text('Voir les réservations'),
+                onPressed: () => _openReservationsModal(context, ride),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: const Color(0xFF1E3A8A),
+                ),
+              ),
+            ),
           ],
         ),
       ),

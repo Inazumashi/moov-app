@@ -7,7 +7,7 @@ import 'package:moovapp/core/api/api_service.dart';
 class ChatProvider with ChangeNotifier {
   final ChatService _chatService;
   final ApiService _apiService;
-  
+
   String? _currentUserId;
   List<Map<String, dynamic>> _conversations = [];
   List<Map<String, dynamic>> _currentMessages = [];
@@ -20,9 +20,9 @@ class ChatProvider with ChangeNotifier {
   Timer? _conversationsTimer;
   Map<int, Timer> _messageTimers = {};
 
-  ChatProvider() 
-    : _chatService = ChatService(ApiService()),
-      _apiService = ApiService();
+  ChatProvider()
+      : _chatService = ChatService(ApiService()),
+        _apiService = ApiService();
 
   List<Map<String, dynamic>> get conversations => _conversations;
   List<Map<String, dynamic>> get currentMessages => _currentMessages;
@@ -69,7 +69,7 @@ class ChatProvider with ChangeNotifier {
       _unreadCount = await _chatService.getUnreadCount();
       _isLoading = false;
       _safeNotifyListeners();
-      
+
       _startConversationsPolling();
     } catch (e) {
       _error = e.toString();
@@ -80,15 +80,17 @@ class ChatProvider with ChangeNotifier {
 
   void _startConversationsPolling() {
     _conversationsTimer?.cancel();
-    
-    _conversationsTimer = Timer.periodic(const Duration(seconds: 30), (_) async {
+
+    _conversationsTimer =
+        Timer.periodic(const Duration(seconds: 30), (_) async {
       if (_disposed) return;
-      
+
       try {
         final newConversations = await _chatService.getConversations();
         final newUnreadCount = await _chatService.getUnreadCount();
-        
-        if (_hasConversationsChanged(newConversations) || newUnreadCount != _unreadCount) {
+
+        if (_hasConversationsChanged(newConversations) ||
+            newUnreadCount != _unreadCount) {
           _conversations = newConversations;
           _unreadCount = newUnreadCount;
           _safeNotifyListeners();
@@ -101,18 +103,18 @@ class ChatProvider with ChangeNotifier {
 
   bool _hasConversationsChanged(List<Map<String, dynamic>> newConversations) {
     if (newConversations.length != _conversations.length) return true;
-    
+
     for (int i = 0; i < newConversations.length; i++) {
       final oldConv = _conversations[i];
       final newConv = newConversations[i];
-      
+
       if (oldConv['last_message'] != newConv['last_message'] ||
           oldConv['unread_count'] != newConv['unread_count'] ||
           oldConv['updated_at'] != newConv['updated_at']) {
         return true;
       }
     }
-    
+
     return false;
   }
 
@@ -125,19 +127,18 @@ class ChatProvider with ChangeNotifier {
 
     try {
       _currentMessages = await _chatService.getMessages(conversationId);
-      
+
       if (_currentMessages.isNotEmpty) {
         final lastMsg = _currentMessages.last;
         _lastMessageTime = DateTime.parse(lastMsg['created_at'].toString());
       }
-      
+
       await _chatService.markAsRead(conversationId);
-      
+
       _isLoading = false;
       _safeNotifyListeners();
-      
+
       _startMessagePolling(conversationId);
-      
     } catch (e) {
       _error = e.toString();
       _isLoading = false;
@@ -147,27 +148,25 @@ class ChatProvider with ChangeNotifier {
 
   void _startMessagePolling(int conversationId) {
     _stopMessagePolling(conversationId);
-    
+
     final timer = Timer.periodic(const Duration(seconds: 3), (_) async {
       if (_disposed || _currentConversationId != conversationId) return;
-      
+
       try {
         // Méthode 1: Via getNewMessages
         if (_lastMessageTime != null) {
           final newMessages = await _chatService.getNewMessages(
-            conversationId, 
-            _lastMessageTime!
-          );
-          
+              conversationId, _lastMessageTime!);
+
           if (newMessages.isNotEmpty) {
             _addNewMessages(newMessages);
           }
         }
-        
+
         // Méthode 2: Vérifier aussi via le compteur de non-lus
         final unreadByConv = await _chatService.getUnreadCountByConversation();
         final convUnreadCount = unreadByConv[conversationId] ?? 0;
-        
+
         if (convUnreadCount > 0 && _currentMessages.isNotEmpty) {
           // Recharger tous les messages pour être sûr
           final allMessages = await _chatService.getMessages(conversationId);
@@ -175,17 +174,17 @@ class ChatProvider with ChangeNotifier {
             _currentMessages = allMessages;
             if (allMessages.isNotEmpty) {
               final lastMsg = allMessages.last;
-              _lastMessageTime = DateTime.parse(lastMsg['created_at'].toString());
+              _lastMessageTime =
+                  DateTime.parse(lastMsg['created_at'].toString());
             }
             _safeNotifyListeners();
           }
         }
-        
       } catch (e) {
         print('❌ Erreur polling nouveaux messages: $e');
       }
     });
-    
+
     _messageTimers[conversationId] = timer;
   }
 
@@ -197,23 +196,24 @@ class ChatProvider with ChangeNotifier {
   void _addNewMessages(List<Map<String, dynamic>> newMessages) {
     // Filtrer les doublons
     final existingIds = _currentMessages.map((msg) => msg['id']).toSet();
-    final uniqueNewMessages = newMessages.where((msg) => !existingIds.contains(msg['id'])).toList();
-    
+    final uniqueNewMessages =
+        newMessages.where((msg) => !existingIds.contains(msg['id'])).toList();
+
     if (uniqueNewMessages.isNotEmpty) {
       _currentMessages.addAll(uniqueNewMessages);
-      
+
       final lastNewMsg = uniqueNewMessages.last;
       _lastMessageTime = DateTime.parse(lastNewMsg['created_at'].toString());
-      
+
       // Marquer comme lus si ce ne sont pas mes messages
       for (final msg in uniqueNewMessages) {
         if (msg['sender_id'].toString() != _currentUserId) {
           _chatService.markMessageAsRead(msg['id'] as int);
         }
       }
-      
+
       _safeNotifyListeners();
-      
+
       // Mettre à jour la liste des conversations
       _updateConversationsAfterNewMessage();
     }
@@ -245,14 +245,14 @@ class ChatProvider with ChangeNotifier {
         'is_sent': false,
         'is_temp': true,
       };
-      
+
       _currentMessages.add(tempMessage);
       _lastMessageTime = DateTime.now();
       _safeNotifyListeners();
-      
+
       // Envoyer au serveur
       final success = await _chatService.sendMessage(conversationId, message);
-      
+
       if (success) {
         // Retirer le message temporaire et recharger les vrais messages
         _currentMessages.removeWhere((msg) => msg['is_temp'] == true);
@@ -260,7 +260,8 @@ class ChatProvider with ChangeNotifier {
         return true;
       } else {
         // Marquer le message comme échoué
-        final failedIndex = _currentMessages.indexWhere((msg) => msg['is_temp'] == true);
+        final failedIndex =
+            _currentMessages.indexWhere((msg) => msg['is_temp'] == true);
         if (failedIndex != -1) {
           _currentMessages[failedIndex]['is_sent'] = false;
           _currentMessages[failedIndex]['send_error'] = true;
@@ -277,10 +278,7 @@ class ChatProvider with ChangeNotifier {
 
   // NOUVELLE MÉTHODE : Répondre à un message spécifique
   Future<bool> replyToMessage(
-    int conversationId, 
-    String message, 
-    int? replyToMessageId
-  ) async {
+      int conversationId, String message, int? replyToMessageId) async {
     try {
       final response = await _apiService.post(
         'chat/messages/reply',
@@ -305,9 +303,12 @@ class ChatProvider with ChangeNotifier {
   }
 
   // CRÉER OU OBTENIR UNE CONVERSATION
-  Future<int?> getOrCreateConversation(int rideId) async {
+  Future<int?> getOrCreateConversation(int rideId,
+      {String? otherUserId}) async {
     try {
-      final conversation = await _chatService.createOrGetConversation(rideId);
+      final conversation = await _chatService.createOrGetConversation(rideId,
+          otherUserId: otherUserId);
+
       if (conversation != null) {
         return conversation['id'] as int?;
       }
@@ -372,9 +373,7 @@ class ChatProvider with ChangeNotifier {
 
   // NOUVELLE MÉTHODE : Rechercher dans les conversations
   Future<List<Map<String, dynamic>>> searchInConversation(
-    int conversationId, 
-    String query
-  ) async {
+      int conversationId, String query) async {
     try {
       final response = await _apiService.get(
         'chat/conversations/$conversationId/search?q=$query',

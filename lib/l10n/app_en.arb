@@ -177,6 +177,7 @@
   "daysAgo": "{count} days ago",
   "markAllAsRead": "Mark all as read",
   "cancel": "Cancel",
+  "confirm": "Confirm",
   "subject": "Subject",
   "hintSubject": "Ex: Booking issue",
   "message": "Message",

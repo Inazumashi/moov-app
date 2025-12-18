@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:moovapp/core/providers/chat_provider.dart';
+import 'package:moovapp/core/providers/auth_provider.dart';
 import 'dart:async';
 
 class ChatScreen extends StatefulWidget {
@@ -338,12 +339,19 @@ class _ChatScreenState extends State<ChatScreen> {
     ChatProvider provider, {
     required Function(Map<String, dynamic>) onReply,
   }) {
-    final isMe = message['sender_id'].toString() == provider.currentUserId;
+    // 1. Utiliser AuthProvider pour une identification fiable
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final currentUserId = authProvider.currentUser?.uid;
+    
+    // Comparaison améliorée : convertir les deux en string pour éviter erreurs de type
+    final isMe = message['sender_id'].toString() == currentUserId.toString();
+    
     final isReply = message['reply_to_message_id'] != null;
     final repliedMessage = isReply ? _findRepliedMessage(provider, message) : null;
+    final isRead = message['is_read'] == true;
 
     return GestureDetector(
-      onLongPress: () => _showMessageOptions(context, message, provider),
+      onLongPress: () => _showMessageOptions(context, message, provider, isMe),
       child: Align(
         alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
         child: Container(
@@ -400,7 +408,10 @@ class _ChatScreenState extends State<ChatScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 decoration: BoxDecoration(
                   color: isMe ? colors.primary : colors.surfaceVariant,
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(16).copyWith(
+                    bottomRight: isMe ? const Radius.circular(0) : null,
+                    bottomLeft: !isMe ? const Radius.circular(0) : null,
+                  ),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -409,11 +420,13 @@ class _ChatScreenState extends State<ChatScreen> {
                       message['message'].toString(),
                       style: TextStyle(
                         color: isMe ? colors.onPrimary : colors.onSurfaceVariant,
+                        fontSize: 15,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Row(
                       mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         Text(
                           _formatMessageTime(DateTime.parse(message['created_at'].toString())),
@@ -430,10 +443,10 @@ class _ChatScreenState extends State<ChatScreen> {
                             message['is_sent'] == false 
                                 ? Icons.access_time 
                                 : Icons.done_all,
-                            size: 12,
-                            color: isMe
+                            size: 14,
+                            color: message['is_sent'] == false
                                 ? colors.onPrimary.withOpacity(0.7)
-                                : colors.onSurfaceVariant.withOpacity(0.7),
+                                : (isRead ? Colors.lightBlueAccent : colors.onPrimary.withOpacity(0.7)),
                           ),
                         ],
                       ],
@@ -442,29 +455,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
               
-              // BOUTONS D'ACTION (apparaissent au survol)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.reply, size: 14),
-                      onPressed: () => onReply(message),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                    ),
-                    const SizedBox(width: 8),
-                    if (isMe)
-                      IconButton(
-                        icon: Icon(Icons.delete_outline, size: 14),
-                        onPressed: () => _deleteMessage(message['id'], provider),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                      ),
-                  ],
-                ),
-              ),
+              // BOUTONS D'ACTION (apparaissent au survol, optionnel)
+              // Note: Le long-press est souvent mieux sur mobile
             ],
           ),
         ),
@@ -521,8 +513,8 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  void _showMessageOptions(BuildContext context, Map<String, dynamic> message, ChatProvider provider) {
-    final isMe = message['sender_id'].toString() == provider.currentUserId;
+  void _showMessageOptions(BuildContext context, Map<String, dynamic> message, ChatProvider provider, bool isMe) {
+
     
     showModalBottomSheet(
       context: context,

@@ -177,6 +177,7 @@
   "daysAgo": "منذ {count} أيام",
   "markAllAsRead": "تحديد الكل كمقروء",
   "cancel": "إلغاء",
+  "confirm": "تأكيد",
   "subject": "الموضوع",
   "hintSubject": "مثال: مشكلة في الحجز",
   "message": "الرسالة",

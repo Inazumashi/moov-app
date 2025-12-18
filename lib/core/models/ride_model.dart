@@ -19,6 +19,7 @@ class RideModel {
   final String? vehicleInfo;
   final String? notes;
   final bool isRegularRide;
+  final String status;
 
   // ✅ IDs des stations
   final int? departureStationId;
@@ -40,6 +41,7 @@ class RideModel {
     this.vehicleInfo,
     this.notes,
     this.isRegularRide = false,
+    this.status = 'active',
     this.departureStationId,
     this.arrivalStationId,
   });
@@ -110,6 +112,7 @@ class RideModel {
       vehicleInfo: json['vehicle_details'] ?? json['vehicle_info'],
       notes: json['notes'] ?? '',
       isRegularRide: json['is_regular'] == true || json['is_regular'] == 1,
+      status: json['status'] ?? 'active',
       
       departureStationId: (json['departure_station_id'] is int) 
           ? json['departure_station_id'] as int
@@ -151,6 +154,7 @@ class RideModel {
       'available_seats': availableSeats,
       'price_per_seat': pricePerSeat,
       'is_regular': isRegularRide,
+      'status': status,
     };
 
     // ✅ ENVOYER LES IDs AU BACKEND (PAS LES NOMS)

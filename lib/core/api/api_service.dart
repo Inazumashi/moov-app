@@ -28,15 +28,28 @@ class ApiService {
   // --- GESTION DU TOKEN ---
 
   Future<void> storeToken(String token) async {
-    await _storage.write(key: _tokenKey, value: token);
+    try {
+      await _storage.write(key: _tokenKey, value: token);
+    } catch (e) {
+      print('⚠️ Erreur storeToken: $e');
+    }
   }
 
   Future<String?> getToken() async {
-    return await _storage.read(key: _tokenKey);
+    try {
+      return await _storage.read(key: _tokenKey);
+    } catch (e) {
+      print('⚠️ Erreur getToken: $e');
+      return null;
+    }
   }
 
   Future<void> deleteToken() async {
-    await _storage.delete(key: _tokenKey);
+    try {
+      await _storage.delete(key: _tokenKey);
+    } catch (e) {
+      print('⚠️ Erreur deleteToken: $e');
+    }
   }
 
   // --- PRÉPARATION DES REQUÊTES ---
@@ -55,31 +68,23 @@ class ApiService {
     return headers;
   }
 
-  
-
   // --- GESTION DES RÉPONSES ---
 
   dynamic _handleResponse(http.Response response) {
     if (response.statusCode >= 200 && response.statusCode < 300) {
       return json.decode(response.body);
-    }
-
-    else if (response.statusCode == 401) {
+    } else if (response.statusCode == 401) {
       deleteToken();
       final body = response.body.isNotEmpty ? ' - ${response.body}' : '';
       throw Exception('Session expirée. Veuillez vous reconnecter.$body');
-    }
-
-    else if (response.statusCode == 400) {
+    } else if (response.statusCode == 400) {
       try {
         final errorData = json.decode(response.body);
         throw Exception(errorData['message'] ?? 'Requête incorrecte');
       } catch (e) {
         throw Exception('Erreur dans la requête: ${response.body}');
       }
-    }
-
-    else {
+    } else {
       try {
         final errorData = json.decode(response.body);
         throw Exception(errorData['message'] ?? 'Erreur inconnue');
@@ -98,8 +103,24 @@ class ApiService {
 
     try {
       final headers = await _getHeaders(isProtected: isProtected);
+
+      // Vérification du token pour les routes protégées
+      if (isProtected) {
+        final token = await getToken();
+        if (token == null || token.isEmpty) {
+          print('🔴 Aucun token disponible pour route protégée (GET)');
+          print('🔴 Endpoint: $endpoint');
+          throw Exception('Session expirée. Veuillez vous reconnecter.');
+        }
+        print('🔑 Token trouvé: ${token.substring(0, 20)}...');
+      }
+
       final response = await http.get(url, headers: headers);
       print('📡 Réponse: ${response.statusCode}');
+      if (endpoint.contains('my-rides')) {
+        print(
+            '📊 Body my-rides: ${response.body.substring(0, response.body.length.clamp(0, 500))}...');
+      }
 
       return _handleResponse(response);
     } catch (e) {
@@ -110,7 +131,8 @@ class ApiService {
 
   // ✅ CORRECTION CRITIQUE : isProtected = TRUE par défaut pour POST
   Future<dynamic> post(String endpoint, Map<String, dynamic> data,
-      {bool isProtected = true}) async {  // ✅ CHANGÉ de false à true
+      {bool isProtected = true}) async {
+    // ✅ CHANGÉ de false à true
     final Uri url = Uri.parse('$_baseUrl/$endpoint');
     print('🌐 POST: $url');
     print('📦 Data: $data');
@@ -122,10 +144,10 @@ class ApiService {
       if (isProtected) {
         final token = await getToken();
         if (token == null || token.isEmpty) {
-          print('🔴 Aucun token disponible pour route protégée');
+          print('🔴 Aucun token disponible pour route protégée (POST)');
           throw Exception('Session expirée. Veuillez vous reconnecter.');
         }
-        print('🔑 Token présent: ${token.substring(0, 20)}...');
+        print('🔑 Token présent: ${token.substring(0, 10)}...');
       }
 
       final response = await http.post(
@@ -149,6 +171,16 @@ class ApiService {
 
     try {
       final headers = await _getHeaders(isProtected: isProtected);
+
+      // Vérification du token pour les routes protégées
+      if (isProtected) {
+        final token = await getToken();
+        if (token == null || token.isEmpty) {
+          print('🔴 Aucun token disponible pour route protégée (PUT)');
+          throw Exception('Session expirée. Veuillez vous reconnecter.');
+        }
+      }
+
       final response = await http.put(
         url,
         headers: headers,
@@ -168,6 +200,15 @@ class ApiService {
 
     try {
       final headers = await _getHeaders(isProtected: isProtected);
+
+      // Vérification du token pour les routes protégées
+      if (isProtected) {
+        final token = await getToken();
+        if (token == null || token.isEmpty) {
+          print('🔴 Aucun token disponible pour route protégée (DELETE)');
+          throw Exception('Session expirée. Veuillez vous reconnecter.');
+        }
+      }
 
       final request = http.Request('DELETE', url);
       request.headers.addAll(headers);

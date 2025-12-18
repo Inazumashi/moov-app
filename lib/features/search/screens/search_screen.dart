@@ -20,6 +20,7 @@ class _SearchScreenState extends State<SearchScreen> {
   final TextEditingController _arrivalController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
   bool _showFilters = false;
+  Map<String, dynamic> _currentFilters = {};
 
   // Stocke les objets StationModel pour conserver les IDs
   StationModel? _selectedDepartureStation;
@@ -70,6 +71,11 @@ class _SearchScreenState extends State<SearchScreen> {
       departureId: _selectedDepartureStation!.id,
       arrivalId: _selectedArrivalStation!.id,
       date: _selectedDate,
+      minSeats: _currentFilters['minSeats'],
+      maxPrice: _currentFilters['maxPrice'],
+      minRating: _currentFilters['minRating'],
+      verifiedOnly: _currentFilters['onlyPremium'], // Assuming onlyPremium maps to verifiedOnly in provider
+      availableOnly: _currentFilters['onlyAvailable'],
     );
   }
 
@@ -356,7 +362,13 @@ class _SearchScreenState extends State<SearchScreen> {
         if (_showFilters) ...[
           SearchFiltersSheet(
             onFiltersChanged: (filters) {
-              print('Filtres appliqués: $filters');
+              setState(() {
+                _currentFilters = filters;
+              });
+              // Si nous avons déjà une recherche en cours (stations sélectionnées), on relance
+              if (_selectedDepartureStation != null && _selectedArrivalStation != null) {
+                _searchRides();
+              }
             },
           ),
         ],

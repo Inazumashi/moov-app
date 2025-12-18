@@ -19,11 +19,11 @@ class AppColors {
   static const Color error = Color(0xFFE53E3E);
   static const Color success = Color(0xFF38A169);
 
-  // Couleurs supplémentaires pour le thème sombre
-static const Color darkBackground = Color(0xFF121212);
-static const Color darkAppBar = Color(0xFF1F1F1F);
-static const Color darkCard = Color(0xFF1E1E1E);
-static const Color darkField = Color(0xFF2A2A2A);
+    // Couleurs supplémentaires pour le thème sombre - Palette "Midnight Slate" Premium
+  static const Color darkBackground = Color(0xFF0F172A); // Slate 900
+  static const Color darkAppBar = Color(0xFF1E293B);     // Slate 800
+  static const Color darkCard = Color(0xFF1E293B);       // Slate 800
+  static const Color darkField = Color(0xFF334155);      // Slate 700
 
 
 

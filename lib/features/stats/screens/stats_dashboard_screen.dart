@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:moovapp/core/providers/stats_provider.dart';
 import 'package:moovapp/core/providers/auth_provider.dart';
+import 'dart:ui';
+import 'package:moovapp/features/premium/screens/premium_screen.dart';
 
 class StatsDashboardScreen extends StatefulWidget {
   const StatsDashboardScreen({super.key});
@@ -37,6 +39,85 @@ class _StatsDashboardScreenState extends State<StatsDashboardScreen>
     final authProvider = Provider.of<AuthProvider>(context);
     final userRole = authProvider.currentUser?.profileType ?? 'passenger';
 
+    final isPremium = authProvider.currentUser?.isPremium ?? false;
+
+    // Contenu principal (Stats)
+    Widget content = RefreshIndicator(
+      onRefresh: () async => _loadStats(),
+      child: TabBarView(
+        controller: _tabController,
+        children: [
+          _buildOverviewTab(context, colors, userRole),
+          _buildActivityTab(context, colors),
+        ],
+      ),
+    );
+
+    // Si pas premium, on ajoute le flou et le bouton
+    if (!isPremium) {
+      content = Stack(
+        children: [
+          // Contenu flouté
+          AbsorbPointer(
+            child: ImageFiltered(
+              imageFilter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+              child: content,
+            ),
+          ),
+          // Overlay de verrouillage
+          Center(
+            child: Card(
+              margin: const EdgeInsets.all(32),
+              elevation: 8,
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.lock_outline, size: 60, color: Colors.amber),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Fonctionnalité Premium',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Accédez à votre tableau de bord écologique détaillé et suivez vos économies.',
+                      style: TextStyle(color: colors.onSurfaceVariant),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    FilledButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const PremiumScreen(),
+                          ),
+                        ).then((_) {
+                          // Check if user became premium after returning
+                          setState(() {}); 
+                        });
+                      },
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Colors.amber[700],
+                        foregroundColor: Colors.black,
+                      ),
+                      child: const Text('Débloquer Premium'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: colors.primary,
@@ -53,16 +134,7 @@ class _StatsDashboardScreenState extends State<StatsDashboardScreen>
           ],
         ),
       ),
-      body: RefreshIndicator(
-        onRefresh: () async => _loadStats(),
-        child: TabBarView(
-          controller: _tabController,
-          children: [
-            _buildOverviewTab(context, colors, userRole),
-            _buildActivityTab(context, colors),
-          ],
-        ),
-      ),
+      body: content,
     );
   }
 
@@ -143,6 +215,15 @@ class _StatsDashboardScreenState extends State<StatsDashboardScreen>
                 value: '${stats['co2Saved'] ?? 0} kg',
                 icon: Icons.eco,
                 colors: colors,
+                customColor: Colors.green,
+              ),
+              const SizedBox(height: 12),
+              _buildStatCard(
+                title: 'Économies générées',
+                value: '${stats['moneySaved'] ?? 0} DH',
+                icon: Icons.savings_outlined,
+                colors: colors,
+                customColor: Colors.amber.shade700,
               ),
               if (userRole == 'conductor') ...[
                 const SizedBox(height: 20),
@@ -204,7 +285,10 @@ class _StatsDashboardScreenState extends State<StatsDashboardScreen>
     required String value,
     required IconData icon,
     required ColorScheme colors,
+    Color? customColor,
   }) {
+    final effectiveColor = customColor ?? colors.primary;
+    
     return Card(
       elevation: 2,
       child: Padding(
@@ -214,10 +298,10 @@ class _StatsDashboardScreenState extends State<StatsDashboardScreen>
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: colors.primary.withOpacity(0.1),
+                color: effectiveColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: Icon(icon, color: colors.primary),
+              child: Icon(icon, color: effectiveColor),
             ),
             const SizedBox(width: 16),
             Expanded(

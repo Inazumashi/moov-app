@@ -521,6 +521,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get cancel => 'إلغاء';
 
   @override
+  String get confirm => 'تأكيد';
+
+  @override
   String get subject => 'الموضوع';
 
   @override

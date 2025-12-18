@@ -130,30 +130,7 @@ class WelcomeScreen extends StatelessWidget {
               ),
             ),
 
-            // Bouton Test Backend (positionné en haut à droite)
-            Positioned(
-              top: 16,
-              right: 16,
-              child: TextButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, AppRouter.connectionTest);
-                },
-                style: TextButton.styleFrom(
-                  backgroundColor: Colors.orange,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: const Text(
-                  'Test Backend',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-            ),
+
           ],
         ),
       ),

@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import 'package:moovapp/core/providers/notification_provider.dart';
-import 'package:moovapp/core/models/notification.dart';
+import 'package:moovapp/core/models/notification_model.dart';
 import 'package:moovapp/l10n/app_localizations.dart';
 
 class NotificationsListScreen extends StatefulWidget {
   const NotificationsListScreen({super.key});
 
   @override
-  State<NotificationsListScreen> createState() => _NotificationsListScreenState();
+  State<NotificationsListScreen> createState() =>
+      _NotificationsListScreenState();
 }
 
 class _NotificationsListScreenState extends State<NotificationsListScreen> {
@@ -18,7 +19,7 @@ class _NotificationsListScreenState extends State<NotificationsListScreen> {
     super.initState();
     // Charger les notifications au démarrage
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<NotificationProvider>().loadData();
+      context.read<NotificationProvider>().loadNotifications();
     });
   }
 
@@ -31,7 +32,7 @@ class _NotificationsListScreenState extends State<NotificationsListScreen> {
       backgroundColor: theme.scaffoldBackgroundColor,
       appBar: AppBar(
         title: Text(
-          AppLocalizations.of(context)!.myNotifications,
+          AppLocalizations.of(context)?.myNotifications ?? 'Mes notifications',
           style: TextStyle(
             color: colors.onPrimary,
             fontWeight: FontWeight.bold,
@@ -43,20 +44,13 @@ class _NotificationsListScreenState extends State<NotificationsListScreen> {
           Consumer<NotificationProvider>(
             builder: (context, notificationProvider, child) {
               return IconButton(
-                icon: const Icon(Icons.clear_all),
+                icon: const Icon(Icons.done_all),
                 onPressed: notificationProvider.notifications.isNotEmpty
-                    ? () => _showClearAllDialog(context, notificationProvider)
+                    ? () =>
+                        _showMarkAllReadDialog(context, notificationProvider)
                     : null,
-                tooltip: AppLocalizations.of(context)!.markAllAsRead,
-              );
-            },
-          ),
-          Consumer<NotificationProvider>(
-            builder: (context, notificationProvider, child) {
-              return IconButton(
-                icon: const Icon(Icons.add),
-                onPressed: () => _createDemoNotifications(context, notificationProvider),
-                tooltip: AppLocalizations.of(context)!.createDemoNotifications,
+                tooltip: AppLocalizations.of(context)?.markAllAsRead ??
+                    'Tout marquer comme lu',
               );
             },
           ),
@@ -72,12 +66,16 @@ class _NotificationsListScreenState extends State<NotificationsListScreen> {
             return _buildEmptyState(context);
           }
 
-          return ListView.builder(
-            itemCount: notificationProvider.notifications.length,
-            itemBuilder: (context, index) {
-              final notification = notificationProvider.notifications[index];
-              return _buildNotificationTile(context, notification, notificationProvider);
-            },
+          return RefreshIndicator(
+            onRefresh: () => notificationProvider.loadNotifications(),
+            child: ListView.builder(
+              itemCount: notificationProvider.notifications.length,
+              itemBuilder: (context, index) {
+                final notification = notificationProvider.notifications[index];
+                return _buildNotificationTile(
+                    context, notification, notificationProvider);
+              },
+            ),
           );
         },
       ),
@@ -95,11 +93,12 @@ class _NotificationsListScreenState extends State<NotificationsListScreen> {
           Icon(
             Icons.notifications_none,
             size: 80,
-            color: colors.onSurface.withValues(alpha: 0.3),
+            color: colors.onSurface.withOpacity(0.3),
           ),
           const SizedBox(height: 16),
           Text(
-            AppLocalizations.of(context)!.noNotifications,
+            AppLocalizations.of(context)?.noNotifications ??
+                'Aucune notification',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -108,9 +107,10 @@ class _NotificationsListScreenState extends State<NotificationsListScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            AppLocalizations.of(context)!.noNotificationsDesc,
+            AppLocalizations.of(context)?.noNotificationsDesc ??
+                'Vous n\'avez pas encore reçu de notifications.',
             style: TextStyle(
-              color: colors.onSurface.withValues(alpha: 0.7),
+              color: colors.onSurface.withOpacity(0.7),
             ),
             textAlign: TextAlign.center,
           ),
@@ -121,14 +121,14 @@ class _NotificationsListScreenState extends State<NotificationsListScreen> {
 
   Widget _buildNotificationTile(
     BuildContext context,
-    AppNotification notification,
+    NotificationModel notification,
     NotificationProvider provider,
   ) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
 
     return Dismissible(
-      key: Key(notification.id),
+      key: Key(notification.id.toString()),
       direction: DismissDirection.endToStart,
       background: Container(
         alignment: Alignment.centerRight,
@@ -140,16 +140,11 @@ class _NotificationsListScreenState extends State<NotificationsListScreen> {
         ),
       ),
       onDismissed: (direction) {
-        provider.deleteNotification(notification.id);
+        // Note: deleteNotification à implémenter dans le provider si besoin
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.notificationDeleted),
-            action: SnackBarAction(
-              label: AppLocalizations.of(context)!.undo,
-              onPressed: () {
-                // Note: Dans une vraie app, on restaurerait la notification
-              },
-            ),
+            content: Text(AppLocalizations.of(context)?.notificationDeleted ??
+                'Notification supprimée'),
           ),
         );
       },
@@ -158,13 +153,14 @@ class _NotificationsListScreenState extends State<NotificationsListScreen> {
           backgroundColor: _getNotificationColor(notification.type, colors),
           child: Icon(
             _getNotificationIcon(notification.type),
-            color: colors.onPrimary,
+            color: Colors.white,
           ),
         ),
         title: Text(
           notification.title,
           style: TextStyle(
-            fontWeight: notification.isRead ? FontWeight.normal : FontWeight.bold,
+            fontWeight:
+                notification.isRead ? FontWeight.normal : FontWeight.bold,
             color: colors.onSurface,
           ),
         ),
@@ -172,17 +168,19 @@ class _NotificationsListScreenState extends State<NotificationsListScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              notification.body,
+              notification.message,
               style: TextStyle(
-                color: colors.onSurface.withValues(alpha: 0.7),
+                color: colors.onSurface.withOpacity(0.7),
               ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 4),
             Text(
-              _formatDate(notification.timestamp),
+              _formatDate(notification.createdAt),
               style: TextStyle(
                 fontSize: 12,
-                color: colors.onSurface.withValues(alpha: 0.5),
+                color: colors.onSurface.withOpacity(0.5),
               ),
             ),
           ],
@@ -201,41 +199,44 @@ class _NotificationsListScreenState extends State<NotificationsListScreen> {
           if (!notification.isRead) {
             provider.markAsRead(notification.id);
           }
-          // Ici on pourrait naviguer vers l'écran approprié selon le type de notification
-          _handleNotificationTap(context, notification);
         },
-        tileColor: notification.isRead ? null : colors.primary.withValues(alpha: 0.05),
+        tileColor:
+            notification.isRead ? null : colors.primary.withOpacity(0.05),
       ),
     );
   }
 
-  Color _getNotificationColor(NotificationType type, ColorScheme colors) {
+  Color _getNotificationColor(String type, ColorScheme colors) {
     switch (type) {
-      case NotificationType.newRide:
+      case 'reservation':
         return colors.primary;
-      case NotificationType.newMessage:
+      case 'message':
         return colors.secondary;
-      case NotificationType.bookingUpdate:
-        return Colors.orange;
-      case NotificationType.promotion:
+      case 'confirmation':
         return Colors.green;
-      case NotificationType.general:
-        return colors.error;
+      case 'cancellation':
+        return Colors.red;
+      case 'reminder':
+        return Colors.orange;
+      default:
+        return colors.primary;
     }
   }
 
-  IconData _getNotificationIcon(NotificationType type) {
+  IconData _getNotificationIcon(String type) {
     switch (type) {
-      case NotificationType.newRide:
+      case 'reservation':
         return Icons.directions_car;
-      case NotificationType.newMessage:
+      case 'message':
         return Icons.message;
-      case NotificationType.bookingUpdate:
+      case 'confirmation':
         return Icons.check_circle;
-      case NotificationType.promotion:
-        return Icons.local_offer;
-      case NotificationType.general:
-        return Icons.info;
+      case 'cancellation':
+        return Icons.cancel;
+      case 'reminder':
+        return Icons.alarm;
+      default:
+        return Icons.notifications;
     }
   }
 
@@ -244,70 +245,39 @@ class _NotificationsListScreenState extends State<NotificationsListScreen> {
     final difference = now.difference(date);
 
     if (difference.inDays == 0) {
-      return '${AppLocalizations.of(context)!.today} ${DateFormat('HH:mm').format(date)}';
+      return 'Aujourd\'hui ${DateFormat('HH:mm').format(date)}';
     } else if (difference.inDays == 1) {
-      return '${AppLocalizations.of(context)!.yesterday} ${DateFormat('HH:mm').format(date)}';
+      return 'Hier ${DateFormat('HH:mm').format(date)}';
     } else if (difference.inDays < 7) {
-      return AppLocalizations.of(context)!.daysAgo(difference.inDays);
+      return 'Il y a ${difference.inDays} jours';
     } else {
       return DateFormat('dd/MM/yyyy').format(date);
     }
   }
 
-  void _showClearAllDialog(BuildContext context, NotificationProvider provider) {
+  void _showMarkAllReadDialog(
+      BuildContext context, NotificationProvider provider) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.markAllAsRead),
-        content: Text(AppLocalizations.of(context)!.markAllAsReadQuestion),
+        title: Text(AppLocalizations.of(context)?.markAllAsRead ??
+            'Tout marquer comme lu'),
+        content: Text(AppLocalizations.of(context)?.markAllAsReadQuestion ??
+            'Voulez-vous marquer toutes les notifications comme lues ?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: Text(AppLocalizations.of(context)!.cancel),
+            child: Text(AppLocalizations.of(context)?.cancel ?? 'Annuler'),
           ),
           TextButton(
             onPressed: () {
               provider.markAllAsRead();
               Navigator.of(context).pop();
             },
-            child: Text(AppLocalizations.of(context)!.markAllAsRead),
+            child: Text(AppLocalizations.of(context)?.confirm ?? 'Confirmer'),
           ),
         ],
       ),
     );
-  }
-
-  void _handleNotificationTap(BuildContext context, AppNotification notification) {
-    // Ici on pourrait implémenter la navigation selon le type de notification
-    // Par exemple, aller vers les détails d'un trajet, d'une réservation, etc.
-    switch (notification.type) {
-      case NotificationType.newRide:
-        // Navigator.pushNamed(context, '/ride-details', arguments: notification.data);
-        break;
-      case NotificationType.newMessage:
-        // Navigator.pushNamed(context, '/messages');
-        break;
-      case NotificationType.bookingUpdate:
-        // Navigator.pushNamed(context, '/reservations');
-        break;
-      case NotificationType.promotion:
-        // Navigator.pushNamed(context, '/promotions');
-        break;
-      case NotificationType.general:
-        // Peut-être afficher un dialog avec plus d'infos
-        break;
-    }
-  }
-
-  void _createDemoNotifications(BuildContext context, NotificationProvider provider) async {
-    await provider.createDemoNotifications();
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context)!.demoNotificationsCreated),
-          duration: const Duration(seconds: 2),
-        ),
-      );
-    }
   }
 }
